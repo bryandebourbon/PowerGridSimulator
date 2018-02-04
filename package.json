@@ -1,0 +1,21 @@
+{
+  "name": "pcc-web",
+  "version": "1.0.0",
+  "description": "Web interface for the IEEE U of T Power Case Competition.",
+  "main": "run.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rfairley/pcc-web.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rfairley/pcc-web/issues"
+  },
+  "homepage": "https://github.com/rfairley/pcc-web#readme",
+  "dependencies": {}
+}

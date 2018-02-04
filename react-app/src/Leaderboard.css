@@ -1,0 +1,25 @@
+.leaderboard{
+    text-align: center;
+    margin: auto 3%;
+}
+
+.mdc-list-item{
+    padding: 0 1rem;
+}
+
+.mdc-list-item>span.nomedal{
+    background-color: var(--color4);
+    color:black;
+}
+
+.gold svg{
+    fill: gold;
+}
+
+.silver svg{
+    fill: silver;
+}
+
+.bronze svg{
+    fill: #CD7F32;
+}

@@ -1,0 +1,14 @@
+.submission {
+    text-align: center;
+}
+
+#submit{
+    display: block;
+    margin: auto;
+}
+
+.login input{
+    font-size: 1rem;
+    margin: 1rem auto;
+    transition: all 0.3s ease;
+}
