@@ -3,7 +3,7 @@ Web interface for the IEEE U of T Power Case Competition.
 
 ## To download and run:
 
-<code>git clone https://github.com/rfairley/pcc-web.git</code>
+<code>git clone https://github.com/bryandebourbon/PowerGridSimulator.git (new version)</code>
 <br>
 <code>cd ./pcc-web</code>
 <br>
