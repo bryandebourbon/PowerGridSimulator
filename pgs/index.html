@@ -17,7 +17,9 @@
     </head>
     <body>
     	<div ng-app="PowerGridSimulator" ng-controller="PowerGridSimulatorController">
-			<login-directive></login-directive>
+			<login-directive ng-show="state=='login'"></login-directive>
+			<challenges-directive ng-show="state=='challenges'"></challenges-directive>
+			<grid-directive ng-show="state=='grid'"></grid-directive>
 		</div>
 	</body>
 </html>

@@ -16,6 +16,19 @@ app.service('LoginService', function () {
 	this.login = function () { return login (); }
 })
 
+app.service('ChallengesService', function () {
+	var init = function () {
+		console.log('Challenges service initiated.');
+	}
+
+	var viewChallenge = function (cid) {
+		console.log('Redirect to challenge ' + cid);
+	}
+
+	this.init = function () { return init(); }
+	this.viewChallenge = function (cid) { return viewChallenge(cid); }
+})
+
 app.service('GridService', function () {
 	var init = function () {
 		console.log('Grid service initiated.');

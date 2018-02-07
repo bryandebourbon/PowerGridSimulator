@@ -1,0 +1,20 @@
+<div class="pgs-page">
+    <table class="table table-hover">
+        <thead>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th></th>
+        </thead>
+        <tbody>
+            <tr ng-repeat="challenge in challenges">
+                <td class="pgs-td">{{challenge.id}}</td>
+                <td class="pgs-td">{{challenge.name}}</td>
+                <td class="pgs-td">{{challenge.status}}</td>
+                <td class="pgs-td">
+                    <button class="btn btn-default pgs-btn" ng-click="viewChallenge(challenge.id)">View</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -9,3 +9,6 @@
 	width: 120px;
 	margin: 6px;
 }
+.pgs-td {
+	vertical-align: middle !IMPORTANT;
+}
