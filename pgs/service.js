@@ -3,8 +3,17 @@ app.service('LoginService', function () {
 		console.log('Login service initiated.');
 	}
 
+	var register = function () {
+		console.log('User registered.');
+	}
 
-	this.init = init;
+	var login = function () {
+		console.log('Login successful.');
+	}
+
+	this.init = function () { return init(); };
+	this.register = function () { return register(); }
+	this.login = function () { return login (); }
 })
 
 app.service('GridService', function () {

@@ -1,3 +1,11 @@
-#login-page {
+.pgs-page {
 	margin: 24px;
+}
+.pgs-input {
+	width: 360px;
+	margin: 6px;
+}
+.pgs-btn {
+	width: 120px;
+	margin: 6px;
 }
