@@ -9,6 +9,17 @@
 	width: 120px;
 	margin: 6px;
 }
+.pgs-btn-wide {
+	width: 240px;
+}
 .pgs-td {
 	vertical-align: middle !IMPORTANT;
+}
+
+/* overwritting bootstrap classes */
+.navbar {
+	margin-bottom: 0 !IMPORTANT;
+}
+.navbar-brand {
+	height: 36px !IMPORTANT;
 }

@@ -14,16 +14,18 @@ var loginDirectiveController = ['$scope', '$rootScope', 'LoginService', function
 	$scope.username = '';
 	$scope.password = '';
 
+	// uid refers to user id (effectively team id)
+	// we later retrieve a list of challenges visible to a uid
 	$scope.register = function () {
 		$LoginService.register();
 
-		$rootScope.$broadcast('pgsStateChanged', { state: 'challenges' });
+		$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', uid: 1 });
 	}
 
 	$scope.login = function () {
 		$LoginService.login();
 	
-		$rootScope.$broadcast('pgsStateChanged', { state: 'challenges' });
+		$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', uid: 1 });
 	}
 }]
 
@@ -44,10 +46,22 @@ var challengesDirectiveController = ['$scope', '$rootScope', 'ChallengesService'
 							{ id: 4, name: 'pgsChallenge', status: 'saved' },
 							{ id: 11, name: 'pgsChallenge', status: 'new' }];
 
-	$scope.viewChallenge = function (cid) {
-		$ChallengesService.viewChallenge(cid);
+	// cid refers to challenge id
+	// we later retrieve grid layout using cid
+	// we later retrieve generator placement using cid + uid combination
+	$scope.previewChallenge = function (cid) {
+		// show problem statement
+		// show minimap contaning grid layout
+		$ChallengesService.previewChallenge(cid);
+	}
 
-		$rootScope.$broadcast('pgsStateChanged', { state: 'grid' });
+	$scope.simulateChallenge = function (cid) {
+		// go to the grid page
+
+		var uid = 1;
+		$ChallengesService.simulateChallenge(cid, uid);
+
+		$rootScope.$broadcast('pgsStateChanged', { state: 'grid', cid: cid });
 	}
 }]
 
@@ -63,5 +77,5 @@ app.directive('gridDirective', function () {
 })
 
 var gridDirectiveController = ['$scope', '$rootScope', 'GridService', function ($scope, $rootScope, $GridService) {
-	
+	$scope.challenge = {}
 }]

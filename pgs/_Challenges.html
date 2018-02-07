@@ -12,7 +12,8 @@
                 <td class="pgs-td">{{challenge.name}}</td>
                 <td class="pgs-td">{{challenge.status}}</td>
                 <td class="pgs-td">
-                    <button class="btn btn-default pgs-btn" ng-click="viewChallenge(challenge.id)">View</button>
+                    <button class="btn btn-default pgs-btn" ng-click="previewChallenge(challenge.id)">Preview</button>
+                    <button class="btn btn-default pgs-btn" ng-click="simulateChallenge(challenge.id)">Simulate</button>
                 </td>
             </tr>
         </tbody>

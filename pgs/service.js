@@ -21,12 +21,17 @@ app.service('ChallengesService', function () {
 		console.log('Challenges service initiated.');
 	}
 
-	var viewChallenge = function (cid) {
-		console.log('Redirect to challenge ' + cid);
+	var previewChallenge = function (cid) {
+		console.log('Preview challenge ' + cid);
+	}
+
+	var simulateChallenge = function (cid) {
+		console.log('Simulate challenge ' + cid);
 	}
 
 	this.init = function () { return init(); }
-	this.viewChallenge = function (cid) { return viewChallenge(cid); }
+	this.previewChallenge = function (cid) { return previewChallenge(cid); }
+	this.simulateChallenge = function (cid, uid) { return simulateChallenge(cid, uid); }
 })
 
 app.service('GridService', function () {
@@ -34,7 +39,7 @@ app.service('GridService', function () {
 		console.log('Grid service initiated.');
 	}
 
-	this.init = init;
+	this.init = function () { return init(); };
 })
 
 app.service('EvaluationService', function () {
