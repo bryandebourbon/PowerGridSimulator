@@ -3,8 +3,24 @@
         <svg id="simulator-svg" ng-init="renderGrid()"></svg>
     </div>
     <div class="col-xs-6">
-        <div>{{node.name}}</div>
-        <div>Demand Profile: {{node.demand}}</div>
-        <div>Generator Configurations: {{node.generators}}</div>
+        <div class="pgs-node-profile">
+            <div>{{node.name}}</div>
+            <div class="pgs-demand">
+                <div>Demand Profile</div>
+                <div>{{node.demand}}</div>
+            </div>
+            <div class="pgs-generator">
+                <div>Generator Configurations</div>
+                <span ng-repeat="generator in node.generators | filter : generatorFilter">
+                    <button class="btn btn-light" ng-click="removeGenerator(generator)">{{generator.type}} ({{generator.count}})</button>
+                </span>
+            </div>
+        </div>
+        <div class="pgs-inventory-profile">
+            <div>Inventory</div>
+            <span ng-repeat="generator in inventory | filter : generatorFilter">
+                <button class="btn btn-light" ng-click="addGenerator(generator)">{{generator.type}} ({{generator.count}})</button>
+            </span>
+        </div>
     </div>
 </div>

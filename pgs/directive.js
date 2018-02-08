@@ -82,10 +82,10 @@ var challengeDirectiveController = ['$scope', '$rootScope', 'ChallengeService', 
 		name: 'Challenge 1',
 		description: 'This is the challenge description',
 		map: {
-			nodes: [{ id: 1, name: 'Toronto', cx: 100, cy: 100, r: 30, demand: 'This is the demand profile for Toronto', generators: [1, 2, 3]},
-					{ id: 2, name: 'Hamilton', cx: 200, cy: 200, r: 20, demand: 'This is the demand profile for Hamilton', generators: [3, 2, 5] },
-					{ id: 3, name: 'Ajax', cx: 300, cy: 100, r: 18, demand: 'This is the demand profile for Ajax', generators: [1, 4, 6] },
-					{ id: 4, name: 'Brampton', cx: 200, cy: 100, r: 12, demand: 'This is the demand profile for Brampton', generators: [0, 1, 3] }],
+			nodes: [{ id: 1, name: 'Toronto', cx: 100, cy: 100, r: 60, demand: 'This is the demand profile for Toronto', generators: [] },
+					{ id: 2, name: 'Hamilton', cx: 200, cy: 200, r: 40, demand: 'This is the demand profile for Hamilton', generators: [] },
+					{ id: 3, name: 'Ajax', cx: 300, cy: 100, r: 36, demand: 'This is the demand profile for Ajax', generators: [] },
+					{ id: 4, name: 'Brampton', cx: 200, cy: 100, r: 24, demand: 'This is the demand profile for Brampton', generators: [] }],
 			links: [{ source: 1, target: 2, value: 3 },
 					{ source: 1, target: 3, value: 4 },
 					{ source: 1, target: 4, value: 3 },
@@ -190,4 +190,35 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 	}
 
 	$scope.node = _.find($scope.map.nodes, function (n) { return n.id == 1; });
+
+	$scope.inventory = [{ type: 'solar', count: 5 },
+						{ type: 'hydro', count: 2 },
+						{ type: 'wind', count: 1 },
+						{ type: 'nuclear', count: 3 }];
+
+	$scope.removeGenerator = function (generator) {
+		var target = _.find($scope.inventory, function (i) { return i.type == generator.type; });
+		if (target) {
+			target.count ++;
+		} else {
+			$scope.inventory.push({ type: generator.type, count: 1 });
+		}
+
+		generator.count --;
+	}
+
+	$scope.addGenerator = function (generator) {
+		var target = _.find($scope.node.generators, function (g) { return g.type == generator.type; });
+		if (target) {
+			target.count ++;
+		} else {
+			$scope.node.generators.push({ type: generator.type, count: 1 });
+		}
+
+		generator.count --;
+	}
+
+	$scope.generatorFilter = function (generator) {
+		return generator && generator.count > 0;
+	}
 }]

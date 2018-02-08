@@ -22,6 +22,11 @@
 	margin: 24px;
 }
 
+.pgs-inventory-profile {
+	margin-top: 48px;
+	height: 72px;
+}
+
 /* overwritting bootstrap classes */
 .navbar {
 	margin-bottom: 0 !IMPORTANT;
