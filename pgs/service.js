@@ -34,9 +34,17 @@ app.service('ChallengesService', function () {
 	this.simulateChallenge = function (cid, uid) { return simulateChallenge(cid, uid); }
 })
 
-app.service('GridService', function () {
+app.service('ChallengeService', function () {
 	var init = function () {
-		console.log('Grid service initiated.');
+		console.log('Challenge service initiated.');
+	}
+
+	this.init = function () { return init(); };
+})
+
+app.service('SimulatorService', function () {
+	var init = function () {
+		console.log('Simulator service initiated.');
 	}
 
 	this.init = function () { return init(); };

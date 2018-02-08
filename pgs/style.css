@@ -15,6 +15,12 @@
 .pgs-td {
 	vertical-align: middle !IMPORTANT;
 }
+.pgs-tab {
+	cursor: pointer;
+}
+.pgs-tab-content {
+	margin: 24px;
+}
 
 /* overwritting bootstrap classes */
 .navbar {
