@@ -14,13 +14,33 @@
 
 		<script src="./app.js"></script>
 		<script src="./service.js"></script>
-		<script src="./directive.js"></script>
+        <script src="./directive.js"></script>
+        
+        <script>
+            var fakeAPI = function (name, parameters, resolve) {
+                // console.log('Making API call ' + name + ' with parameters ' + parameters);
+
+                return true;
+            }
+
+            var guid = function () {
+                var s4 = function () {
+                    return Math.floor((1 + Math.random()) * 0x10000)
+                        .toString(16)
+                        .substring(1);
+                }
+
+                return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+                    s4() + '-' + s4() + s4() + s4();
+            }
+        </script>
     </head>
     <body>
     	<div ng-app="PowerGridSimulator" ng-controller="PowerGridSimulatorController">
-			<login-directive ng-show="state=='login'"></login-directive>
-			<challenges-directive ng-show="state=='challenges'"></challenges-directive>
-			<challenge-directive ng-show="state=='grid'"></challenge-directive>
+			<login-directive ng-if="state=='login'"></login-directive>
+			<challenges-directive ng-if="state=='challenges'" challenges="challenges"></challenges-directive>
+			<challenge-directive ng-if="state=='grid'" challenge="challenge"></challenge-directive>
+			<evaluation-directive ng-if="state=='evaluation'" evaluation="evaluation"></challenge-directive>
 		</div>
 	</body>
 </html>

@@ -11,16 +11,19 @@
             </div>
             <div class="pgs-generator">
                 <div>Generator Configurations</div>
-                <span ng-repeat="generator in node.generators | filter : generatorFilter">
-                    <button class="btn btn-light" ng-click="removeGenerator(generator)">{{generator.type}} ({{generator.count}})</button>
+                <span ng-repeat="generator in node.generators | orderBy : ['type', 'capacity']">
+                    <button class="btn btn-light" ng-click="removeGenerator(generator)">{{generator.type}}, capacity: {{generator.capacity}}</button>
                 </span>
             </div>
         </div>
         <div class="pgs-inventory-profile">
             <div>Inventory</div>
-            <span ng-repeat="generator in inventory | filter : generatorFilter">
-                <button class="btn btn-light" ng-click="addGenerator(generator)">{{generator.type}} ({{generator.count}})</button>
+            <span ng-repeat="aggregatedGenerator in aggregatedInventory | filter : generatorFilter | orderBy: 'type'">
+                <button class="btn btn-light" ng-click="viewAggregatedGenerator(aggregatedGenerator)">{{aggregatedGenerator.type}} ({{aggregatedGenerator.generators.length}})</button>
             </span>
+        </div>
+        <div ng-show="expandAggregatedGenerator" ng-repeat="generator in aggregatedGenerator.generators | orderBy : 'capacity'">
+            <button class="btn btn-light" ng-click="addGenerator(generator)">{{generator.type}}, capacity: {{generator.capacity}}</button>
         </div>
     </div>
 </div>

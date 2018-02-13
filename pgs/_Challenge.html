@@ -1,17 +1,18 @@
 <div class="pgs-page">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand nav-link">{{challenge.name}}</a>
+        <button class="btn btn-default pgs-submit-btn" ng-click="submitChallenge(challenge)">Submit</button>
     </nav>    
     <ul class="nav nav-tabs nav-justified">
         <li class="nav-link pgs-tab active" ng-click="switchTab($event)" data-tab="statement"><a>Challenge Statement</a></li>
         <li class="pgs-tab" ng-click="switchTab($event)" data-tab="simulation"><a class="nav-link">Challenge Simulation</a></li>
     </ul>
 
-    <div class="pgs-tab-content" ng-show="tab=='statement'">
+    <div class="pgs-tab-content" ng-if="tab=='statement'">
         {{challenge.description}}
     </div>
 
-    <div class="pgs-tab-content" ng-show="tab=='simulation'">
-        <simulator-directive map="challenge.map"></simulator-directive>
+    <div class="pgs-tab-content" ng-if="tab=='simulation'">
+        <simulator-directive inventory="challenge.inventory" nodes="challenge.nodes" links="challenge.links"></simulator-directive>
     </div>
 </div>

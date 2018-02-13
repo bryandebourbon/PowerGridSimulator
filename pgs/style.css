@@ -26,6 +26,9 @@
 	margin-top: 48px;
 	height: 72px;
 }
+.pgs-submit-btn {
+	float: right;
+}
 
 /* overwritting bootstrap classes */
 .navbar {
