@@ -20,6 +20,25 @@
             var fakeAPI = function (name, parameters, resolve) {
                 // console.log('Making API call ' + name + ' with parameters ' + parameters);
 
+                // making AJAX function call
+                var url = 'https://reqres.in/api/users';
+                var type = 'GET';
+                var data = { page: 2 };
+                var success = function (data) {
+                    console.log(data);
+                }
+                var error = function (reason) {
+                    console.log(reason);
+                }
+
+                $.ajax({
+                    url: url,
+                    type: type,
+                    data: data,
+                    success: success,
+                    error: error
+                })
+
                 return true;
             }
 
