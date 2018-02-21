@@ -57,7 +57,7 @@ class PgsimutilsTestCase(unittest.TestCase):
         ]
 
     def test_calc_gen_values(self):
-        ppc_utils.calc_gen_values(self.gen_placements)
+        ppc_utils.build_gen_matrices(self.gen_placements)
 
     def test_calc_score(self):
         eval_pg.calc_score(self.gen_placements)
