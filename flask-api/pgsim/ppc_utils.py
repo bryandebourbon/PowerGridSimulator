@@ -104,6 +104,8 @@ def build_gen_matrices(gen_placements):
     assert node_count == len(gen_placements), "Must specify generator placements at all nodes"
     gens = np.zeros((0, 2)) # First column - node index (1-based), second column - name of gen type
 
+    # Concatenate the generation capacity and cost matrics, and identify
+    # negative demands (nuclear, wind, and solar).
     for node, placement in enumerate(gen_placements):
         for gen_type, count in placement.items():
             if count == 0: continue
@@ -125,6 +127,7 @@ def build_gen_matrices(gen_placements):
 def build_bus_data(gen_placements):
     assert node_count == len(gen_placements), "Must specify generator placements at all nodes"
 
+    # Update the BUS_TYPE column according to generator placements. 
     for node, placement in enumerate(gen_placements):
         if sum(placement.values()) > 0 and bus_data[node, 1] == 1:
             bus_data[node, 1] = 2
