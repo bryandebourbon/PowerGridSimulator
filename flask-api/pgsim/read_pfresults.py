@@ -24,13 +24,6 @@ from pypower.isload import isload
 from pypower.run_userfcn import run_userfcn
 from pypower.ppoption import ppoption
 
-'''
-pf_metrics:
-- f
-- load
-- tranmission
-- loss
-'''
 # NOTE: All indices out of this function will be zero-based.
 def convert_to_metrics(baseMVA, bus=None, gen=None, branch=None, f=None, success=None,
             et=None, fd=None, ppopt=None):

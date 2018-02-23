@@ -4,8 +4,8 @@ import numpy as np
 
 # Hardcoded transmission limits for all lines. The limits are constant over time.
 # The lines are designed to connect adjacent Ontario power zones. 
-# TODO: Update these limits with realistic transmission line values, and read 
-# from csv or database. 
+# TODO: Update these limits with realistic transmission line values (pending 
+# Kevin's input), and read from csv or database. 
 transmission_limits = np.array([ 
     # fbus, tbus,   r,       x,        b, rateA, rateB, rateC, ratio, angle, status, angmin, angmax
         [1,   2, 0.01938, 0.05917, 0.0528, 9900,    0,      0,   0,     0,      1,     -360, 360],
@@ -26,20 +26,20 @@ transmission_limits = np.array([
 # == number of timesteps; number of columns == number of buses.)
 # TODO: Read a longer time series of the demand profiles from csv or database.
 real_demand_profiles = np.array([ 
-    [485,1453,958,1212,5774,1021,71,3078,472,1398],
-    [485,1452,955,1212,5777,1020,71,3081,472,1400],
-    [485,1452,953,1213,5781,1019,71,3084,473,1402],
-    [484,1451,950,1213,5784,1019,71,3087,473,1404],
-    [484,1450,947,1213,5787,1018,71,3089,473,1406],
-    [484,1450,944,1213,5791,1017,71,3092,473,1408]
+    [4.85, 14.53, 9.58,  12.12, 57.74, 10.21, 0.71,   30.78, 4.72,  13.98],
+    [4.85, 14.52, 9.55,  12.12, 57.77, 10.20, 0.71,   30.81, 4.72,  14.00],
+    [4.85, 14.52, 9.53,  12.13, 57.81, 10.19, 0.71,   30.84, 4.73,  14.02],
+    [4.84, 14.51, 9.50,  12.13, 57.84, 10.19, 0.71,   30.87, 4.73,  14.04],
+    [4.84, 14.50, 9.47,  12.13, 57.87, 10.18, 0.71,   30.89, 4.73,  14.06],
+    [4.84, 14.50, 9.44,  12.13, 57.91, 10.17, 0.71,   30.92, 4.73,  14.08]
 ])
 reactive_demand_profiles = np.array([
-    [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0]
+    [ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
+    [ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
+    [ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
+    [ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
+    [ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
+    [ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.]
 ])
 timestep_count = real_demand_profiles.shape[0]
 node_count = real_demand_profiles.shape[1]
@@ -48,7 +48,6 @@ assert node_count == real_demand_profiles.shape[1], "Demand profiles for real po
 
 # Specs of buses. Note that the Pd Qd here are dummy values and will be updated
 # with the values in *_demand_profiles matrices. Vm Va are calculated by runopf().
-# TODO: Update these with Ontario bus specs. 
 bus_data = np.array([
     # bus_i type Pd     Qd  Gs Bs area Vm     Va baseKV zone Vmax Vmin
         [1,  3,  0,    0,   0, 0,  1, 1.06,    0,    0, 1, 1.06, 0.94],
@@ -66,39 +65,47 @@ assert node_count == bus_data.shape[0], "Demand profiles and bus data must speci
 
 # Specs of generators. Note that the Pmax Qmax here are dummy values and will be
 # updated given the generator placements. Pg Qg are calculated by runopf().
-# TODO: Update these with real specs. 
 gen_baseline = np.array(
     # bus,  Pg, Qg, Qmax, Qmin, Vg, mBase, status, Pmax, Pmin, ...
-        [1, 0,  0,  332.4, -332.4,  1.00,  100, 1, 332.4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        [1, 0,  0,  0,      0,  1.00,  100, 1, 332.4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     )
 
-# Hardcoded generator capacity profiles for each generator type over a time series.
-# TODO: Update these with realistically estimated values, over a longer time 
-# series, and read from csv or database.
-# TODO: Consider making these profiles location-dependent; e.g. not all 
+# Hardcoded generator parameters for each generator type over a time series.
+# TODO: Update the cost functions (pending Kevin's input).
+# TODO: Read these from csv or database (?) and over longer time series.
+# TODO: Consider making the capacity location-dependent; e.g. not all 
 # locations can support a lot of hydro generation.
-real_gen_caps = {
-    "G":   np.array([200, 400, 600, 600, 400, 400]), 
-    "H":   np.array([200, 400, 600, 600, 400, 400]), 
-    "N":   np.array([300, 300, 300, 300, 300, 300]), 
-    "S":   np.array([50, 70, 110, 120, 120, 60]),
-    "W":   np.array([40, 60, 100, 110, 110, 50])
-}
-for _, gen_profile in real_gen_caps.items():
-    assert (timestep_count == gen_profile.shape[0]), "Demand profiles and generation profiles must specify the same number of timesteps"
-
-# Hardcoded generator cost profiles for each generator type, constant over time.
-# Here we are assuming 2nd order polynomial factors, which is up to change.
-# TODO: Update these with realistic cost functions. 
 # TODO: Consider making the cost time-dependent; e.g. cheaper to generator at night.
-real_gen_cost = {
-                   # 2 startup shutdown n c(n-1) ... c0
-    "G":   np.array([2, 0., 0., 3, 0.25, 10, 0]), 
-    "H":   np.array([2, 0., 0., 3, 0.25, 10, 0]), 
-    "N":   np.array([2, 0., 0., 3, 0.2, 20, 0]), 
-    "S":   np.array([2, 0., 0., 3, 0.05, 5, 0]),
-    "W":   np.array([2, 0., 0., 3, 0.05, 5, 0])
+gen_types = {
+    "G":   {"real_capacity": np.full((6), 25), 
+            "reactive_capacity": np.zeros(6),
+            "real_cost": np.array([2, 0., 0., 3, 0.25, 10, 0]),
+            "count": 10,
+            "per_node_limit": {node:10 for node in range(10)}},
+    "H":   {"real_capacity": np.full((6), 12), 
+            "reactive_capacity": np.zeros(6),
+            "real_cost": np.array([2, 0., 0., 3, 0.25, 10, 0]),
+            "count": 10,
+            "per_node_limit": {0:1, 1:2, 2:0, 3:2, 4:0, 5:1, 6:0, 7:1, 8:2, 9:1}}, 
+    "N":   {"real_capacity": np.full((6), 25), 
+            "reactive_capacity": np.zeros(6),
+            "real_cost": np.array([2, 0., 0., 3, 0.2, 20, 0]),
+            "count": 10,
+            "per_node_limit": {node:10 for node in range(10)}}, 
+    "S":   {"real_capacity": np.array([0.065, 0.18, 0.235, 0.31, 0.325, 0.245]), 
+            "reactive_capacity": np.zeros(6),
+            "real_cost": np.array([2, 0., 0., 3, 0.05, 5, 0]),
+            "count": 10,
+            "per_node_limit": {node:5 for node in range(10)}},
+    "W":   {"real_capacity": np.array([5.374, 5.61, 5.612, 5.718, 5.31, 4.534]), 
+            "reactive_capacity": np.zeros(6),
+            "real_cost": np.array([2, 0., 0., 3, 0.05, 5, 0]),
+            "count": 10,
+            "per_node_limit": {node:10 for node in range(10)}}
 }
+
+for _, gen_profile in gen_types.items():
+    assert (timestep_count == gen_profile["real_capacity"].shape[0]), "Demand profiles and generation profiles must specify the same number of timesteps"
 
 def build_gen_matrices(gen_placements):
     assert node_count == len(gen_placements), "Must specify generator placements at all nodes"
@@ -113,14 +120,15 @@ def build_gen_matrices(gen_placements):
                 temp = np.array([[node + 1, gen_type],] * count)
                 gens = np.vstack((gens, temp))
             else: # Simply a negative demand, no need to go through runopf()
-                real_demand_profiles[:, node] -= real_gen_caps[gen_type]
+                real_demand_profiles[:, node] -= gen_types[gen_type]["real_capacity"]
                 # TODO: Add a fixed cost for negative demands. 
+
     gen_count = gens.shape[0]
 
     gen_caps =  np.vstack([gen_baseline] * gen_count)
     gen_caps[:,0] = gens[:,0].astype(int)
 
-    gen_costs = np.array([real_gen_cost[gen[1]] for gen in gens])
+    gen_costs = np.array([gen_types[gen[1]]["real_cost"] for gen in gens])
     
     return gens[:,1], gen_caps, gen_costs
 

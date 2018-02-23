@@ -62,7 +62,8 @@ def register_cli(current_app):
 
 # The following functions are example operations that the front-end can call us to do.
 # The specific route and methods will be modified later to reflect our frontend's real needs.
-# The code will also be modified to work with firebase. 
+# The code will also be modified to work with firebase.
+# TODO(Mel) 
 def register_routes(current_app):
     @current_app.route('/')
     def show_entries(): # An example to perform some kind of showing the current db entries

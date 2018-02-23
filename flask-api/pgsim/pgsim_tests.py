@@ -10,6 +10,8 @@ import numpy as np
 from pypower import case14
 from pypower.api import runpf, runopf
 
+import json
+
 class PypowerTestCase(unittest.TestCase):
     def test_runpf_case14(self):
         ppc = case14.case14()
@@ -38,7 +40,7 @@ class PypowerTestCase(unittest.TestCase):
         np.testing.assert_array_almost_equal(pf_metrics["buses"], expected_bus_data)
 
     def test_runopf(self):
-        # TODO: Find a test case for runopf.
+        # TODO: Find a test case for runopf (pending Kevin's input).
         assert True
 
 class PgsimutilsTestCase(unittest.TestCase):
@@ -62,21 +64,37 @@ class PgsimutilsTestCase(unittest.TestCase):
     def test_calc_score(self):
         eval_pg.calc_score(self.gen_placements)
 
-# TODO: Add tests testing the submit routine.
-
-# TODO: Add tests testing the whole flow.
 class PgsimTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.db_fd, pgsim.pgsim_app.config['DATABASE'] = tempfile.mkstemp()
+        #self.db_fd, pgsim.pgsim_app.config['DATABASE'] = tempfile.mkstemp()
         pgsim.pgsim_app.testing = True
         self.app = pgsim.pgsim_app.test_client()
-        with pgsim.pgsim_app.app_context():
-            pgsim.db_utils.init_db()
+        #with pgsim.pgsim_app.app_context():
+        #    pgsim.db_utils.init_db()
 
-    def tearDown(self):
-        os.close(self.db_fd)
-        os.unlink(pgsim.pgsim_app.config['DATABASE'])
+    def test_get_challenge(self):
+        rv = self.app.get('/getChallenge/')
+        print(rv.data)
+
+    def test_submit(self):
+        placements = [ {"node": 0, "generators": {} }, 
+                    {"node": 1, "generators": {'H': 1}},
+                    {"node": 2, "generators": {"N": 1}},
+                    {"node": 3, "generators": {"G": 1}},
+                    {"node": 4, "generators": {"S": 1}},
+                    {"node": 5, "generators": {"W": 1}},
+                    {"node": 6, "generators": {"H":1, "N": 1}},
+                    {"node": 7, "generators": {"G": 1, "S": 1}},
+                    {"node": 8, "generators": {"G": 1, "S": 1, "W": 1}},
+                    {"node": 9, "generators": {"H": 1, "N":1, "G":1, "S":1, "W":1}}]
+        rv = self.app.post('/submit/', data=json.dumps(placements),
+                       content_type='application/json', headers={"username": "ourteam"})
+        print(rv.data)
+
+    #def tearDown(self):
+        #os.close(self.db_fd)
+        #os.unlink(pgsim.pgsim_app.config['DATABASE'])
 
 if __name__ == '__main__':
     unittest.main()

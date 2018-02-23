@@ -4,7 +4,7 @@ import copy
 import numpy as np
 import read_pfresults
 import ppc_utils
-from ppc_utils import real_gen_caps
+from ppc_utils import gen_types
 from pypower.idx_bus import BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, \
     VM, VA, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, REF
 from pypower.idx_gen import GEN_BUS, PG, QG, QMAX, QMIN, GEN_STATUS, \
@@ -13,7 +13,7 @@ from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, \
     TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST
 
 # TODO: Return more info back up for the students to see; e.g. transmission line
-# usage, demand for each node, etc.
+# usage, demand for each node, environmental impact (pending Kevin's imput), etc.
 def calc_score(gen_placements):
     gens, gen_caps, gen_costs = ppc_utils.build_gen_matrices(gen_placements)
     bus_data = ppc_utils.build_bus_data(gen_placements)
@@ -37,7 +37,7 @@ def calc_score(gen_placements):
 
         # Fill in the timestep-specific generation capacities.
         cur_gen = copy.deepcopy(gen_caps)
-        cur_gen[:, PMAX] = np.array([real_gen_caps[gen][time] for gen in gens])
+        cur_gen[:, PMAX] = np.array([gen_types[gen]["real_capacity"][time] for gen in gens])
         cur_gen[:, QMAX] = 0.75 * cur_gen[:, PMAX]
         cur_gen[:, QMIN] = -0.75 * cur_gen[:, PMAX]
         ppc["gen"] = cur_gen
