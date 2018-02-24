@@ -1,8 +1,8 @@
 import os
-import pgsim
-import read_pfresults
-import eval_pg
-import ppc_utils
+import pgsim.pgsim
+import pgsim.read_pfresults
+import pgsim.eval_pg
+import pgsim.ppc_utils
 import unittest
 import tempfile
 import numpy as np
@@ -16,7 +16,7 @@ class PypowerTestCase(unittest.TestCase):
     def test_runpf_case14(self):
         ppc = case14.case14()
         pf_results, _ = runpf(ppc)
-        pf_metrics = read_pfresults.convert_to_metrics(pf_results)
+        pf_metrics = pgsim.read_pfresults.convert_to_metrics(pf_results)
 
         # Taken from the IEEE 14 case definition; note that there is no expected
         # value for branch data. 
@@ -59,10 +59,10 @@ class PgsimutilsTestCase(unittest.TestCase):
         ]
 
     def test_calc_gen_values(self):
-        ppc_utils.build_gen_matrices(self.gen_placements)
+        pgsim.ppc_utils.build_gen_matrices(self.gen_placements)
 
     def test_calc_score(self):
-        eval_pg.calc_score(self.gen_placements)
+        pgsim.eval_pg.calc_score(self.gen_placements)
 
 class PgsimTestCase(unittest.TestCase):
 
