@@ -19,7 +19,15 @@ After you clone the repository, open the terminal in /pcc-web directory, run
 ### The long way
 **Run Flask Only**
 <br>
-<code>FLASK_APP=./flask-api/pcc-api.py flask run</code>
+<code>cd flask-api/</code>
+<br>
+<code>pip install --editable .</code>
+<br>
+<code>export FLASK_APP=pgsim.pgsim</code>
+<br>
+<code>export FLASK_DEBUG=true</code>
+<br>
+<code>flask run</code>
 
 **Run React Only**
 <br>
