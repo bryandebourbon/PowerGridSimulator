@@ -42,3 +42,10 @@
 	width: 500px;
     height: 500px;
 }
+
+.journey{
+  fill: none;
+  stroke: white;
+  stroke-width: 1;
+  stroke-dasharray: 1px,2px;
+}
