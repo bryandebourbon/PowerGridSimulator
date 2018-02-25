@@ -82,7 +82,7 @@ app.directive('challengeDirective', function () {
 })
 
 var challengeDirectiveController = ['$scope', '$rootScope', 'ChallengeService', function ($scope, $rootScope, $ChallengeService) {
-	$scope.tab = 'statement';
+	$scope.tab = 'simulation';
 
 	$scope.switchTab = function (evt) {
 		if (evt && evt.currentTarget) {
@@ -117,24 +117,190 @@ app.directive('simulatorDirective', function () {
 
 var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', function ($scope, $rootScope, $SimulatorService) {
 	$scope.renderGrid = function () {
-		var width = 600;
-		var height = 480;
+		//https://bost.ocks.org/mike/map/
+		//https://medium.com/@mbostock/command-line-cartography-part-1-897aa8f8ca2c
+		//http://mtaptich.github.io/d3-lessons/d3-extras/
 
-		var color = d3.scaleOrdinal(d3.schemeCategory20);
+		var width = 500,
+			height = 1000,
+			scale = 1200;
 
-		var svg = d3.select('#simulator-svg').attr('width', width).attr('height', height);
+
+		var points = [
+			[-79.376220703125, 43.70759350405294],
+			[-79.4970703125,46.34692761055676],
+			[-81.32080078125,48.472921272487824],
+			[-89.4287109375,48.545705491847464],
+			[-92.28515625,52.8823912222619],
+			[-86.0888671875,51.83577752045248],
+			[-87.890625,55.99838095535963],
+			[-75.89355468749999,45.1510532655634], 
+			[-81.6943359375,43.004647127794435]
+		];
+
+		var generator_type = ["nuclear", "water", "coal", "solar", "wind"];
+		var generator_color = ["green", "blue", "grey", "orange", "white"];
+		var generator_count = 0;
+		//  The projection is used to project geographical coordinates on the SVG
+		projection = d3.geo.mercator().scale(scale).translate([width + 1555 , height +460 ]);
+
+		//  Path is the conversion of geographical shapes (states) to a SVG path 
+		path = d3.geoPath().projection(projection);
+
+		//  Map is the SVG which everything is drawn on.
+		map = d3.select("#simulator-svg")
+			.append("svg")
+			.attr("width", width)
+			.attr("height", height);
+		var gBackground = map.append("g"); // appended first
+		var gPathPoints = map.append("g");
+		var gDataPoints = map.append("g");
+
+		gDataPoints.selectAll(".point")
+			.data(points)
+			.enter().append("circle")
+			.attr("r", 8)
+			.attr("fill", "red")
+			.attr("transform", function (d) { return "translate(" + projection(d) + ")"; })
+			.on("click", function () {
+				
+				
+
+
+			})
+			.on("dblclick", function () {
+				last = d3.select(this).style('fill', generator_color[generator_count])
+				this.generator_type = generator_type[generator_count]
+				generator_count = (generator_count + 1) % 5
+				
+			})
+			;
+
+		var line = d3.svg.line()
+			.interpolate("cardinal-closed")
+			.x(function (d) { return projection(d)[0]; })
+			.y(function (d) { return projection(d)[1]; });
+
+		var power_lines = [
+			
+
+		[
+			[-79.376220703125, 43.70759350405294],
+			[-79.4970703125, 46.34692761055676]
+		],// neck to south
+		[
+			[-79.4970703125, 46.34692761055676],
+			[-81.32080078125, 48.472921272487824]
+		],// center to neck
+		[
+			[-81.32080078125, 48.472921272487824],
+			[-86.0888671875, 51.83577752045248]
+		],// north middle to center middle
+		[
+			[-92.28515625, 52.8823912222619],
+			[-86.0888671875, 51.83577752045248]
+		],// north middle
+		[
+			[-86.0888671875, 51.83577752045248],
+			[-87.890625,55.99838095535963],
+		],// most north
+		[
+			[-86.0888671875, 51.83577752045248],
+			[-89.4287109375, 48.545705491847464],
+		],// bottom north
+		[
+			[-79.376220703125, 43.70759350405294],
+			[-81.6943359375, 43.004647127794435]
+		],// bottom left
+
+		[
+			[-75.89355468749999, 45.1510532655634],
+			[-79.376220703125, 43.70759350405294]
+		]// bottom right
+	]
+
+		// store an array with all the lines so you can add circles
+		// var linepath = gDataPoints.append("path")
+		// 	.data([power_lines])
+		// 	.attr("d", line)
+		// 	.attr('class', 'journey')
+		// 	.attr("fill", "red")
+		// 	;
+		var linepath = gPathPoints.selectAll(".line")
+			.data(power_lines).enter().append("path")
+			.attr("d", line)
+			.attr('class', 'journey')
+			.attr("fill", "red")
+		;
+		console.log(linepath)
+
+		var circle = gPathPoints.append("circle")
+			.attr("r",4)
+			.attr("fill", "green")
+			.attr("transform", "translate(" + projection(points[0]) + ")");
 		
-		var node = svg.selectAll('circle').data($scope.nodes).enter()
-			.append('circle')
-			.attr('cx', function (d) { return (.05 + Math.random()) * width * .9; })
-			.attr('cy', function (d) { return (.05 + Math.random()) * height * .9; })
-			.attr('r', function (d) { return Math.random() * 50; })
-			.style('fill', function (d) { return color(d.name); });
-		
-		node.append('title').text(function (d) { return d.name; });
-		node.on('click', function (d) { return clickHandler(d); });
+		var circle2 = gPathPoints.append("circle")
+			.attr("r", 2)
+			.attr("fill", "green")
+			.attr("transform", "translate(" + projection(points[0]) + ")");
 
-		// haven't implemented visualization and event handling for links but they can be found on d3 website
+		transition();
+		function transition() {
+			circle.transition()
+				.duration(5000)
+				.attrTween("transform", translateAlong(linepath.node()))
+				.each("end", transition);
+		}
+		transition2();
+		function transition2() {
+			circle2.transition()
+				.duration(3000)
+				.attrTween("transform", translateAlong2(linepath.node()))
+				.each("end", transition2);
+		}
+
+		function translateAlong(path) {
+			var l = path.getTotalLength();
+			return function (d, i, a) {
+				return function (t) {
+					var p = path.getPointAtLength(t * l);
+					return "translate(" + (p.x+5 ) + "," + p.y + ")";
+				};
+			};
+		}
+		function translateAlong2(path) {
+			var l = path.getTotalLength();
+			return function (d, i, a) {
+				return function (t) {
+					var p = path.getPointAtLength(t * l);
+					return "translate(" + (p.x -5) + "," + p.y + ")";
+				};
+			};
+		}
+
+		//  Load state information to create individual state paths
+		d3.json("ontario.geo.json", function (error, ont) {
+			if (error) throw error;
+			gBackground.selectAll("path")
+				.attr("width", width)
+				.attr("height", height)
+
+				.data(topojson.feature(ont, ont.objects.states).features)
+				.enter().append("path")
+				.attr("d", path)
+				.attr("class", "state");
+			
+		}); 
+
+
+
+		
+	
+
+
+
+
+
 	}
 
 	var clickHandler = function (d) {

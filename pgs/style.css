@@ -37,3 +37,22 @@
 .navbar-brand {
 	height: 36px !IMPORTANT;
 }
+
+
+#simulator-svg {
+    width: 500px !important;
+    height: 500px !important;
+}
+
+circle {
+  fill: red;
+  stroke: #fff;
+  stroke-width: 1px;
+}
+
+.journey{
+  fill: none;
+  stroke: white;
+  stroke-width: 1;
+  stroke-dasharray: 4px,8px;
+}

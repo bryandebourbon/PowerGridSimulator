@@ -12,9 +12,14 @@ app.service('LoginService', function () {
 		fakeAPI('register', user);
 
 		// console.log('User registered.');
-		var challenges = [	{ guid: guid(), cid: 1, level: 1, name: 'Ontario - Constant Power', saved: true, description: 'This is the first testing power case challenge.' },
-							{ guid: guid(), cid: 3, level: 2, name: 'Ontario - Simple Power', saved: false, description: 'This is the second testing power case challenge.' },
-							{ guid: guid(), cid: 4, level: 3, name: 'Ontario - Reactive Power', saved: false, description: 'This is the third testing power case challenge.' }];
+		var challenges = [	{ guid: guid(), cid: 1, level: 1, name: 'Ontario - Constant Power', saved: true, 
+											description: 'This is the first testing power case challenge.' },
+
+							{ guid: guid(), cid: 3, level: 2, name: 'Ontario - Simple Power', saved: false, 
+											description: 'This is the second testing power case challenge.' },
+											
+							{ guid: guid(), cid: 4, level: 3, name: 'Ontario - Reactive Power', saved: false, 
+											description: 'This is the third testing power case challenge.' }];
 		var res = {
 			status: 'OK',
 			uid: guid(),
