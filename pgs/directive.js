@@ -286,7 +286,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 				.attr("width", width)
 				.attr("height", height)
 
-				.data(topojson.feature(ont, ont.objects.states).features)
+				.data(topojson.feature(ont, ont.objects.boarderlines).features)
 				.enter().append("path")
 				.attr("d", path)
 				.attr("class", "state");
