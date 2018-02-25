@@ -120,6 +120,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 		//https://bost.ocks.org/mike/map/
 		//https://medium.com/@mbostock/command-line-cartography-part-1-897aa8f8ca2c
 		//http://mtaptich.github.io/d3-lessons/d3-extras/
+		//https://embed.plnkr.co/plunk/awGtKX
 
 		var width = 500,
 			height = 1000,
