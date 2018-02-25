@@ -1,7 +1,7 @@
 {
     "type": "Topology",
     "objects": {
-        "ontario": {
+        "boarderlines": {
             "type": "GeometryCollection",
             "geometries": [
                 {
