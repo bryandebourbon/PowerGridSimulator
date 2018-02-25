@@ -26,7 +26,7 @@ var loginDirectiveController = ['$scope', '$rootScope', 'LoginService', function
 
 	$scope.login = function () {
 		var res = $LoginService.login();
-	
+
 		if (res && res.status == 'OK') {
 			$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', uid: res.uid, challenges: res.challenges });
 		}
@@ -109,7 +109,7 @@ app.directive('simulatorDirective', function () {
 		scope: {
 			inventory: '=?',
 			nodes: '=?',
-			links: '=?'						
+			links: '=?'
 		},
 		controller: simulatorDirectiveController
 	}
@@ -129,21 +129,21 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 
 		var points = [
 			[-79.376220703125, 43.70759350405294],
-			[-79.4970703125,46.34692761055676],
-			[-81.32080078125,48.472921272487824],
-			[-89.4287109375,48.545705491847464],
-			[-92.28515625,52.8823912222619],
-			[-86.0888671875,51.83577752045248],
-			[-87.890625,55.99838095535963],
-			[-75.89355468749999,45.1510532655634], 
-			[-81.6943359375,43.004647127794435]
+			[-79.4970703125, 46.34692761055676],
+			[-81.32080078125, 48.472921272487824],
+			[-89.4287109375, 48.545705491847464],
+			[-92.28515625, 52.8823912222619],
+			[-86.0888671875, 51.83577752045248],
+			[-87.890625, 55.99838095535963],
+			[-75.89355468749999, 45.1510532655634],
+			[-81.6943359375, 43.004647127794435]
 		];
 
 		var generator_type = ["nuclear", "water", "coal", "solar", "wind"];
 		var generator_color = ["green", "blue", "grey", "orange", "white"];
 		var generator_count = 0;
 		//  The projection is used to project geographical coordinates on the SVG
-		projection = d3.geo.mercator().scale(scale).translate([width + 1555 , height +460 ]);
+		projection = d3.geo.mercator().scale(scale).translate([width + 1555, height + 460]);
 
 		//  Path is the conversion of geographical shapes (states) to a SVG path 
 		path = d3.geoPath().projection(projection);
@@ -164,8 +164,8 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 			.attr("fill", "red")
 			.attr("transform", function (d) { return "translate(" + projection(d) + ")"; })
 			.on("click", function () {
-				
-				
+
+
 
 
 			})
@@ -173,7 +173,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 				last = d3.select(this).style('fill', generator_color[generator_count])
 				this.generator_type = generator_type[generator_count]
 				generator_count = (generator_count + 1) % 5
-				
+
 			})
 			;
 
@@ -183,42 +183,42 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 			.y(function (d) { return projection(d)[1]; });
 
 		var power_lines = [
-			
 
-		[
-			[-79.376220703125, 43.70759350405294],
-			[-79.4970703125, 46.34692761055676]
-		],// neck to south
-		[
-			[-79.4970703125, 46.34692761055676],
-			[-81.32080078125, 48.472921272487824]
-		],// center to neck
-		[
-			[-81.32080078125, 48.472921272487824],
-			[-86.0888671875, 51.83577752045248]
-		],// north middle to center middle
-		[
-			[-92.28515625, 52.8823912222619],
-			[-86.0888671875, 51.83577752045248]
-		],// north middle
-		[
-			[-86.0888671875, 51.83577752045248],
-			[-87.890625,55.99838095535963],
-		],// most north
-		[
-			[-86.0888671875, 51.83577752045248],
-			[-89.4287109375, 48.545705491847464],
-		],// bottom north
-		[
-			[-79.376220703125, 43.70759350405294],
-			[-81.6943359375, 43.004647127794435]
-		],// bottom left
 
-		[
-			[-75.89355468749999, 45.1510532655634],
-			[-79.376220703125, 43.70759350405294]
-		]// bottom right
-	]
+			[
+				[-79.376220703125, 43.70759350405294],
+				[-79.4970703125, 46.34692761055676]
+			],// neck to south
+			[
+				[-79.4970703125, 46.34692761055676],
+				[-81.32080078125, 48.472921272487824]
+			],// center to neck
+			[
+				[-81.32080078125, 48.472921272487824],
+				[-86.0888671875, 51.83577752045248]
+			],// north middle to center middle
+			[
+				[-92.28515625, 52.8823912222619],
+				[-86.0888671875, 51.83577752045248]
+			],// north middle
+			[
+				[-86.0888671875, 51.83577752045248],
+				[-87.890625, 55.99838095535963],
+			],// most north
+			[
+				[-86.0888671875, 51.83577752045248],
+				[-89.4287109375, 48.545705491847464],
+			],// bottom north
+			[
+				[-79.376220703125, 43.70759350405294],
+				[-81.6943359375, 43.004647127794435]
+			],// bottom left
+
+			[
+				[-75.89355468749999, 45.1510532655634],
+				[-79.376220703125, 43.70759350405294]
+			]// bottom right
+		]
 
 		// store an array with all the lines so you can add circles
 		// var linepath = gDataPoints.append("path")
@@ -232,14 +232,14 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 			.attr("d", line)
 			.attr('class', 'journey')
 			.attr("fill", "red")
-		;
+			;
 		console.log(linepath)
 
 		var circle = gPathPoints.append("circle")
-			.attr("r",4)
+			.attr("r", 4)
 			.attr("fill", "green")
 			.attr("transform", "translate(" + projection(points[0]) + ")");
-		
+
 		var circle2 = gPathPoints.append("circle")
 			.attr("r", 2)
 			.attr("fill", "green")
@@ -265,7 +265,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 			return function (d, i, a) {
 				return function (t) {
 					var p = path.getPointAtLength(t * l);
-					return "translate(" + (p.x+5 ) + "," + p.y + ")";
+					return "translate(" + (p.x + 5) + "," + p.y + ")";
 				};
 			};
 		}
@@ -274,7 +274,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 			return function (d, i, a) {
 				return function (t) {
 					var p = path.getPointAtLength(t * l);
-					return "translate(" + (p.x -5) + "," + p.y + ")";
+					return "translate(" + (p.x - 5) + "," + p.y + ")";
 				};
 			};
 		}
@@ -290,13 +290,13 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 				.enter().append("path")
 				.attr("d", path)
 				.attr("class", "state");
-			
-		}); 
+
+		});
 
 
 
-		
-	
+
+
 
 
 
@@ -326,7 +326,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 		$scope.node.generators.push(generator);
 
 		_.remove($scope.inventory, function (g, i) { return g.guid == generator.guid; });
-		
+
 		$scope.aggregatedInventory = $scope.aggregateInventory($scope.inventory);
 		$scope.aggregatedGenerator = _.find($scope.aggregatedInventory, function (ag, i) { return ag.type == generator.type; });
 	}
