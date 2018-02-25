@@ -146,7 +146,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 		projection = d3.geo.mercator().scale(scale).translate([width + 1555, height + 460]);
 
 		//  Path is the conversion of geographical shapes (states) to a SVG path 
-		path = d3.geoPath().projection(projection);
+		path = d3.geo.path().projection(projection);
 
 		//  Map is the SVG which everything is drawn on.
 		map = d3.select("#simulator-svg")
