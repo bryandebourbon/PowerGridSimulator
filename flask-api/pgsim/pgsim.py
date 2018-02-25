@@ -27,7 +27,7 @@ pgsim_app.config.from_object(__name__) # load config from this file , flaskr.py
 # Load default config and override config from an environment variable
 # TODO: can define env var FLASKR_SETTINGS that points to a config file to be loaded
 pgsim_app.config.update(dict(
-    DATABASE=os.path.join(pgsim_app.root_path, 'flaskr.db'),
+    DATABASE=os.path.join(pgsim_app.root_path, 'flaskr.db'), # TODO: is this needed??
     SECRET_KEY='development key', # to keep the client-side sessions secure
     USERNAME='admin',
     PASSWORD='default'
@@ -35,8 +35,6 @@ pgsim_app.config.update(dict(
 pgsim_app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 # Note: need to set envvar in run.js: export FLASK_APP="pgsim.pgsim:create_app()", export FLASK_DEBUG=true
 
-db_utils.register_cli(pgsim_app)
-db_utils.register_teardowns(pgsim_app)
 db_utils.register_routes(pgsim_app)
 
 @pgsim_app.route("/getChallenge/", methods=["GET"])
@@ -84,11 +82,11 @@ def get_challenge():
 def submit():
     # Input: a list of dictionaries, each dict for each node in order; each dict
     # says how many generators of each type that this node has. For example, for
-    # a 4-node system, this could look be:
-    #     [  {“node”: 0, “generators”: {} },
-    #           {“node”: 1, “generators”: {'H': 1}},
-    #               {“node”: 2, “generators”: {"N": 1}},
-    #           {'“node”: 3, “generators”: {‘H': 1, "N": 1, "R": 1}} ]
+    # a 4-node system, this could look like:
+    #     [{'node': 0, 'generators': {} },
+    #      {'node': 1, 'generators': {'H': 1}},
+    #      {'node': 2, 'generators': {"N": 1}},
+    #      {'node': 3, 'generators': {'H': 1, "N": 1, "R": 1}} ]
     # Output: A dictionary
 
     submitted_data = request.get_data().decode('unicode_escape')
@@ -101,7 +99,8 @@ def submit():
         gen_placements[int(submitted_node["node"])] = submitted_node["generators"]
 
     team_name = str(request.headers["username"])
-    status = do_submit_routine(gen_placements, team_name)
+    team_id = db_utils.get_team_id(team_name)
+    status = do_submit_routine(gen_placements, team_id)
 
     #pp = pprint.PrettyPrinter(indent=4)
     #pp.pprint(status)
@@ -109,38 +108,52 @@ def submit():
 
     return make_response(json.dumps(status))
 
-def do_submit_routine(gen_placements, team_name):
+def do_submit_routine(gen_placements, team_id):
     status = { # To return to React
         'success': True,
         'message': "Processing",
     }
     sub_index = 0
 
-    # TODO(Mel): Get the latest scores status.
-    #latest_scores_status_entry = db_utils.get_scores_status_entry(team_name)
+    # TODO(Mel): Get the latest?(you mean current?) scores status.
+    latest_scores_status_entry = db_utils.get_scores_status_entry(team_id)
     sub_date_time = datetime.now()
-    #sub_wait_time = sub_date_time - datetime.strptime(latest_scores_status_entry['last_submit_success_time'], "%Y-%m-%d %H:%M:%S")
-    #
+    sub_wait_time = sub_date_time - datetime.strptime(
+        latest_scores_status_entry['last_submit_success_time'], "%Y-%m-%d %H:%M:%S")
+    
     # Check if the team is allowed to submit. 
-    #if timedelta(seconds=5) > sub_wait_time:
-    #    status['success] = False
-    #    status['message'] = "Need to wait {} until submit.".format(str(timedelta(seconds=5) - sub_wait_time))
-    #    return status
-    #
-    #sub_index = latest_scores_status_entry['num_attempts'] # Should start off at 0
-    #if sub_index >= MAX_SUBMISSION_ATTEMPTS:
-    #    status['success'] = False
-    #    status['message'] = "Max submission attempts reached."
-    #    return status
-    #sub_index += 1
-    #new_sys_info = {
-    #    'new_sub_datetime': sub_date_time.strftime("%Y-%m-%d %H:%M:%S"),
-    #    'new_num_attempts': sub_index
-    #}
+    if timedelta(seconds=5) > sub_wait_time:
+       status['success'] = False
+       status['message'] = "Need to wait {} until submit.".format(str(timedelta(seconds=5) - sub_wait_time))
+       return status
+    
+    sub_index = latest_scores_status_entry['num_attempts'] # Should start off at 0
+    if sub_index >= MAX_SUBMISSION_ATTEMPTS:
+       status['success'] = False
+       status['message'] = "Max submission attempts reached."
+       return status
 
-    # TODO(Mel): Update the database with the new score (i.e. eval result) and submission logistics data.
+    submission_id = db_utils.insert_submission_entry(gen_placements, team_id)
+    if submission_id < 0:
+       status['success'] = False
+       status['message'] = "Could not insert submission to database."
+       return status
+    
+    # Calculate and update the scores for valid submission.
+    new_scores = eval_pg.calc_score(gen_placements)
+    new_sys_info = {
+       'new_sub_datetime': sub_date_time.strftime("%Y-%m-%d %H:%M:%S"),
+       'new_num_attempts': sub_index + 1
+    }
+    if sub_index == 0:
+        db_utils.update_scores_entry(submission_id, new_sys_info, team_id, new_scores)
+    else:
+        # get best scores - TODO(Jane): smallest loss and smallest cost? any other metrics?
+        best_scores = db_utils.get_best_scores(latest_scores_status_entry['best_scores'], new_scores)
+        db_utils.update_scores_entry(submission_id, new_sys_info, team_id, best_scores)
 
-    status['eval'] = eval_pg.calc_score(gen_placements)
+
+    status['eval'] = new_scores
     status['message'] = "{} Submission #{} successful.".format(sub_date_time.strftime("%Y-%m-%d %H:%M:%S"), sub_index)
     return status
 

@@ -1,4 +1,4 @@
-team_name	team_key
-ourteam		123abc
-theirteam	456def
-yourteam	g789
+team_name
+ourteam
+theirteam
+yourteam

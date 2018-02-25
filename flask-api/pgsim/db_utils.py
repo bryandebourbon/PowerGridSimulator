@@ -1,6 +1,17 @@
 import sqlite3
 from flask import Blueprint, request, session, g, redirect, url_for, abort, \
      render_template, flash, current_app
+import firebase_admin
+from firebase_admin import auth, credentials, db
+
+cred = credentials.Certificate('pgsim/data/serviceAccountKey.json')
+firebase_admin.initialize_app(cred, {
+    "databaseURL": "https://power-grid-simulator.firebaseio.com"
+    })
+TEAMS = db.reference('teams')
+SUBMISSIONS = db.reference('submissions')
+SCORES = db.reference('scores')
+#print(submissionsRef.get())
 
 # Read in the teams.txt and put the team data into the database. 
 def init_db_teams(authfile="pgsim/data/teams.txt"):
@@ -8,78 +19,92 @@ def init_db_teams(authfile="pgsim/data/teams.txt"):
     with open(authfile, 'r') as f:
         contents = list(f)
         for i in range(1, len(contents)):
-            team_info.append(contents[i].split('\n')[0].split('\t'))
-            team_info[i-1] = {'team_id': i, 'team_key': team_info[i-1][1], 'team_name': team_info[i-1][0]}
-    db = get_db()
-    for i in range(len(team_info)):
-        db.execute('INSERT INTO teams VALUES (?,?,?)', [int(team_info[i]['team_id']), str(team_info[
-             i]['team_key']), str(team_info[i]['team_name'])])
-    db.commit()
+            team_info = contents[i].split('\n')[0]
+            # Will be added under teams, in node named by unique team_key.
+            TEAMS.push().set({'team_id': i, 'team_name': team_info})
 
-# Initialize the databse using the specified schema, and then put in the teams info. 
-def init_db():
-    db = get_db()
-    with current_app.open_resource('schema.sql', mode='r') as f: # open a resource that the application provides; This function opens a file from the resource location (the flaskr/flaskr folder) and allows you to read from it. It is used in this example to execute a script on the database connection.
-        db.cursor().executescript(f.read())
-    db.commit()
-    init_db_teams()
+def get_team_id(team_name):
+    team = TEAMS.order_by_child('team_name').equal_to(team_name).get()
+    if not team:
+        return -1
+    else:
+        return list(team.values())[0]['team_id']
 
-def connect_db():
-    """Connects to the specific database."""
-    rv = sqlite3.connect(current_app.config['DATABASE']) # current_app.config['DATABASE']
-    rv.row_factory = sqlite3.Row
-    return rv
+def insert_submission_entry(gen_placements, team_id):
+    submission_entry = {}
+    latest_sub = SUBMISSIONS.order_by_child('submission_id').limit_to_last(1).get()
+    if latest_sub:
+        submission_id = list(latest_sub.values())[0]['submission_id'] + 1
+    else:
+        submission_id = 0
 
-def get_db():
-    """Opens a new database connection if there is none yet for the
-    current application context g.
-    """
-    if not hasattr(g, 'database'):
-        g.database = connect_db()
-    return g.database
+    submission_entry['submission_id'] = submission_id
+    submission_entry['team_id'] = team_id
+    submission_entry['submission_info'] = gen_placements
 
-# TODO: Db functions needed:
-# - Query the score entry based on team id
-# - Update the database for new score
+    SUBMISSIONS.push().set(submission_entry)
+    return submission_id
+    
+def update_scores_entry(submission_id, new_sys_info, team_id, new_scores):
+    new_scores_entry = {}
+    new_scores_entry['submit_id_best'] = submission_id
+    new_scores_entry['num_attempts'] = new_sys_info['new_num_attempts']
+    new_scores_entry['last_submit_success_time'] = new_sys_info['new_sub_datetime']
+    new_scores_entry['team_id'] = team_id    
+    new_scores_entry['scores_best'] = new_scores
+    
+    score = SCORES.order_by_child('team_id').equal_to(team_id).get()
+    if score:
+        SCORES.child(team_id).update(new_scores_entry)
+    else:
+        SCORES.push().set(new_scores_entry)
+
 def get_scores_status_entry(team_id):
-    print("Not yet implemented")
-    return None
+    score = SCORES.order_by_child('team_id').equal_to(team_id).get()
+    if not score:
+        return {
+            'team_id': None,
+            'submit_id_best': None,
+            'scores_best': None,
+            'num_attempts': None,
+            'last_submit_success_time': None
+        }
 
-def register_teardowns(current_app):
-    @current_app.teardown_appcontext
-    def close_db(error):
-        """Closes the database again at the end of the request."""
-        if hasattr(g, 'database'):
-            g.database.close()
+    return list(score.values())[0]
 
-def register_cli(current_app):
-    # Run "flask initdb" before "flask run" to call this function to initialize the db. 
-    @current_app.cli.command('initdb')
-    def initdb_command():
-        """Creates the database tables."""
-        init_db()
-        print('Initialized the database.')
-
-# The following functions are example operations that the front-end can call us to do.
-# The specific route and methods will be modified later to reflect our frontend's real needs.
+# TODO: metrics for best score
+def get_best_scores(current_best, new_scores):
+    new_best = current_best
+    return new_best
+    
+# The following functions are example operations that the front-end can call.
+# The specific route and methods will be modified to reflect frontend's real needs.
 # The code will also be modified to work with firebase.
 # TODO(Mel) 
 def register_routes(current_app):
     @current_app.route('/')
-    def show_entries(): # An example to perform some kind of showing the current db entries
-        db = get_db()
-        cur = db.execute('select team_key, team_name from teams order by team_id desc')
-        entries = cur.fetchall()
-        return render_template('show_entries.html', entries=entries)
+    def show_entries():
+        ''' An example of showing some current db entries.
+        '''
+        # firebase does not do desc order, have to reverse on client's side
+        teams = TEAMS.order_by_child('team_id').get()
+        return render_template('show_entries.html', entries=list(teams.values()))
 
     @current_app.route('/add', methods=['POST'])
-    def add_entry(): # An example to perform some kind of updating the database
-        if not session.get('logged_in'):
-            abort(401)
-        db = get_db()
-        db.execute('insert into teams (team_key, team_name) values (?, ?)',
-                     [request.form['title'], request.form['text']])
-        db.commit()
+    def add_entry():
+        ''' An example of updating the database.
+        '''
+        error = None
+        team_name = request.headers["username"]
+        team = TEAMS.order_by_child('team_name').equal_to(team_name).get()
+        if team:
+            error = 'Team name already exists.' # TODO: properly return this??
+        
+        team_id = TEAMS.order_by_child('team_id').limit_to_first(1).get()
+        TEAMS.push().set({
+            'team_id': list(team_id.values())[0] + 1,
+            'team_name': team_name
+        })
         flash('New entry was successfully posted')
         return redirect(url_for('show_entries'))
 
@@ -103,5 +128,3 @@ def register_routes(current_app):
         session.pop('logged_in', None)
         flash('You were logged out')
         return redirect(url_for('show_entries'))
-
-
