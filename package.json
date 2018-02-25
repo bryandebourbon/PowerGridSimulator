@@ -17,5 +17,7 @@
     "url": "https://github.com/rfairley/pcc-web/issues"
   },
   "homepage": "https://github.com/rfairley/pcc-web#readme",
-  "dependencies": {}
+  "dependencies": {
+    "geojson-rewind": "^0.3.0"
+  }
 }
