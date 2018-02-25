@@ -65,6 +65,7 @@ def register_cli(current_app):
 # The code will also be modified to work with firebase.
 # TODO(Mel) 
 def register_routes(current_app):
+    '''
     @current_app.route('/')
     def show_entries(): # An example to perform some kind of showing the current db entries
         db = get_db()
@@ -103,5 +104,6 @@ def register_routes(current_app):
         session.pop('logged_in', None)
         flash('You were logged out')
         return redirect(url_for('show_entries'))
-
+    '''
+    return 
 
