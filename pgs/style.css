@@ -37,3 +37,8 @@
 .navbar-brand {
 	height: 36px !IMPORTANT;
 }
+
+#simulator-svg {
+	width: 500px;
+    height: 500px;
+}
