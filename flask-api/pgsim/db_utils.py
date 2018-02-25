@@ -11,7 +11,6 @@ firebase_admin.initialize_app(cred, {
 TEAMS = db.reference('teams')
 SUBMISSIONS = db.reference('submissions')
 SCORES = db.reference('scores')
-#print(submissionsRef.get())
 
 # Read in the teams.txt and put the team data into the database. 
 def init_db_teams(authfile="pgsim/data/teams.txt"):
@@ -84,16 +83,14 @@ def get_best_scores(current_best, new_scores):
 def register_routes(current_app):
     @current_app.route('/')
     def show_entries():
-        ''' An example of showing some current db entries.
-        '''
+        # An example of showing some current db entries.
         # firebase does not do desc order, have to reverse on client's side
         teams = TEAMS.order_by_child('team_id').get()
         return render_template('show_entries.html', entries=list(teams.values()))
 
     @current_app.route('/add', methods=['POST'])
     def add_entry():
-        ''' An example of updating the database.
-        '''
+        # An example of updating the database.
         error = None
         team_name = request.headers["username"]
         team = TEAMS.order_by_child('team_name').equal_to(team_name).get()
@@ -128,3 +125,4 @@ def register_routes(current_app):
         session.pop('logged_in', None)
         flash('You were logged out')
         return redirect(url_for('show_entries'))
+    return

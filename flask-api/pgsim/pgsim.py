@@ -11,9 +11,11 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 # from flask_cors import CORS ?
 # CORS(pgsim_app)
 
-import db_utils
-import ppc_utils
-import eval_pg
+import pgsim.ppc_utils
+
+import pgsim.db_utils
+
+import pgsim.eval_pg
 from datetime import datetime, timedelta
 import pprint
 
@@ -35,7 +37,7 @@ pgsim_app.config.update(dict(
 pgsim_app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 # Note: need to set envvar in run.js: export FLASK_APP="pgsim.pgsim:create_app()", export FLASK_DEBUG=true
 
-db_utils.register_routes(pgsim_app)
+pgsim.db_utils.register_routes(pgsim_app)
 
 @pgsim_app.route("/getChallenge/", methods=["GET"])
 def get_challenge():
@@ -60,7 +62,7 @@ def get_challenge():
     #    This is up for change, might add more parameters},
     #   { some other line...}, { ... }]
     gens = []
-    for gen_type, gen_params in ppc_utils.gen_types.items():
+    for gen_type, gen_params in pgsim.ppc_utils.gen_types.items():
         cur_gen = {"type": gen_type}
         for param_name, param in gen_params.items(): 
             if isinstance(param, np.ndarray):   cur_gen[param_name] = param.tolist()
@@ -68,12 +70,12 @@ def get_challenge():
         gens.append(cur_gen)
 
     demands = [{"node": node, 
-                "real": ppc_utils.real_demand_profiles[:,node].tolist(), 
-                "reactive": ppc_utils.reactive_demand_profiles[:,node].tolist()} 
-                for node in range(ppc_utils.real_demand_profiles.shape[1])]
+                "real": pgsim.ppc_utils.real_demand_profiles[:,node].tolist(), 
+                "reactive": pgsim.ppc_utils.reactive_demand_profiles[:,node].tolist()} 
+                for node in range(pgsim.ppc_utils.real_demand_profiles.shape[1])]
 
     lines = [{"from": int(line[F_BUS]), "to": int(line[T_BUS]), "capacity": float(line[RATE_A])} 
-                for line in ppc_utils.transmission_limits]
+                for line in pgsim.ppc_utils.transmission_limits]
 
     return make_response(json.dumps({"generators": gens, "demands": demands, "lines": lines}))
 
@@ -91,10 +93,10 @@ def submit():
 
     submitted_data = request.get_data().decode('unicode_escape')
     submitted_data = json.loads(submitted_data)
-    assert (len(submitted_data) == ppc_utils.node_count), "The submitted data must contain correct number of nodes"
+    assert (len(submitted_data) == pgsim.ppc_utils.node_count), "The submitted data must contain correct number of nodes"
     
     # Convert the dict structure into a structure used in backend.
-    gen_placements = [{} for i in range(ppc_utils.node_count)]
+    gen_placements = [{} for i in range(pgsim.ppc_utils.node_count)]
     for submitted_node in submitted_data:
         gen_placements[int(submitted_node["node"])] = submitted_node["generators"]
 
@@ -121,7 +123,7 @@ def do_submit_routine(gen_placements, team_id):
     sub_wait_time = sub_date_time - datetime.strptime(
         latest_scores_status_entry['last_submit_success_time'], "%Y-%m-%d %H:%M:%S")
     
-    # Check if the team is allowed to submit. 
+    # Check if the team is allowed to submit.
     if timedelta(seconds=5) > sub_wait_time:
        status['success'] = False
        status['message'] = "Need to wait {} until submit.".format(str(timedelta(seconds=5) - sub_wait_time))
@@ -148,7 +150,7 @@ def do_submit_routine(gen_placements, team_id):
     if sub_index == 0:
         db_utils.update_scores_entry(submission_id, new_sys_info, team_id, new_scores)
     else:
-        # get best scores - TODO(Jane): smallest loss and smallest cost? any other metrics?
+        # get best scores
         best_scores = db_utils.get_best_scores(latest_scores_status_entry['best_scores'], new_scores)
         db_utils.update_scores_entry(submission_id, new_sys_info, team_id, best_scores)
 
@@ -156,5 +158,3 @@ def do_submit_routine(gen_placements, team_id):
     status['eval'] = new_scores
     status['message'] = "{} Submission #{} successful.".format(sub_date_time.strftime("%Y-%m-%d %H:%M:%S"), sub_index)
     return status
-
-
