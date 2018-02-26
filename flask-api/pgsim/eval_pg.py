@@ -2,9 +2,9 @@ from pypower.api import runopf
 
 import copy
 import numpy as np
-import read_pfresults
-import ppc_utils
-from ppc_utils import gen_types
+import pypower.read_pfresults
+import pypower.ppc_utils
+from pypower.ppc_utils import gen_types
 from pypower.idx_bus import BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, \
     VM, VA, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, REF
 from pypower.idx_gen import GEN_BUS, PG, QG, QMAX, QMIN, GEN_STATUS, \
@@ -55,5 +55,10 @@ def calc_score(gen_placements):
         print(pf_metrics["transmissions"])
         print(pf_metrics["buses"])
         print(pf_metrics["cost"])
-    return {"loss": total_loss, "cost": total_cost, "passed": overall_pass}
+    
+
+    return {"loss": total_loss, 
+            "cost": total_cost, 
+            "passed": overall_pass, 
+            "score"}
 
