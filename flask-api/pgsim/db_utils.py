@@ -75,7 +75,10 @@ def get_scores_status_entry(team_id):
 def get_best_scores(current_best, new_scores):
     new_best = current_best
     return new_best
-    
+
+# TODO(Mel): Leaderboard functions
+# TODO(Mel): Display previous entry and add the ability to pull one up 
+
 # The following functions are example operations that the front-end can call.
 # The specific route and methods will be modified to reflect frontend's real needs.
 # The code will also be modified to work with firebase.
