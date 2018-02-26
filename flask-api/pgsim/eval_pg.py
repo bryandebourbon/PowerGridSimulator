@@ -60,5 +60,5 @@ def calc_score(gen_placements):
     return {"loss": total_loss, 
             "cost": total_cost, 
             "passed": overall_pass, 
-            "score"}
+            "score": total_cost}
 
