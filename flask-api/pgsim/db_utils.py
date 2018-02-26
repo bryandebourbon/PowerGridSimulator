@@ -84,6 +84,7 @@ def get_best_scores(current_best, new_scores):
 # The code will also be modified to work with firebase.
 # TODO(Mel) 
 def register_routes(current_app):
+    '''
     @current_app.route('/')
     def show_entries():
         # An example of showing some current db entries.
@@ -107,5 +108,5 @@ def register_routes(current_app):
         })
         flash('New entry was successfully posted')
         return redirect(url_for('show_entries'))
-
+    '''
     return
