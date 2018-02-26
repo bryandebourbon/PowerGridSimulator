@@ -3,13 +3,38 @@ app.service('LoginService', function () {
 		// console.log('Login service initiated.');
 	}
 
-	var register = function (username, password) {
+	var register = function (username, password, teamname) {
 		var user = {
 			username: username,
-			password: password
+			password: password,
+			teamname: teamname
+		}
+		if (username.length < 4) {
+			alert('Please enter an email address.');
+			return;
+		}
+		if (password.length < 4) {
+			alert('Please enter a password.');
+			return;
 		}
 
-		fakeAPI('register', user);
+		// Sign in with email and pass.
+		firebase.auth().createUserWithEmailAndPassword(username, password).then(
+			function(user) {
+				user.updateProfile({
+				 displayName: teamname
+				}).then(function() {
+					// TODO(Mel): authenticate team
+				}, function(error) {
+				 console.log('could not update your team');
+				});
+			}, function(error) {
+				if (errorCode == 'auth/weak-password') {
+				 alert('The password is too weak.');
+				} else {
+				 console.error(error);
+				}
+		});
 
 		// console.log('User registered.');
 		var challenges = [	{ guid: guid(), cid: 1, level: 1, name: 'Ontario - Constant Power', saved: true, description: 'This is the first testing power case challenge.' },
@@ -24,13 +49,18 @@ app.service('LoginService', function () {
 		return res;
 	}
 
-	var login = function () {
+	var login = function (username, password, teamname) {
 		var user = {
 			username: username,
-			password: password
+			password: password,
+			teamname: teamname
 		}
-
-		fakeAPI('login', user);
+		firebase.auth().signInWithEmailAndPassword(username, password).catch(function(error) {
+			var errorCode = error.code;
+			if (errorCode === 'auth/wrong-password') {
+			  alert('Wrong password.');
+			}
+		});
 
 		// console.log('Login successful.');
 		var challenges = [	{ guid: guid(), cid: 1, level: 1, name: 'Ontario - Constant Power', saved: true, description: 'This is the first testing power case challenge.' },
@@ -46,7 +76,7 @@ app.service('LoginService', function () {
 	}
 
 	this.init = function (args) { return init(args); };
-	this.register = function (username, password) { return register(username, password); }
+	this.register = function (username, password, teamnname) { return register(username, password, teamname); }
 	this.login = function (username, password) { return login(username, password); }
 })
 

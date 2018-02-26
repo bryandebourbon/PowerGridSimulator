@@ -4,7 +4,8 @@ app.directive('loginDirective', function () {
 		templateUrl: './_Login.html',
 		scope: {
 			username: '@',
-			password: '@'
+			password: '@',
+			teamname: '@'
 		},
 		controller: loginDirectiveController
 	}
@@ -13,11 +14,12 @@ app.directive('loginDirective', function () {
 var loginDirectiveController = ['$scope', '$rootScope', 'LoginService', function ($scope, $rootScope, $LoginService) {
 	$scope.username = '';
 	$scope.password = '';
+	$scope.teamname = '';
 
 	// uid refers to user id (effectively team id)
 	// we later retrieve a list of challenges visible to a uid
 	$scope.register = function () {
-		var res = $LoginService.register();
+		var res = $LoginService.register($scope.username, $scope.password, $scope.teamname);
 
 		if (res && res.status == 'OK') {
 			$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', uid: res.uid, challenges: res.challenges });
@@ -25,7 +27,7 @@ var loginDirectiveController = ['$scope', '$rootScope', 'LoginService', function
 	}
 
 	$scope.login = function () {
-		var res = $LoginService.login();
+		var res = $LoginService.login($scope.username, $scope.password, $scope.teamname);
 
 		if (res && res.status == 'OK') {
 			$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', uid: res.uid, challenges: res.challenges });
