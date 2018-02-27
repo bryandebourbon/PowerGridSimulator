@@ -75,7 +75,7 @@ class PgsimTestCase(unittest.TestCase):
 
     def test_get_challenge(self):
         rv = self.app.get('/getChallenge/')
-        print(rv.data)
+        print("getChallenge output:\n{}".format(rv.data))
 
     def test_submit(self):
         placements = [ {"node": 0, "generators": {} }, 

@@ -145,19 +145,23 @@ def convert_to_metrics(baseMVA, bus=None, gen=None, branch=None, f=None, success
 
     # see how much power is given to each bus, and generated at each bus; 
     # output: node_count x 4
-    pf_metrics["buses"] = zeros((nb, 4))
-    pf_metrics["buses"][:, :2] = bus[:, [VM, VA]]
+    pf_metrics["buses"] = {}
+    for bus_idx in range(nb):
+        pf_metrics["buses"][bus_idx] = {
+                "supplied": {"mag":bus[bus_idx, VM], "angle":bus[bus_idx, VA]}, 
+                "generated": {"real": 0, "reactive": 0}
+            }
     for gen_node in gen:
-        node = int(gen_node[GEN_BUS]) - 1
-        pf_metrics["buses"][node, 2] = gen_node[PG]
-        pf_metrics["buses"][node, 3] = gen_node[QG]
+        bus_idx = int(gen_node[GEN_BUS]) - 1
+        pf_metrics["buses"][bus_idx]["generated"]["real"] = gen_node[PG]
+        pf_metrics["buses"][bus_idx]["generated"]["reactive"] = gen_node[QG]
 
     # see how much power is transmitted through each line
-    pf_metrics["transmissions"] = [{
-            'from':             int(branch[i, F_BUS]) - 1, 
-            'to':               int(branch[i, T_BUS]) - 1, 
-            'real_power':       branch[i, PF],
-            'reactive_power':   branch[i, QF]} for i in range(nl)]
+    pf_metrics["transmissions"] = {}
+    for i in range(nl):
+        pf_metrics["transmissions"][(int(branch[i, F_BUS]) - 1, int(branch[i, T_BUS]) - 1)] = \
+                {'real_power':       branch[i, PF],
+                 'reactive_power':   branch[i, QF]}
 
     ## parameters
     ties = find(bus[e2i[branch[:, F_BUS].astype(int)], BUS_AREA] !=

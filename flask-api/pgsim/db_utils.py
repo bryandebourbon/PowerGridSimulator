@@ -65,7 +65,7 @@ def get_scores_status_entry(team_id):
             'team_id': None,
             'submit_id_best': None,
             'scores_best': None,
-            'num_attempts': None,
+            'num_attempts': 0,
             'last_submit_success_time': None
         }
 

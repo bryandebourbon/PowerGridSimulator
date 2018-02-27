@@ -3,9 +3,10 @@ from pypower.api import runopf
 import copy
 import numpy as np
 
-import pgsim.ppc_utils
-import pgsim.read_pfresults
-from pgsim.ppc_utils import gen_types
+#import pgsim.ppc_utils as ppc_utils, pgsim.read_pfresults as read_pfresults
+import ppc_utils, read_pfresults
+
+
 from pypower.idx_bus import BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, \
     VM, VA, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, REF
 from pypower.idx_gen import GEN_BUS, PG, QG, QMAX, QMIN, GEN_STATUS, \
@@ -21,6 +22,8 @@ def calc_score(gen_placements):
     total_loss = 0
     total_cost = 0
     overall_pass = True
+    overall_trans = {(int(line[0])-1, int(line[1])-1):{"real_power":[], "reactive_power":[]} for line in ppc_utils.transmission_limits}
+    overall_nodes = {bus_idx:{"supplied":{"mag":[], "angle":[]}, "generated":{"real":[], "reactive":[]}} for bus_idx in range(ppc_utils.node_count)}
     for time in range(ppc_utils.timestep_count):
         # Construct a ppc to be passed into runopf().
         # Fill in the data constant across timesteps.
@@ -38,7 +41,7 @@ def calc_score(gen_placements):
 
         # Fill in the timestep-specific generation capacities.
         cur_gen = copy.deepcopy(gen_caps)
-        cur_gen[:, PMAX] = np.array([gen_types[gen]["real_capacity"][time] for gen in gens])
+        cur_gen[:, PMAX] = np.array([ppc_utils.gen_types[gen]["real_capacity"][time] for gen in gens])
         cur_gen[:, QMAX] = 0.75 * cur_gen[:, PMAX]
         cur_gen[:, QMIN] = -0.75 * cur_gen[:, PMAX]
         ppc["gen"] = cur_gen
@@ -50,18 +53,38 @@ def calc_score(gen_placements):
         total_loss += pf_metrics["loss"]
         total_cost += pf_metrics["cost"]
         overall_pass = overall_pass and pf_metrics["passed"]
+        for line, power in pf_metrics["transmissions"].items():
+            for power_type, power_val in power.items():
+                overall_trans[line][power_type].append(power_val)
+        for node, power in pf_metrics["buses"].items():
+            for data_type, data in power.items():
+                for real_or_not, power_val in data.items():
+                    overall_nodes[node][data_type][real_or_not].append(power_val)
+    
+        trans_list = [power for _, power in overall_trans.items()]
+        line_idx = -1 
+        for line, _ in overall_trans.items():
+            line_idx += 1
+            trans_list[line_idx]["from"] = line[0]
+            trans_list[line_idx]["to"] = line[1]
+
+        nodes_list = [power for _, power in overall_nodes.items()]
+        node_idx = -1
+        for node, _ in overall_nodes.items():
+            node_idx += 1
+            nodes_list[node_idx]["node"] = node
 
         print(pf_metrics["passed"])
         print("Loss calculated so far as follows: {}.".format(total_loss))
-        print(pf_metrics["transmissions"])
-        print(pf_metrics["buses"])
+        #print(pf_metrics["transmissions"])
+        #print(pf_metrics["buses"])
         print(pf_metrics["cost"])
-    
 
     return {"loss": total_loss, 
             "cost": total_cost, 
             "passed": overall_pass, 
             "score": total_cost,
-            "lines": None,
-            "nodes": None}
+            "lines": trans_list,
+            "nodes": nodes_list}
+
 
