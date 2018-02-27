@@ -1,4 +1,4 @@
-# pcc-web
+# Power Grid Simulator
 Web interface for the IEEE U of T Power Case Competition.
 
 ## To download and run:
@@ -9,10 +9,19 @@ Web interface for the IEEE U of T Power Case Competition.
 <br>
 <code>git checkout dev</code>
 
+### First Time Setup
+<code>node setup.js</code>
+<br>
+<code>npm install</code>
+<br>
+<code>pip install pypower</code>
+<br>
+<code>sudo pip install firebase-admin</code>
+<br>
+<code>python pgsim/db_utils.py</code>
+
 ### The short way
 After you clone the repository, open the terminal in /pcc-web directory, run
-<br>
-<code>node setup.js</code>(first time setup)
 <br>
 <code>node run.js</code>
 
@@ -24,8 +33,6 @@ After you clone the repository, open the terminal in /pcc-web directory, run
 **Run React Only**
 <br>
 <code>cd ./react-app</code>
-<br>
-<code>npm install</code> (only needed the first time)
 <br>
 <code>npm start</code>
 
