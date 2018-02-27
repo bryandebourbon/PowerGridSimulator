@@ -3,13 +3,13 @@ app.service('LoginService', function () {
 		// console.log('Login service initiated.');
 	}
 
-	var register = function (username, password, teamname) {
+	var register = function (email, password, teamname) {
 		var user = {
-			username: username,
+			email: email,
 			password: password,
 			teamname: teamname
 		}
-		if (username.length < 4) {
+		if (email.length < 4) {
 			alert('Please enter an email address.');
 			return;
 		}
@@ -19,20 +19,20 @@ app.service('LoginService', function () {
 		}
 
 		// Sign in with email and pass.
-		firebase.auth().createUserWithEmailAndPassword(username, password).then(
+		firebase.auth().createUserWithEmailAndPassword(email, password).then(
 			function(user) {
-				user.updateProfile({
-				 displayName: teamname
+				user.updateProfile ({
+					displayName: teamname
 				}).then(function() {
 					// TODO(Mel): authenticate team
 				}, function(error) {
-				 console.log('could not update your team');
+					console.log('could not update your team');
 				});
-			}, function(error) {
+			}, function (error) {
 				if (errorCode == 'auth/weak-password') {
-				 alert('The password is too weak.');
+					alert('The password is too weak.');
 				} else {
-				 console.error(error);
+					console.error(error);
 				}
 		});
 
@@ -49,16 +49,16 @@ app.service('LoginService', function () {
 		return res;
 	}
 
-	var login = function (username, password, teamname) {
+	var login = function (email, password, teamname) {
 		var user = {
-			username: username,
+			email: email,
 			password: password,
 			teamname: teamname
 		}
-		firebase.auth().signInWithEmailAndPassword(username, password).catch(function(error) {
+		firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
 			var errorCode = error.code;
 			if (errorCode === 'auth/wrong-password') {
-			  alert('Wrong password.');
+				alert('Wrong password.');
 			}
 		});
 
@@ -76,8 +76,8 @@ app.service('LoginService', function () {
 	}
 
 	this.init = function (args) { return init(args); };
-	this.register = function (username, password, teamnname) { return register(username, password, teamname); }
-	this.login = function (username, password) { return login(username, password); }
+	this.register = function (email, password, teamnname) { return register(email, password, teamname); }
+	this.login = function (email, password, teamname) { return login(email, password, teamname); }
 })
 
 app.service('ChallengesService', function () {
