@@ -11,9 +11,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 # from flask_cors import CORS ?
 # CORS(pgsim_app)
 
-#import pgsim.ppc_utils as ppc_utils, pgsim.db_utils as db_utils, pgsim.eval_pg as eval_pg
-import ppc_utils, db_utils, eval_pg
-
+import pgsim.ppc_utils as ppc_utils, pgsim.db_utils as db_utils, pgsim.eval_pg as eval_pg
 
 from datetime import datetime, timedelta
 import pprint

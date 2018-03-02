@@ -123,7 +123,7 @@ def register_routes(current_app):
     return
 
 
-if __name__ == "__main__":
+#if __name__ == "__main__":
     # init_db_teams()
     # print(get_team_id("yourteam"))
     # print(insert_submission_entry([{'node': 0, 'generators': {} },
