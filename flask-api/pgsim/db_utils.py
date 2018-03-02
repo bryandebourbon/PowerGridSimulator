@@ -45,12 +45,13 @@ def insert_submission_entry(gen_placements, team_id):
     return submission_id
     
 def update_scores_entry(submission_id, new_sys_info, team_id, new_scores):
+    # Argument: team_id must be a string.
     new_scores_entry = {}
     new_scores_entry['submit_id_best'] = submission_id
     new_scores_entry['num_attempts'] = new_sys_info['new_num_attempts']
     new_scores_entry['last_submit_success_time'] = new_sys_info['new_sub_datetime']
     new_scores_entry['scores_best'] = new_scores
-    print(type(team_id))
+
     score = SCORES.child(team_id)
     if score:
         SCORES.child(team_id).update(new_scores_entry)
@@ -70,18 +71,29 @@ def get_scores_status_entry(team_id):
 
     return list(score.values())[0]
 
-# TODO: metrics for best score
 def get_best_scores(current_best, new_scores):
-    new_best = current_best
-    return new_best
+    if new_scores['score'] > current_best['score']:
+        return new_scores
+    return current_best
 
-# TODO(Mel): Leaderboard functions
+# Leaderboard functions
+# TODO: Display best teams in different categories.
+def get_top_five():
+    # returns {{teamname1:score1}, {teamname2:score2}...}
+    top_scores = SCORES.order_by_child('scores_best/score').limit_to_last(5).get()
+    
+    top_five = {}
+    for team_id, score in top_scores.items():
+        team = TEAMS.order_by_child('team_id').equal_to(team_id).get()
+        team_name = list(team.values())[0]['team_name']
+        top_five[team_name] = score['scores_best']['score']
+    
+    return top_five
+
 # TODO(Mel): Display previous entry and add the ability to pull one up 
 
 # The following functions are example operations that the front-end can call.
 # The specific route and methods will be modified to reflect frontend's real needs.
-# The code will also be modified to work with firebase.
-# TODO(Mel) 
 def register_routes(current_app):
     '''
     @current_app.route('/')
@@ -110,5 +122,23 @@ def register_routes(current_app):
     '''
     return
 
+
 if __name__ == "__main__":
-    init_db_teams()
+    # init_db_teams()
+    # print(get_team_id("yourteam"))
+    # print(insert_submission_entry([{'node': 0, 'generators': {} },
+    #         {'node': 1, 'generators': {'H': 1}},
+    #         {'node': 2, 'generators': {"N": 1}},
+    #         {'node': 3, 'generators': {'H': 1, "N": 1, "R": 1}} ], 3))
+    # update_scores_entry(0, new_sys_info = {
+    #    'new_sub_datetime': '2018-02-25 11:20:18',
+    #    'new_num_attempts': 1}, 
+    #    team_id="3", new_scores={"loss": 1, 
+    #                             "cost": 10, 
+    #                             "passed": True, 
+    #                             "score": 100,
+    #                             "lines": None,
+    #                             "nodes": None})
+    # print(get_scores_status_entry(3))
+    # print(get_scores_status_entry(10))
+    # print(get_top_five())
