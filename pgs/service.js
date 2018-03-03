@@ -3,81 +3,221 @@ app.service('LoginService', function () {
 		// console.log('Login service initiated.');
 	}
 
-	var register = function (email, password, teamname) {
-		var user = {
-			email: email,
-			password: password,
-			teamname: teamname
+	var getChallenges = function (user) {
+		var success = function (data) {
+			if (data) {
+				var challenges = [data];
+
+				console.log(challenges.length);
+			}
 		}
-		if (email.length < 4) {
-			alert('Please enter an email address.');
+		var error = function (error) {
+			console.log(error);
+		}
+
+		// $.ajax({
+		// 	url: 'http://127.0.0.1:5000/getChallenge?callback=success',
+		// 	type: 'GET',
+		// 	data: { user: user },
+		// 	// jsonpCallback: 'success',
+		// 	// dataType: 'JSONP',
+		// 	contentType: 'json',
+		// 	success: success,
+		// 	error: error
+		// })
+
+		// this is just my hacky way of getting around same origin policy thing
+		// we will talk about actually making calls to backend without being hacky...
+		// BRYAN PLEASE HELP
+		var readTextFile = function (file) {
+			return new Promise(function (resolve, reject) {
+				var rawFile = new XMLHttpRequest();
+
+				rawFile.open('GET', file, false);
+				rawFile.onreadystatechange = function () {
+					if (rawFile.readyState == 4) {
+						if (rawFile.status == 200 || rawFile.status == 0) {
+							var allText = rawFile.responseText;
+
+							resolve(allText);
+						}
+					}
+				}
+
+				rawFile.send(null);
+			})
+		}
+
+		readTextFile('Challenge.txt')
+			.then(function (data) {
+				success(data);
+			}).catch(function (error) {
+				error(error);
+			})
+	}
+	
+	var register = function (args) {
+		var user = {
+			email: args.email || '',
+			password: args.password || '',
+			teamname: args.teamname || ''
+		}
+
+		var _authErrorContainer = $('#auth-error-container');
+		var _invalidInputHeader = $('#invalid-input-header');
+		var _firebaseAuthErrorHeader = $('#firebase-auth-error-header');
+		var _authErrorMessage = $('#auth-error-message');
+
+		_authErrorMessage.text('');
+
+		_authErrorContainer.hide();
+		_invalidInputHeader.hide();
+		_firebaseAuthErrorHeader.hide();
+		_authErrorMessage.hide();
+
+		if (user.email && user.email.length < 1) {
+			_authErrorContainer.show();
+			_invalidInputHeader.show();
+			_authErrorMessage.show();
+
+			var errorMessage = 'Email field should not be empty.';
+			_authErrorMessage.text(errorMessage);
+
 			return;
 		}
-		if (password.length < 4) {
-			alert('Please enter a password.');
+		if (user.password && user.password.length < 1) {
+			_authErrorContainer.show();
+			_invalidInputHeader.show();
+			_authErrorMessage.show();
+
+			var errorMessage = 'Password field should not be empty.';
+			_authErrorMessage.text(errorMessage);
+
+			return;
+		}
+		if (user.teamname && user.teamname.length < 1) {
+			_authErrorContainer.show();
+			_invalidInputHeader.show();
+			_authErrorMessage.show();
+
+			var errorMessage = 'Teamname field should not be empty.';
+			_authErrorMessage.text(errorMessage);
+
 			return;
 		}
 
 		// Sign in with email and pass.
-		firebase.auth().createUserWithEmailAndPassword(email, password).then(
-			function(user) {
-				user.updateProfile ({
-					displayName: teamname
+		firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+			.then(function(firebaseUser) {
+				firebaseUser.updateProfile ({
+					displayName: user.teamname
 				}).then(function() {
 					// TODO(Mel): authenticate team
+
+					getChallenges(user);
+
 				}, function(error) {
 					console.log('could not update your team');
 				});
 			}, function (error) {
-				if (errorCode == 'auth/weak-password') {
-					alert('The password is too weak.');
-				} else {
-					console.error(error);
-				}
-		});
+				_authErrorContainer.show();
+				_firebaseAuthErrorHeader.show();
+				_authErrorMessage.show();
+
+				_authErrorMessage.text(error.message);
+			});
 
 		// console.log('User registered.');
-		var challenges = [	{ guid: guid(), cid: 1, level: 1, name: 'Ontario - Constant Power', saved: true, description: 'This is the first testing power case challenge.' },
-							{ guid: guid(), cid: 3, level: 2, name: 'Ontario - Simple Power', saved: false, description: 'This is the second testing power case challenge.' },
-							{ guid: guid(), cid: 4, level: 3, name: 'Ontario - Reactive Power', saved: false, description: 'This is the third testing power case challenge.' }];
-		var res = {
-			status: 'OK',
-			uid: guid(),
-			challenges: challenges
-		}
+		// var challenges = [	{ guid: guid(), cid: 1, level: 1, name: 'Ontario - Constant Power', saved: true, description: 'This is the first testing power case challenge.' },
+		// 					{ guid: guid(), cid: 3, level: 2, name: 'Ontario - Simple Power', saved: false, description: 'This is the second testing power case challenge.' },
+		// 					{ guid: guid(), cid: 4, level: 3, name: 'Ontario - Reactive Power', saved: false, description: 'This is the third testing power case challenge.' }];
+		// var res = {
+		// 	status: 'OK',
+		// 	uid: guid(),
+		// 	challenges: challenges
+		// }
 
-		return res;
+		// return res;
+
+		getChallenges(user);
 	}
 
-	var login = function (email, password, teamname) {
+	var login = function (args) {
 		var user = {
-			email: email,
-			password: password,
-			teamname: teamname
+			email: args.email || '',
+			password: args.password || '',
+			teamname: args.teamname || ''
 		}
-		firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
-			var errorCode = error.code;
-			if (errorCode === 'auth/wrong-password') {
-				alert('Wrong password.');
-			}
+
+		var _authErrorContainer = $('#auth-error-container');
+		var _invalidInputHeader = $('#invalid-input-header');
+		var _firebaseAuthErrorHeader = $('#firebase-auth-error-header');
+		var _authErrorMessage = $('#auth-error-message');
+
+		_authErrorMessage.text('');
+
+		_authErrorContainer.hide();
+		_invalidInputHeader.hide();
+		_firebaseAuthErrorHeader.hide();
+		_authErrorMessage.hide();
+
+		if (user.email && user.email.length < 1) {
+			_authErrorContainer.show();
+			_invalidInputHeader.show();
+			_authErrorMessage.show();
+
+			var errorMessage = 'Email field should not be empty.';
+			_authErrorMessage.text(errorMessage);
+
+			return;
+		}
+		if (user.password && user.password.length < 1) {
+			_authErrorContainer.show();
+			_invalidInputHeader.show();
+			_authErrorMessage.show();
+
+			var errorMessage = 'Password field should not be empty.';
+			_authErrorMessage.text(errorMessage);
+
+			return;
+		}
+		if (user.teamname && user.teamname.length < 1) {
+			_authErrorContainer.show();
+			_invalidInputHeader.show();
+			_authErrorMessage.show();
+
+			var errorMessage = 'Teamname field should not be empty.';
+			_authErrorMessage.text(errorMessage);
+
+			return;
+		}
+
+		firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch(function(error) {
+			_authErrorContainer.show();
+			_firebaseAuthErrorHeader.show();
+			_authErrorMessage.show();
+
+			_authErrorMessage.text(error.message);
 		});
 
 		// console.log('Login successful.');
-		var challenges = [	{ guid: guid(), cid: 1, level: 1, name: 'Ontario - Constant Power', saved: true, description: 'This is the first testing power case challenge.' },
-							{ guid: guid(), cid: 3, level: 2, name: 'Ontario - Simple Power', saved: false, description: 'This is the second testing power case challenge.' },
-							{ guid: guid(), cid: 4, level: 3, name: 'Ontario - Reactive Power', saved: false, description: 'This is the third testing power case challenge.' }];
-		var res = {
-			status: 'OK',
-			uid: guid(),
-			challenges: challenges
-		}
+		// var challenges = [	{ guid: guid(), cid: 1, level: 1, name: 'Ontario - Constant Power', saved: true, description: 'This is the first testing power case challenge.' },
+		// 					{ guid: guid(), cid: 3, level: 2, name: 'Ontario - Simple Power', saved: false, description: 'This is the second testing power case challenge.' },
+		// 					{ guid: guid(), cid: 4, level: 3, name: 'Ontario - Reactive Power', saved: false, description: 'This is the third testing power case challenge.' }];
+		// var res = {
+		// 	status: 'OK',
+		// 	uid: guid(),
+		// 	challenges: challenges
+		// }
 
-		return res;
+		// return res;
+
+		getChallenges(user);
 	}
 
 	this.init = function (args) { return init(args); };
-	this.register = function (email, password, teamnname) { return register(email, password, teamname); }
-	this.login = function (email, password, teamname) { return login(email, password, teamname); }
+	this.register = function (args) { return register(args); }
+	this.login = function (args) { return login(args); }
 })
 
 app.service('ChallengesService', function () {
