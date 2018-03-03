@@ -19,19 +19,25 @@ var loginDirectiveController = ['$scope', '$rootScope', 'LoginService', function
 	// uid refers to user id (effectively team id)
 	// we later retrieve a list of challenges visible to a uid
 	$scope.register = function () {
-		var res = $LoginService.register({ email: $scope.email, password: $scope.password, teamname: $scope.teamname });
-
-		if (res && res.status == 'OK') {
-			$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', uid: res.uid, challenges: res.challenges });
-		}
+		$LoginService.register({ email: $scope.email, password: $scope.password, teamname: $scope.teamname })
+			.then(function (res) {
+				if (res && res.status == 'OK') {
+					$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', uid: res.uid, challenges: res.challenges });
+				}
+			}).catch(function (error) {
+				console.log(error);
+			})
 	}
 
 	$scope.login = function () {
-		var res = $LoginService.login({ email: $scope.email, password: $scope.password, teamname: $scope.teamname });
-
-		if (res && res.status == 'OK') {
-			$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', uid: res.uid, challenges: res.challenges });
-		}
+		$LoginService.login({ email: $scope.email, password: $scope.password, teamname: $scope.teamname })
+			.then(function (res) {
+				if (res && res.status == 'OK') {
+					$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', uid: res.uid, challenges: res.challenges });
+				}
+			}).catch(function (error) {
+				console.log(error);
+			})
 	}
 }]
 

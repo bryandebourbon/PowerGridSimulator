@@ -8,7 +8,13 @@ app.service('LoginService', function () {
 			if (data) {
 				var challenges = [data];
 
-				console.log(challenges.length);
+				var res = {
+					status: 'OK',
+					uid: guid(),
+					challenges: challenges
+				}
+
+				return res;
 			}
 		}
 		var error = function (error) {
@@ -49,7 +55,9 @@ app.service('LoginService', function () {
 		}
 
 		readTextFile('Challenge.txt')
-			.then(function (data) {
+			.then(function (text) {
+				var data = JSON.parse(text);
+
 				success(data);
 			}).catch(function (error) {
 				error(error);
@@ -57,69 +65,152 @@ app.service('LoginService', function () {
 	}
 	
 	var register = function (args) {
-		var user = {
-			email: args.email || '',
-			password: args.password || '',
-			teamname: args.teamname || ''
-		}
+		return new Promise(function (resolve, reject) {
+			var user = {
+				email: args.email || '',
+				password: args.password || '',
+				teamname: args.teamname || ''
+			}
 
-		var _authErrorContainer = $('#auth-error-container');
-		var _invalidInputHeader = $('#invalid-input-header');
-		var _firebaseAuthErrorHeader = $('#firebase-auth-error-header');
-		var _authErrorMessage = $('#auth-error-message');
+			var _authErrorContainer = $('#auth-error-container');
+			var _invalidInputHeader = $('#invalid-input-header');
+			var _firebaseAuthErrorHeader = $('#firebase-auth-error-header');
+			var _authErrorMessage = $('#auth-error-message');
 
-		_authErrorMessage.text('');
+			_authErrorMessage.text('');
 
-		_authErrorContainer.hide();
-		_invalidInputHeader.hide();
-		_firebaseAuthErrorHeader.hide();
-		_authErrorMessage.hide();
+			_authErrorContainer.hide();
+			_invalidInputHeader.hide();
+			_firebaseAuthErrorHeader.hide();
+			_authErrorMessage.hide();
 
-		if (user.email && user.email.length < 1) {
-			_authErrorContainer.show();
-			_invalidInputHeader.show();
-			_authErrorMessage.show();
+			if (user.email && user.email.length < 1) {
+				_authErrorContainer.show();
+				_invalidInputHeader.show();
+				_authErrorMessage.show();
 
-			var errorMessage = 'Email field should not be empty.';
-			_authErrorMessage.text(errorMessage);
+				var errorMessage = 'Email field should not be empty.';
+				_authErrorMessage.text(errorMessage);
 
-			return;
-		}
-		if (user.password && user.password.length < 1) {
-			_authErrorContainer.show();
-			_invalidInputHeader.show();
-			_authErrorMessage.show();
+				return;
+			}
+			if (user.password && user.password.length < 1) {
+				_authErrorContainer.show();
+				_invalidInputHeader.show();
+				_authErrorMessage.show();
 
-			var errorMessage = 'Password field should not be empty.';
-			_authErrorMessage.text(errorMessage);
+				var errorMessage = 'Password field should not be empty.';
+				_authErrorMessage.text(errorMessage);
 
-			return;
-		}
-		if (user.teamname && user.teamname.length < 1) {
-			_authErrorContainer.show();
-			_invalidInputHeader.show();
-			_authErrorMessage.show();
+				return;
+			}
+			if (user.teamname && user.teamname.length < 1) {
+				_authErrorContainer.show();
+				_invalidInputHeader.show();
+				_authErrorMessage.show();
 
-			var errorMessage = 'Teamname field should not be empty.';
-			_authErrorMessage.text(errorMessage);
+				var errorMessage = 'Teamname field should not be empty.';
+				_authErrorMessage.text(errorMessage);
 
-			return;
-		}
+				return;
+			}
 
-		// Sign in with email and pass.
-		firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-			.then(function(firebaseUser) {
-				firebaseUser.updateProfile ({
-					displayName: user.teamname
-				}).then(function() {
-					// TODO(Mel): authenticate team
+			// Sign in with email and pass.
+			firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+				.then(function(firebaseUser) {
+					firebaseUser.updateProfile ({
+						displayName: user.teamname
+					}).then(function() {
+						// TODO(Mel): authenticate team
 
-					getChallenges(user);
+						getChallenges(user);
 
-				}, function(error) {
-					console.log('could not update your team');
+					}, function(error) {
+						console.log('could not update your team');
+					});
+				}, function (error) {
+					_authErrorContainer.show();
+					_firebaseAuthErrorHeader.show();
+					_authErrorMessage.show();
+
+					_authErrorMessage.text(error.message);
 				});
-			}, function (error) {
+
+			// console.log('User registered.');
+			// var challenges = [	{ guid: guid(), cid: 1, level: 1, name: 'Ontario - Constant Power', saved: true, description: 'This is the first testing power case challenge.' },
+			// 					{ guid: guid(), cid: 3, level: 2, name: 'Ontario - Simple Power', saved: false, description: 'This is the second testing power case challenge.' },
+			// 					{ guid: guid(), cid: 4, level: 3, name: 'Ontario - Reactive Power', saved: false, description: 'This is the third testing power case challenge.' }];
+			// var res = {
+			// 	status: 'OK',
+			// 	uid: guid(),
+			// 	challenges: challenges
+			// }
+
+			// return res;
+
+			var challenges = getChallenges(user);
+			var res = {
+				status: 'OK',
+				uid: guid(),
+				challenges: challenges
+			}
+
+			resolve(res);
+		})
+	}
+
+	var login = function (args) {
+		return new Promise (function (resolve, reject) {
+			var user = {
+				email: args.email || '',
+				password: args.password || '',
+				teamname: args.teamname || ''
+			}
+
+			var _authErrorContainer = $('#auth-error-container');
+			var _invalidInputHeader = $('#invalid-input-header');
+			var _firebaseAuthErrorHeader = $('#firebase-auth-error-header');
+			var _authErrorMessage = $('#auth-error-message');
+
+			_authErrorMessage.text('');
+
+			_authErrorContainer.hide();
+			_invalidInputHeader.hide();
+			_firebaseAuthErrorHeader.hide();
+			_authErrorMessage.hide();
+
+			if (user.email && user.email.length < 1) {
+				_authErrorContainer.show();
+				_invalidInputHeader.show();
+				_authErrorMessage.show();
+
+				var errorMessage = 'Email field should not be empty.';
+				_authErrorMessage.text(errorMessage);
+
+				return;
+			}
+			if (user.password && user.password.length < 1) {
+				_authErrorContainer.show();
+				_invalidInputHeader.show();
+				_authErrorMessage.show();
+
+				var errorMessage = 'Password field should not be empty.';
+				_authErrorMessage.text(errorMessage);
+
+				return;
+			}
+			if (user.teamname && user.teamname.length < 1) {
+				_authErrorContainer.show();
+				_invalidInputHeader.show();
+				_authErrorMessage.show();
+
+				var errorMessage = 'Teamname field should not be empty.';
+				_authErrorMessage.text(errorMessage);
+
+				return;
+			}
+
+			firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch(function(error) {
 				_authErrorContainer.show();
 				_firebaseAuthErrorHeader.show();
 				_authErrorMessage.show();
@@ -127,92 +218,27 @@ app.service('LoginService', function () {
 				_authErrorMessage.text(error.message);
 			});
 
-		// console.log('User registered.');
-		// var challenges = [	{ guid: guid(), cid: 1, level: 1, name: 'Ontario - Constant Power', saved: true, description: 'This is the first testing power case challenge.' },
-		// 					{ guid: guid(), cid: 3, level: 2, name: 'Ontario - Simple Power', saved: false, description: 'This is the second testing power case challenge.' },
-		// 					{ guid: guid(), cid: 4, level: 3, name: 'Ontario - Reactive Power', saved: false, description: 'This is the third testing power case challenge.' }];
-		// var res = {
-		// 	status: 'OK',
-		// 	uid: guid(),
-		// 	challenges: challenges
-		// }
+			// console.log('Login successful.');
+			// var challenges = [	{ guid: guid(), cid: 1, level: 1, name: 'Ontario - Constant Power', saved: true, description: 'This is the first testing power case challenge.' },
+			// 					{ guid: guid(), cid: 3, level: 2, name: 'Ontario - Simple Power', saved: false, description: 'This is the second testing power case challenge.' },
+			// 					{ guid: guid(), cid: 4, level: 3, name: 'Ontario - Reactive Power', saved: false, description: 'This is the third testing power case challenge.' }];
+			// var res = {
+			// 	status: 'OK',
+			// 	uid: guid(),
+			// 	challenges: challenges
+			// }
 
-		// return res;
+			// return res;
 
-		getChallenges(user);
-	}
+			var challenges = getChallenges(user);
+			var res = {
+				status: 'OK',
+				uid: guid(),
+				challenges: challenges
+			}
 
-	var login = function (args) {
-		var user = {
-			email: args.email || '',
-			password: args.password || '',
-			teamname: args.teamname || ''
-		}
-
-		var _authErrorContainer = $('#auth-error-container');
-		var _invalidInputHeader = $('#invalid-input-header');
-		var _firebaseAuthErrorHeader = $('#firebase-auth-error-header');
-		var _authErrorMessage = $('#auth-error-message');
-
-		_authErrorMessage.text('');
-
-		_authErrorContainer.hide();
-		_invalidInputHeader.hide();
-		_firebaseAuthErrorHeader.hide();
-		_authErrorMessage.hide();
-
-		if (user.email && user.email.length < 1) {
-			_authErrorContainer.show();
-			_invalidInputHeader.show();
-			_authErrorMessage.show();
-
-			var errorMessage = 'Email field should not be empty.';
-			_authErrorMessage.text(errorMessage);
-
-			return;
-		}
-		if (user.password && user.password.length < 1) {
-			_authErrorContainer.show();
-			_invalidInputHeader.show();
-			_authErrorMessage.show();
-
-			var errorMessage = 'Password field should not be empty.';
-			_authErrorMessage.text(errorMessage);
-
-			return;
-		}
-		if (user.teamname && user.teamname.length < 1) {
-			_authErrorContainer.show();
-			_invalidInputHeader.show();
-			_authErrorMessage.show();
-
-			var errorMessage = 'Teamname field should not be empty.';
-			_authErrorMessage.text(errorMessage);
-
-			return;
-		}
-
-		firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch(function(error) {
-			_authErrorContainer.show();
-			_firebaseAuthErrorHeader.show();
-			_authErrorMessage.show();
-
-			_authErrorMessage.text(error.message);
+			resolve(res);
 		});
-
-		// console.log('Login successful.');
-		// var challenges = [	{ guid: guid(), cid: 1, level: 1, name: 'Ontario - Constant Power', saved: true, description: 'This is the first testing power case challenge.' },
-		// 					{ guid: guid(), cid: 3, level: 2, name: 'Ontario - Simple Power', saved: false, description: 'This is the second testing power case challenge.' },
-		// 					{ guid: guid(), cid: 4, level: 3, name: 'Ontario - Reactive Power', saved: false, description: 'This is the third testing power case challenge.' }];
-		// var res = {
-		// 	status: 'OK',
-		// 	uid: guid(),
-		// 	challenges: challenges
-		// }
-
-		// return res;
-
-		getChallenges(user);
 	}
 
 	this.init = function (args) { return init(args); };
