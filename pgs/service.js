@@ -3,65 +3,67 @@ app.service('LoginService', function () {
 		// console.log('Login service initiated.');
 	}
 
-	var getChallenges = function (user) {
-		var success = function (data) {
-			if (data) {
-				var challenges = [data];
+	var getChallenges = function (args) {
+		return new Promise(function (resolve, reject) {
+			var success = function (data) {
+				if (data) {
+					var challenge = data;
 
-				var res = {
-					status: 'OK',
-					uid: guid(),
-					challenges: challenges
+					// these are all fake data
+					// need to check with back end to see where all these information all
+					// also regarding the simulations that have been saved
+					challenge.id = 1;
+					challenge.name = 'Ontario Power Generation';
+					challenge.saved = 'False';
+
+					var challenges = [challenge];
+
+					return challenges
 				}
-
-				return res;
 			}
-		}
-		var error = function (error) {
-			console.log(error);
-		}
 
-		// $.ajax({
-		// 	url: 'http://127.0.0.1:5000/getChallenge?callback=success',
-		// 	type: 'GET',
-		// 	data: { user: user },
-		// 	// jsonpCallback: 'success',
-		// 	// dataType: 'JSONP',
-		// 	contentType: 'json',
-		// 	success: success,
-		// 	error: error
-		// })
+			// $.ajax({
+			// 	url: 'http://127.0.0.1:5000/getChallenge?callback=success',
+			// 	type: 'GET',
+			// 	data: { user: user },
+			// 	// jsonpCallback: 'success',
+			// 	// dataType: 'JSONP',
+			// 	contentType: 'json',
+			// 	success: success,
+			// })
 
-		// this is just my hacky way of getting around same origin policy thing
-		// we will talk about actually making calls to backend without being hacky...
-		// BRYAN PLEASE HELP
-		var readTextFile = function (file) {
-			return new Promise(function (resolve, reject) {
-				var rawFile = new XMLHttpRequest();
+			// this is just my hacky way of getting around same origin policy thing
+			// we will talk about actually making calls to backend without being hacky...
+			// BRYAN PLEASE HELP
+			var readTextFile = function (file) {
+				return new Promise(function (resolve, reject) {
+					var rawFile = new XMLHttpRequest();
 
-				rawFile.open('GET', file, false);
-				rawFile.onreadystatechange = function () {
-					if (rawFile.readyState == 4) {
-						if (rawFile.status == 200 || rawFile.status == 0) {
-							var allText = rawFile.responseText;
+					rawFile.open('GET', file, false);
+					rawFile.onreadystatechange = function () {
+						if (rawFile.readyState == 4) {
+							if (rawFile.status == 200 || rawFile.status == 0) {
+								var allText = rawFile.responseText;
 
-							resolve(allText);
+								resolve(allText);
+							}
 						}
 					}
-				}
 
-				rawFile.send(null);
-			})
-		}
+					rawFile.send(null);
+				})
+			}
 
-		readTextFile('Challenge.txt')
-			.then(function (text) {
-				var data = JSON.parse(text);
+			readTextFile('Challenge.txt')
+				.then(function (text) {
+					var data = JSON.parse(text);
+					var challenges = success(data);
 
-				success(data);
-			}).catch(function (error) {
-				error(error);
-			})
+					resolve(challenges);
+				}).catch(function (error) {
+					reject(error);
+				})
+		})
 	}
 	
 	var register = function (args) {
@@ -134,7 +136,7 @@ app.service('LoginService', function () {
 					_authErrorMessage.show();
 
 					_authErrorMessage.text(error.message);
-				});
+				})
 
 			// console.log('User registered.');
 			// var challenges = [	{ guid: guid(), cid: 1, level: 1, name: 'Ontario - Constant Power', saved: true, description: 'This is the first testing power case challenge.' },
@@ -148,14 +150,18 @@ app.service('LoginService', function () {
 
 			// return res;
 
-			var challenges = getChallenges(user);
-			var res = {
-				status: 'OK',
-				uid: guid(),
-				challenges: challenges
-			}
+			getChallenges(user)
+				.then(function (data) {
+					var res = {
+						status: 'OK',
+						uid: guid(),
+						challenges: data
+					}
 
-			resolve(res);
+					resolve(res);
+				}).catch(function (error) {
+					reject(error);
+				})
 		})
 	}
 
@@ -230,15 +236,19 @@ app.service('LoginService', function () {
 
 			// return res;
 
-			var challenges = getChallenges(user);
-			var res = {
-				status: 'OK',
-				uid: guid(),
-				challenges: challenges
-			}
+			getChallenges(user)
+				.then(function (data) {
+					var res = {
+						status: 'OK',
+						uid: guid(),
+						challenges: data
+					}
 
-			resolve(res);
-		});
+					resolve(res);
+				}).catch(function (error) {
+					reject(error);
+				})
+		})
 	}
 
 	this.init = function (args) { return init(args); };

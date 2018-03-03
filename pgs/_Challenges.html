@@ -1,18 +1,15 @@
-<div>Welcome {{teammane}}</div>
 <div class="pgs-page">
     <table class="table table-hover">
         <thead>
             <th>ID</th>
             <th>Name</th>
-            <th>Level</th>
             <th>Saved</th>
             <th></th>
         </thead>
         <tbody>
             <tr ng-repeat="challenge in challenges">
-                <td class="pgs-td">{{challenge.cid}}</td>
+                <td class="pgs-td">{{challenge.id}}</td>
                 <td class="pgs-td">{{challenge.name}}</td>
-                <td class="pgs-td">{{challenge.level}}</td>
                 <td class="pgs-td">{{challenge.saved}}</td>
                 <td class="pgs-td">
                     <button class="btn btn-default pgs-btn" ng-click="previewChallenge(challenge.cid)">Preview</button>
