@@ -78,6 +78,7 @@ app.service('LoginService', function () {
 			var _invalidInputHeader = $('#invalid-input-header');
 			var _firebaseAuthErrorHeader = $('#firebase-auth-error-header');
 			var _authErrorMessage = $('#auth-error-message');
+			var _teamCodeMessage = $('#team-code-message');
 
 			_authErrorMessage.text('');
 
@@ -85,6 +86,7 @@ app.service('LoginService', function () {
 			_invalidInputHeader.hide();
 			_firebaseAuthErrorHeader.hide();
 			_authErrorMessage.hide();
+			_teamCodeMessage.hide();
 
 			if (user.email && user.email.length < 1) {
 				_authErrorContainer.show();
@@ -96,12 +98,12 @@ app.service('LoginService', function () {
 
 				return;
 			}
-			if (user.password && user.password.length < 1) {
+			if (user.password && user.password.length < 5) {
 				_authErrorContainer.show();
 				_invalidInputHeader.show();
 				_authErrorMessage.show();
 
-				var errorMessage = 'Password field should not be empty.';
+				var errorMessage = 'Password field should be at least 6 characters.';
 				_authErrorMessage.text(errorMessage);
 
 				return;
@@ -123,9 +125,42 @@ app.service('LoginService', function () {
 					firebaseUser.updateProfile ({
 						displayName: user.teamname
 					}).then(function() {
-						// TODO(Mel): authenticate team
+						// Authenticate team.
+						var teamsRef = firebase.database().ref().child('teams');
+						teamsRef.orderByChild("team_name").equalTo(user.teamname).once("value",team => {
+							const teamData = team.val();
+							if (teamData) {
+								// Else enter code and check.
+								// TODO(Annie): show text box of "Please enter team secret code"
+								var inputCode = 'a';
+								teamKey = Object.keys(teamData)[0];
+								if (inputCode != teamKey) {
+									_authErrorMessage.show();
+									var errorMessage = 'Wrong team secret code.';
+									_authErrorMessage.text(errorMessage);
+								}
+							} else {
+								// team doesn't exist, push to teams/ db.
+								var teamKey = teamsRef.push().key;
+								teamsRef.orderByChild('team_id').limitToLast(1).once("value",lastTeam => {
+									const lastTeamData = Object.values(lastTeam.val())[0];
+									var teamID = 1 + +lastTeamData.team_id;
+									var newTeam = {};
+									newTeam[teamKey] = {
+										'team_id': teamID,
+										'team_name': user.teamname
+									};
+									teamsRef.update(newTeam);
 
-						getChallenges(user);
+									// TODO(Annie): page redirects to challenges after creating, cannot show this code.
+									_teamCodeMessage.show();
+									var codeMessage = 'The secret code for your team is: ' + teamKey;
+									_teamCodeMessage.text(codeMessage);
+								});
+							}
+							
+							getChallenges(user);
+						});
 
 					}, function(error) {
 						console.log('could not update your team');
