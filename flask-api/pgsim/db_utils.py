@@ -92,6 +92,11 @@ def get_top_five():
 
 # TODO(Mel): Display previous entry and add the ability to pull one up 
 
+# TODO(Mel): Given the id of the challenge, check if the currently signed-in
+# team has their work saved for this challenge or not. 
+def is_saved(id):
+    return False
+
 # The following functions are example operations that the front-end can call.
 # The specific route and methods will be modified to reflect frontend's real needs.
 def register_routes(current_app):

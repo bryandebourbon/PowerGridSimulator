@@ -60,6 +60,8 @@ def get_challenge():
     #    “capacity”: one number, constant capacity
     #    This is up for change, might add more parameters},
     #   { some other line...}, { ... }]
+    saved = db_utils.is_saved(1)
+
     gens = []
     for gen_type, gen_params in ppc_utils.gen_types.items():
         cur_gen = {"type": gen_type}
@@ -76,7 +78,13 @@ def get_challenge():
     lines = [{"from": int(line[F_BUS]), "to": int(line[T_BUS]), "capacity": float(line[RATE_A])} 
                 for line in ppc_utils.transmission_limits]
 
-    return make_response(json.dumps({"generators": gens, "demands": demands, "lines": lines}))
+    return make_response(json.dumps(
+        {"id": 1,
+         "name": "Ontario Power Generation",
+         "saved": saved,
+         "generators": gens,
+         "demands": demands,
+         "lines": lines}))
 
 # Submit and evaluate submitted form data.
 @pgsim_app.route("/submit/", methods=["POST"])
