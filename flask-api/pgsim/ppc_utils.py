@@ -71,6 +71,7 @@ gen_baseline = np.array(
     )
 
 # Hardcoded generator parameters for each generator type over a time series.
+# Cost is in thousands, power is in 100MW.
 # TODO: Update the cost functions (pending Kevin's input).
 # TODO: Read these from csv or database (?) and over longer time series.
 # TODO: Consider making the capacity location-dependent; e.g. not all 
@@ -79,27 +80,32 @@ gen_baseline = np.array(
 gen_types = {
     "G":   {"real_capacity": np.full((6), 25), 
             "reactive_capacity": np.zeros(6),
-            "real_cost": np.array([2, 0., 0., 3, 0.25, 10, 0]),
+            "real_cost": np.array([2, 0., 0., 2, 17.5, 0]),
+            "installation_cost": 2400000,
             "count": 10,
             "per_node_limit": {node:10 for node in range(10)}},
     "H":   {"real_capacity": np.full((6), 12), 
             "reactive_capacity": np.zeros(6),
-            "real_cost": np.array([2, 0., 0., 3, 0.25, 10, 0]),
+            "real_cost": np.array([2, 0., 0., 2, 14.8, 0]),
+            "installation_cost": 2750000,
             "count": 10,
             "per_node_limit": {0:1, 1:2, 2:0, 3:2, 4:0, 5:1, 6:0, 7:1, 8:2, 9:1}}, 
     "N":   {"real_capacity": np.full((6), 25), 
             "reactive_capacity": np.zeros(6),
-            "real_cost": np.array([2, 0., 0., 3, 0.2, 20, 0]),
+            "real_cost": np.array([2, 0., 0., 2, 9, 0]),
+            "installation_cost": 10000000,
             "count": 10,
             "per_node_limit": {node:10 for node in range(10)}}, 
     "S":   {"real_capacity": np.array([0.065, 0.18, 0.235, 0.31, 0.325, 0.245]), 
             "reactive_capacity": np.zeros(6),
-            "real_cost": np.array([2, 0., 0., 3, 0.05, 5, 0]),
+            "real_cost": np.array([2, 0., 0., 2, 35, 0]),
+            "installation_cost": 444000,
             "count": 10,
             "per_node_limit": {node:5 for node in range(10)}},
     "W":   {"real_capacity": np.array([5.374, 5.61, 5.612, 5.718, 5.31, 4.534]), 
             "reactive_capacity": np.zeros(6),
-            "real_cost": np.array([2, 0., 0., 3, 0.05, 5, 0]),
+            "real_cost": np.array([2, 0., 0., 2, 11.5, 0]),
+            "installation_cost": 1600000,
             "count": 10,
             "per_node_limit": {node:10 for node in range(10)}}
 }
