@@ -8,8 +8,9 @@ import sqlite3
 from werkzeug.utils import find_modules, import_string
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, make_response
-# from flask_cors import CORS ?
-# CORS(pgsim_app)
+
+# this fixes the CORS issue, apparently flask has a library for that
+from flask_cors import CORS 
 
 import pgsim.ppc_utils as ppc_utils, pgsim.db_utils as db_utils, pgsim.eval_pg as eval_pg
 
@@ -22,6 +23,9 @@ import numpy as np
 
 pgsim_app = Flask(__name__) # create the application instance :)
 pgsim_app.config.from_object(__name__) # load config from this file , flaskr.py
+
+# apply CORS to our pgsim app
+CORS(pgsim_app)
 
 # Load default config and override config from an environment variable
 # TODO: can define env var FLASKR_SETTINGS that points to a config file to be loaded
