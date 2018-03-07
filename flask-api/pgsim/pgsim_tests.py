@@ -77,6 +77,11 @@ class PgsimTestCase(unittest.TestCase):
         rv = self.app.get('/getChallenge/')
         print("getChallenge output:\n{}".format(rv.data))
 
+    def test_submit_empty(self):
+        placements = []
+        self.assertRaises(AssertionError, self.app.post,'/submit/', data=json.dumps(placements),
+                       content_type='application/json', headers={"username": "ourteam"})
+
     def test_submit(self):
         placements = [ {"node": 0, "generators": {} }, 
                     {"node": 1, "generators": {'H': 1}},

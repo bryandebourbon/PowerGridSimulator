@@ -100,12 +100,14 @@ def submit():
 
     submitted_data = request.get_data().decode('unicode_escape')
     submitted_data = json.loads(submitted_data)
-    assert (len(submitted_data) == ppc_utils.node_count), "The submitted data must contain correct number of nodes"
-    
+
     # Convert the dict structure into a structure used in backend.
     gen_placements = [{} for i in range(ppc_utils.node_count)]
+    no_gens = True
     for submitted_node in submitted_data:
         gen_placements[int(submitted_node["node"])] = submitted_node["generators"]
+        if submitted_node["generators"]: no_gens = False
+    assert not no_gens, "Must specify at least one generator for PyPower to process."
 
     team_name = str(request.headers["username"])
     team_id = db_utils.get_team_id(team_name)
@@ -134,6 +136,7 @@ def do_submit_routine(gen_placements, team_id):
             latest_scores_status_entry['last_submit_success_time'], "%Y-%m-%d %H:%M:%S")
     
     # Check if the team is allowed to submit.
+    # TODO(Mel): Update the time limit to be longer before deployment.
     if timedelta(seconds=5) > sub_wait_time:
        status['success'] = False
        status['message'] = "Need to wait {} until submit.".format(str(timedelta(seconds=5) - sub_wait_time))

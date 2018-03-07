@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np, csv, itertools, os
 
 # NOTE: PYPOWER'S INDEX STARTS FROM 1!
 
@@ -22,29 +22,25 @@ transmission_limits = np.array([
         [8,  10, 0,       0.11001, 0,      9900,    0,      0,   0,     0,      1,     -360, 360]
     ])
 
+straight_km_distances = np.array([600,430,530,130,180,150,150,100,200,100,120,160])
+line_km = 1.3 * straight_km_distances
+
 # Hardcoded demand profiles for each timestep for all the buses. (Number of rows
 # == number of timesteps; number of columns == number of buses.)
-# TODO: Read a longer time series of the demand profiles from csv or database.
-real_demand_profiles = np.array([ 
-    [4.85, 14.53, 9.58,  12.12, 57.74, 10.21, 0.71,   30.78, 4.72,  13.98],
-    [4.85, 14.52, 9.55,  12.12, 57.77, 10.20, 0.71,   30.81, 4.72,  14.00],
-    [4.85, 14.52, 9.53,  12.13, 57.81, 10.19, 0.71,   30.84, 4.73,  14.02],
-    [4.84, 14.51, 9.50,  12.13, 57.84, 10.19, 0.71,   30.87, 4.73,  14.04],
-    [4.84, 14.50, 9.47,  12.13, 57.87, 10.18, 0.71,   30.89, 4.73,  14.06],
-    [4.84, 14.50, 9.44,  12.13, 57.91, 10.17, 0.71,   30.92, 4.73,  14.08]
-])
-reactive_demand_profiles = np.array([
-    [ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
-    [ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
-    [ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
-    [ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
-    [ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
-    [ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.]
-])
-timestep_count = real_demand_profiles.shape[0]
-node_count = real_demand_profiles.shape[1]
-assert timestep_count == reactive_demand_profiles.shape[0], "Demand profiles for real power and reactive power must span the same time period"
-assert node_count == real_demand_profiles.shape[1], "Demand profiles for real power and reactive power must specify the same number of nodes"
+# TODO: Read a longer time series of the demand profiles.
+timestep_start = 24
+timestep_count = 6
+node_count = 10
+
+demand_file = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 
+    "data/zonal_demands.csv"), "r")
+demand_reader = csv.reader(demand_file)
+real_demand_profiles = np.array([
+    timestep[2:] for timestep in itertools.islice(demand_reader, 
+        timestep_start, timestep_start + timestep_count)])
+demand_file.close()
+real_demand_profiles = real_demand_profiles.astype(int) / 100
+reactive_demand_profiles = np.zeros((timestep_count, node_count))
 
 # Specs of buses. Note that the Pd Qd here are dummy values and will be updated
 # with the values in *_demand_profiles matrices. Vm Va are calculated by runopf().
@@ -72,7 +68,6 @@ gen_baseline = np.array(
 
 # Hardcoded generator parameters for each generator type over a time series.
 # Cost is in thousands, power is in 100MW.
-# TODO: Update the cost functions (pending Kevin's input).
 # TODO: Read these from csv or database (?) and over longer time series.
 # TODO: Consider making the capacity location-dependent; e.g. not all 
 # locations can support a lot of hydro generation.
