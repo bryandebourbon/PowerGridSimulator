@@ -2,6 +2,7 @@
     <div class="col-xs-6">
         <svg id="simulator-svg" ng-init="renderGrid()"></svg>
     </div>
+
     <div class="col-xs-6">
         <div class="pgs-node-profile">
             <div>{{node.name}}</div>
@@ -18,12 +19,9 @@
         </div>
         <div class="pgs-inventory-profile">
             <div>Inventory</div>
-            <span ng-repeat="aggregatedGenerator in aggregatedInventory | filter : generatorFilter | orderBy: 'type'">
-                <button class="btn btn-light" ng-click="viewAggregatedGenerator(aggregatedGenerator)">{{aggregatedGenerator.type}} ({{aggregatedGenerator.generators.length}})</button>
+            <span ng-repeat="generator in generators | orderBy: 'type'">
+                <button class="btn btn-light" ng-click="viewGeneratorInfo(generator)">{{generator.name}}</button>
             </span>
-        </div>
-        <div ng-show="expandAggregatedGenerator" ng-repeat="generator in aggregatedGenerator.generators | orderBy : 'capacity'">
-            <button class="btn btn-light" ng-click="addGenerator(generator)">{{generator.type}}, capacity: {{generator.capacity}}</button>
         </div>
     </div>
 </div>

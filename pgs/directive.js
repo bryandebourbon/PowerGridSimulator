@@ -103,9 +103,9 @@ app.directive('simulatorDirective', function () {
 		restrict: 'EA',
 		templateUrl: './_Simulator.html',
 		scope: {
-			inventory: '=?',
-			nodes: '=?',
-			links: '=?'
+			generators: '=?',
+			demands: '=?',
+			lines: '=?'
 		},
 		controller: simulatorDirectiveController
 	}
@@ -307,57 +307,30 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 		$scope.$apply();
 	}
 
-	$scope.node = _.find($scope.nodes, function (n) { return n.index == 1; });
-
-	$scope.removeGenerator = function (generator) {
-		_.remove($scope.node.generators, function (g, i) { return g.guid == generator.guid; });
-
-		$scope.inventory.push(generator);
-
-		$scope.aggregatedInventory = $scope.aggregateInventory($scope.inventory);
-		$scope.aggregatedGenerator = _.find($scope.aggregatedInventory, function (ag, i) { return ag.type == generator.type; });
-	}
-
-	$scope.addGenerator = function (generator) {
-		$scope.node.generators.push(generator);
-
-		_.remove($scope.inventory, function (g, i) { return g.guid == generator.guid; });
-
-		$scope.aggregatedInventory = $scope.aggregateInventory($scope.inventory);
-		$scope.aggregatedGenerator = _.find($scope.aggregatedInventory, function (ag, i) { return ag.type == generator.type; });
-	}
-
-	$scope.generatorFilter = function (generator) {
-		return generator && generator.generators && generator.generators.length > 0;
-	}
-
-	$scope.aggregateInventory = function (flatInventory) {
-		var aggregatedInventory = [];
-
-		_.forEach(flatInventory, function (g, i) {
-			var aggregatedGenerator = _.find(aggregatedInventory, function (ai, i) { return ai.type == g.type; });
-
-			if (aggregatedGenerator) {
-				aggregatedGenerator.generators.push(g);
-			} else {
-				aggregatedGenerator = {
-					type: g.type,
-					generators: [g]
-				}
-
-				aggregatedInventory.push(aggregatedGenerator);
+	// demands, generators, lines
+	var populateGeneratorInfo = function () {
+		_.forEach($scope.generators, function (generator) {
+			switch (generator.type) {
+				case 'G':
+					generator.name = 'Gas';
+					break;
+				case 'H':
+					generator.name = 'Hydro';
+					break;
+				case 'N':
+					generator.name = 'Nuclear';
+					break;
+				case 'S':
+					generator.name = 'Solar';
+					break;
+				case 'W':
+					generator.name = 'Water';
+					break;
 			}
 		})
-
-		return aggregatedInventory;
 	}
 
-	$scope.aggregatedInventory = $scope.aggregateInventory($scope.inventory);
-
-	$scope.viewAggregatedGenerator = function (aggregatedGenerator) {
-		$scope.aggregatedGenerator = aggregatedGenerator;
-		$scope.expandAggregatedGenerator = true;
-	}
+	populateGeneratorInfo();
 }]
 
 app.directive('evaluationDirective', function () {

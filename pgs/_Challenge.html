@@ -4,8 +4,8 @@
         <button class="btn btn-default pgs-submit-btn" ng-click="submitChallenge(challenge)">Submit</button>
     </nav>    
     <ul class="nav nav-tabs nav-justified">
-        <li class="nav-link pgs-tab active" ng-click="switchTab($event)" data-tab="statement"><a>Challenge Statement</a></li>
-        <li class="pgs-tab" ng-click="switchTab($event)" data-tab="simulation"><a class="nav-link">Challenge Simulation</a></li>
+        <li class="nav-link pgs-tab" ng-click="switchTab($event)" data-tab="statement"><a>Challenge Statement</a></li>
+        <li class="nav-link pgs-tab active" ng-click="switchTab($event)" data-tab="simulation"><a class="nav-link">Challenge Simulation</a></li>
     </ul>
 
     <div class="pgs-tab-content" ng-if="tab=='statement'">
@@ -13,6 +13,6 @@
     </div>
 
     <div class="pgs-tab-content" ng-if="tab=='simulation'">
-        <simulator-directive inventory="challenge.inventory" nodes="challenge.nodes" links="challenge.links"></simulator-directive>
+        <simulator-directive generators="challenge.generators" demands="challenge.demands" lines="challenge.lines"></simulator-directive>
     </div>
 </div>
