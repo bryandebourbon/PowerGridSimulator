@@ -53,18 +53,8 @@ app.directive('challengesDirective', function () {
 })
 
 var challengesDirectiveController = ['$scope', '$rootScope', 'ChallengesService', function ($scope, $rootScope, $ChallengesService) {
-	// $scope.challenges = [   { id: 1, name: 'pgsChallenge', status: 'new' },
-	// 						{ id: 3, name: 'pgsChallenge', status: 'new' },
-	// 						{ id: 4, name: 'pgsChallenge', status: 'saved' },
-	// 						{ id: 11, name: 'pgsChallenge', status: 'new' }];
-
-	// cid refers to challenge id
-	// we later retrieve grid layout using cid
-	// we later retrieve generator placement using cid + uid combination
-	$scope.previewChallenge = function (cid) {
-		// show problem statement
-		// show minimap contaning grid layout
-		$ChallengesService.previewChallenge(cid);
+	$scope.previewChallenge = function (id) {
+		$ChallengesService.previewChallenge(id);
 	}
 
 	$scope.simulateChallenge = function (cid) {

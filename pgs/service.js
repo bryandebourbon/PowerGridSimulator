@@ -257,13 +257,16 @@ app.service('ChallengesService', function () {
 		_challenges = args.challenges;
 	}
 
-	var previewChallenge = function (cid) {
-		// console.log('Preview challenge ' + cid);
-
-		var challenge = _.find(_challenges, function (c) { return c.cid == cid; });
+	var previewChallenge = function (id) {
+		var challenge = _.find(_challenges, function (c) { return c.id == id; });
 
 		if (challenge) {
-			alert(challenge.description);
+			// alert(challenge.description);
+			var _previewModalTitle = $('.modal-title');
+			var _previewModalDescription = $('.modal-description');
+
+			_previewModalTitle.text(challenge.name);
+			_previewModalDescription.text(challenge.description || 'This is some description of this challenge');
 		}
 	}
 
@@ -413,7 +416,7 @@ app.service('ChallengesService', function () {
 	}
 
 	this.init = function (args) { return init(args); }
-	this.previewChallenge = function (cid) { return previewChallenge(cid); }
+	this.previewChallenge = function (id) { return previewChallenge(id); }
 	this.simulateChallenge = function (cid) { return simulateChallenge(cid); }
 })
 

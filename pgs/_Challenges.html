@@ -12,10 +12,29 @@
                 <td class="pgs-td">{{challenge.name}}</td>
                 <td class="pgs-td">{{challenge.saved}}</td>
                 <td class="pgs-td">
-                    <button class="btn btn-default pgs-btn" ng-click="previewChallenge(challenge.cid)">Preview</button>
+                    <button class="btn btn-default pgs-btn" ng-click="previewChallenge(challenge.id)" data-toggle="modal" data-target="#preview-modal">Preview</button>
                     <button class="btn btn-default pgs-btn" ng-click="simulateChallenge(challenge.cid)">Simulate</button>
                 </td>
             </tr>
         </tbody>
     </table>
+</div>
+
+<div class="modal fade" id="preview-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title col-xs-6"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-description"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
