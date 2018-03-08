@@ -30,6 +30,10 @@
 	float: right;
 }
 
+.modal-description {
+	margin-left: 24px;
+}
+
 /* overwritting bootstrap classes */
 .navbar {
 	margin-bottom: 0 !IMPORTANT;
