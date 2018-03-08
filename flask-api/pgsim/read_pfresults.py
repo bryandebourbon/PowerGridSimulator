@@ -2,7 +2,6 @@
 This file contains functions that convert the results coming out of runpf() into
 readable/usable metrics.
 The main body of this code (printpf()) was ported from PYPOWER/pypower/printpf.py.
-The metrics came from https://github.com/rfairley/pcc-web/blob/master/flask-api/pcc/calc.py.
 """
 
 from sys import stdout
@@ -148,13 +147,13 @@ def convert_to_metrics(baseMVA, bus=None, gen=None, branch=None, f=None, success
     pf_metrics["buses"] = {}
     for bus_idx in range(nb):
         pf_metrics["buses"][bus_idx] = {
-                "supplied": {"mag":bus[bus_idx, VM], "angle":bus[bus_idx, VA]}, 
+                "supplied": {"mag": bus[bus_idx, VM], "angle": bus[bus_idx, VA]}, 
                 "generated": {"real": 0, "reactive": 0}
             }
     for gen_node in gen:
         bus_idx = int(gen_node[GEN_BUS]) - 1
-        pf_metrics["buses"][bus_idx]["generated"]["real"] = gen_node[PG]
-        pf_metrics["buses"][bus_idx]["generated"]["reactive"] = gen_node[QG]
+        pf_metrics["buses"][bus_idx]["generated"]["real"] += gen_node[PG]
+        pf_metrics["buses"][bus_idx]["generated"]["reactive"] += gen_node[QG]
 
     # see how much power is transmitted through each line
     pf_metrics["transmissions"] = {}

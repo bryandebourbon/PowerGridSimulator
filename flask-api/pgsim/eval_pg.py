@@ -18,11 +18,19 @@ from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, \
 def calc_score(gen_placements):
     gens, gen_caps, gen_costs = ppc_utils.build_gen_matrices(gen_placements)
     bus_data = ppc_utils.build_bus_data(gen_placements)
+
     total_loss = 0
     total_cost = 0
     overall_pass = True
-    overall_trans = {(int(line[0])-1, int(line[1])-1):{"real_power":[], "reactive_power":[]} for line in ppc_utils.transmission_limits}
-    overall_nodes = {bus_idx:{"supplied":{"mag":[], "angle":[]}, "generated":{"real":[], "reactive":[]}} for bus_idx in range(ppc_utils.node_count)}
+    overall_trans = {
+            (int(line[0])-1, int(line[1])-1): {"real_power":[], "reactive_power":[]} 
+            for line in ppc_utils.transmission_limits
+        }
+    overall_nodes = {
+            bus_idx: {  "supplied":     {"mag":[],  "angle":[]}, 
+                        "generated":    {"real":[], "reactive":[]}
+                    } for bus_idx in range(ppc_utils.node_count)
+        }
     for time in range(ppc_utils.timestep_count):
         # Construct a ppc to be passed into runopf().
         # Fill in the data constant across timesteps.
@@ -33,45 +41,36 @@ def calc_score(gen_placements):
             "gencost":  gen_costs
         }
 
+        # Fill in the timestep-specific generation capacities.
+        cur_gen = copy.deepcopy(gen_caps)
+        cur_gen[:, PMAX] = np.array([ppc_utils.gen_types[gen]["real_capacity"][time] for gen in gens])
+        cur_gen[:, QMAX] = 0.75 * cur_gen[:, PMAX] # Set reactive gen cap to be 0.75 of the real gen cap.
+        cur_gen[:, QMIN] = -0.75 * cur_gen[:, PMAX]
+        ppc["gen"] = cur_gen
+
         # Fill in the timestep-specific demand numbers.
         bus_data[:, PD] = ppc_utils.real_demand_profiles[time]
         bus_data[:, QD] = ppc_utils.reactive_demand_profiles[time]
         ppc["bus"] = bus_data
 
-        # Fill in the timestep-specific generation capacities.
-        cur_gen = copy.deepcopy(gen_caps)
-        cur_gen[:, PMAX] = np.array([ppc_utils.gen_types[gen]["real_capacity"][time] for gen in gens])
-        cur_gen[:, QMAX] = 0.75 * cur_gen[:, PMAX]
-        cur_gen[:, QMIN] = -0.75 * cur_gen[:, PMAX]
-        ppc["gen"] = cur_gen
-
         # Pass the input data into runopf().
         pf_results = runopf(ppc)
         pf_metrics = read_pfresults.convert_to_metrics(pf_results)
 
-        total_loss += pf_metrics["loss"]
-        total_cost += pf_metrics["cost"]
+        # Update the overall metrics.
         overall_pass = overall_pass and pf_metrics["passed"]
+        total_loss += pf_metrics["loss"] # Increment the loss
+        total_cost += pf_metrics["cost"] # Increment the cost
         for line, power in pf_metrics["transmissions"].items():
             for power_type, power_val in power.items():
+                # Append the transmission values of this timestep.
                 overall_trans[line][power_type].append(power_val)
         for node, power in pf_metrics["buses"].items():
             for data_type, data in power.items():
                 for real_or_not, power_val in data.items():
+                    # Append the supply and generation values for all buses of this timestep.
                     overall_nodes[node][data_type][real_or_not].append(power_val)
-    
-        trans_list = [power for _, power in overall_trans.items()]
-        line_idx = -1 
-        for line, _ in overall_trans.items():
-            line_idx += 1
-            trans_list[line_idx]["from"] = line[0]
-            trans_list[line_idx]["to"] = line[1]
-
-        nodes_list = [power for _, power in overall_nodes.items()]
-        node_idx = -1
-        for node, _ in overall_nodes.items():
-            node_idx += 1
-            nodes_list[node_idx]["node"] = node
+        # TODO: Add the cost and buses values for negative demand.
 
         print(pf_metrics["passed"])
         print("Loss calculated so far as follows: {}.".format(total_loss))
@@ -79,8 +78,24 @@ def calc_score(gen_placements):
         #print(pf_metrics["buses"])
         print(pf_metrics["cost"])
 
-    return {"loss": total_loss, 
-            "cost": total_cost, 
+    # Flatten the transmission line dictionaries, by pushing "from" and "to" into
+    # the dictionaries themseleves.
+    trans_list = [power for _, power in overall_trans.items()]
+    line_idx = -1 
+    for line, _ in overall_trans.items():
+        line_idx += 1
+        trans_list[line_idx]["from"] = line[0]
+        trans_list[line_idx]["to"] = line[1]
+
+    # Flatten the nodes dictionaries, by pushing bus_idx into the dictionaries 
+    # themselves.
+    nodes_list = [power for _, power in overall_nodes.items()]
+    node_idx = -1
+    for node, _ in overall_nodes.items():
+        node_idx += 1
+        nodes_list[node_idx]["node"] = node
+
+    return {"cost": total_cost, 
             "passed": overall_pass, 
             "score": total_cost,
             "lines": trans_list,

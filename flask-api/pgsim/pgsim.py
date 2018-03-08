@@ -93,19 +93,22 @@ def get_challenge():
 # Submit and evaluate submitted form data.
 @pgsim_app.route("/submit/", methods=["POST"])
 def submit():
-    # Input: a list of dictionaries, each dict for each node in order; each dict
-    # says how many generators of each type that this node has. For example, for
-    # a 4-node system, this could look like:
+    # Input: A json-wrapped list of dictionaries, each dict for each node in 
+    # order; each dict says how many generators of each type that this node has. 
+    # For example, for a 4+ node system, this could look like:
     #     [{'node': 0, 'generators': {} },
     #      {'node': 1, 'generators': {'H': 1}},
     #      {'node': 2, 'generators': {"N": 1}},
     #      {'node': 3, 'generators': {'H': 1, "N": 1, "R": 1}} ]
-    # Output: A dictionary
+    # Output: A json-wrapped dictionary
 
+    # Convert the json data into a dictionary 
     submitted_data = request.get_data().decode('unicode_escape')
     submitted_data = json.loads(submitted_data)
 
-    # Convert the dict structure into a structure used in backend.
+    # Convert the dict structure of the input design into a structure used in
+    # backend. Assuming there are n nodes, such a structure is a list of n 
+    # dicts. Dict #i is the generator dict of node #i (e.g. {'H': 1, "N": 1}).
     gen_placements = [{} for i in range(ppc_utils.node_count)]
     no_gens = True
     for submitted_node in submitted_data:
@@ -113,8 +116,11 @@ def submit():
         if submitted_node["generators"]: no_gens = False
     assert not no_gens, "Must specify at least one generator for PyPower to process."
 
+    # Get the team ID.
     team_name = str(request.headers["username"])
     team_id = db_utils.get_team_id(team_name)
+
+    # Evaluate the submitted design.
     status = do_submit_routine(gen_placements, team_id)
 
     #pp = pprint.PrettyPrinter(indent=4)
@@ -124,12 +130,9 @@ def submit():
     return make_response(json.dumps(status))
 
 def do_submit_routine(gen_placements, team_id):
-    status = { # To return to React
-        'success': True,
-        'message': "Processing",
-    }
-    sub_index = 0
+    status = {'success': True, 'message': 'Processing...'}
 
+    # Check if the team has waited long enough since the last submission.
     # TODO(Mel): Get the latest?(you mean current?) scores status.
     latest_scores_status_entry = db_utils.get_scores_status_entry(team_id)
     sub_date_time = datetime.now()
@@ -138,28 +141,31 @@ def do_submit_routine(gen_placements, team_id):
     else:
         sub_wait_time = sub_date_time - datetime.strptime(
             latest_scores_status_entry['last_submit_success_time'], "%Y-%m-%d %H:%M:%S")
-    
-    # Check if the team is allowed to submit.
     # TODO(Mel): Update the time limit to be longer before deployment.
     if timedelta(seconds=5) > sub_wait_time:
        status['success'] = False
        status['message'] = "Need to wait {} until submit.".format(str(timedelta(seconds=5) - sub_wait_time))
        return status
     
+    # Check if the team still has enough allowed attempts left.
     sub_index = latest_scores_status_entry['num_attempts'] # Should start off at 0
     if sub_index >= MAX_SUBMISSION_ATTEMPTS:
        status['success'] = False
        status['message'] = "Max submission attempts reached."
        return status
 
+    # Store the submitted design into the database.
     submission_id = db_utils.insert_submission_entry(gen_placements, team_id)
     if submission_id < 0:
        status['success'] = False
        status['message'] = "Could not insert submission to database."
        return status
     
-    # Calculate and update the scores for valid submission.
+    # Pass the design into PyPower and other evaluation metric to calculate 
+    # generations, transmissions, cost, CO2 emissions, etc. 
     new_scores = eval_pg.calc_score(gen_placements)
+
+    # Update the stored metrics of this team.
     new_sys_info = {
        'new_sub_datetime': sub_date_time.strftime("%Y-%m-%d %H:%M:%S"),
        'new_num_attempts': sub_index + 1
@@ -171,7 +177,6 @@ def do_submit_routine(gen_placements, team_id):
         best_scores = db_utils.get_best_scores(latest_scores_status_entry['scores_best'], new_scores)
         db_utils.update_scores_entry(submission_id, new_sys_info, team_id, best_scores)
 
-
-    status['eval'] = new_scores
     status['message'] = "{} Submission #{} successful.".format(sub_date_time.strftime("%Y-%m-%d %H:%M:%S"), sub_index)
+    status['eval'] = new_scores
     return status

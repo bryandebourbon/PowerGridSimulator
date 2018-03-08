@@ -15,9 +15,9 @@ transmission_limits = np.array([
         [4,   5, 0.05695, 0.17388, 0.0346, 9900,    0,      0,   0,     0,      1,     -360, 360],
         [4,   6, 0.06701, 0.17103, 0.0128, 9900,    0,      0,   0,     0,      1,     -360, 360],
         [5,   6, 0.01335, 0.04211, 0,      9900,    0,      0,   0,     0,      1,     -360, 360],
-        [5,   8, 0,       0.20912, 0,      9900,    0,      0,   0.978, 0,      1,     -360, 360],
-        [6,   8, 0,       0.55618, 0,      9900,    0,      0,   0.969, 0,      1,     -360, 360],
-        [7,   8, 0,       0.25202, 0,      9900,    0,      0,   0.932, 0,      1,     -360, 360],
+        [5,   8, 0,       0.20912, 0,      9900,    0,      0,   0,     0,      1,     -360, 360],
+        [6,   8, 0,       0.55618, 0,      9900,    0,      0,   0,     0,      1,     -360, 360],
+        [7,   8, 0,       0.25202, 0,      9900,    0,      0,   0,     0,      1,     -360, 360],
         [8,   9, 0,       0.11001, 0,      9900,    0,      0,   0,     0,      1,     -360, 360],
         [8,  10, 0,       0.11001, 0,      9900,    0,      0,   0,     0,      1,     -360, 360]
     ])
@@ -43,7 +43,8 @@ real_demand_profiles = real_demand_profiles.astype(int) / 100
 reactive_demand_profiles = np.zeros((timestep_count, node_count))
 
 # Specs of buses. Note that the Pd Qd here are dummy values and will be updated
-# with the values in *_demand_profiles matrices. Vm Va are calculated by runopf().
+# with the time-dependent values in *_demand_profiles matrices. Vm Va are 
+# calculated by runopf().
 bus_data = np.array([
     # bus_i type Pd     Qd  Gs Bs area Vm     Va baseKV zone Vmax Vmin
         [1,  3,  0,    0,   0, 0,  1, 1.06,    0,    0, 1, 1.06, 0.94],
@@ -77,30 +78,35 @@ gen_types = {
             "reactive_capacity": np.zeros(6),
             "real_cost": np.array([2, 0., 0., 2, 17.5, 0]),
             "installation_cost": 2400000,
+            "unit_CO2": 49.9, 
             "count": 10,
             "per_node_limit": {node:10 for node in range(10)}},
     "H":   {"real_capacity": np.full((6), 12), 
             "reactive_capacity": np.zeros(6),
             "real_cost": np.array([2, 0., 0., 2, 14.8, 0]),
             "installation_cost": 2750000,
+            "unit_CO2": 2.6, 
             "count": 10,
             "per_node_limit": {0:1, 1:2, 2:0, 3:2, 4:0, 5:1, 6:0, 7:1, 8:2, 9:1}}, 
     "N":   {"real_capacity": np.full((6), 25), 
             "reactive_capacity": np.zeros(6),
             "real_cost": np.array([2, 0., 0., 2, 9, 0]),
             "installation_cost": 10000000,
+            "unit_CO2": 2.9, 
             "count": 10,
             "per_node_limit": {node:10 for node in range(10)}}, 
     "S":   {"real_capacity": np.array([0.065, 0.18, 0.235, 0.31, 0.325, 0.245]), 
             "reactive_capacity": np.zeros(6),
             "real_cost": np.array([2, 0., 0., 2, 35, 0]),
             "installation_cost": 444000,
+            "unit_CO2": 8.5, 
             "count": 10,
             "per_node_limit": {node:5 for node in range(10)}},
     "W":   {"real_capacity": np.array([5.374, 5.61, 5.612, 5.718, 5.31, 4.534]), 
             "reactive_capacity": np.zeros(6),
             "real_cost": np.array([2, 0., 0., 2, 11.5, 0]),
             "installation_cost": 1600000,
+            "unit_CO2": 2.6, 
             "count": 10,
             "per_node_limit": {node:10 for node in range(10)}}
 }
@@ -109,6 +115,12 @@ for _, gen_profile in gen_types.items():
     assert (timestep_count == gen_profile["real_capacity"].shape[0]), "Demand profiles and generation profiles must specify the same number of timesteps"
 
 def build_gen_matrices(gen_placements):
+    # Returns:
+    #  - gens: a list (in order) of all the generators (one-letter names)
+    #  - gen_caps: the matrix to be put in ppc["gen"], only without the time-
+    #               dependent generator capacity values
+    #  - gen_costs: the matrix to be put in ppc["gencost"]
+
     assert node_count == len(gen_placements), "Must specify generator placements at all nodes"
     gens = np.zeros((0, 2)) # First column - node index (1-based), second column - name of gen type
 
@@ -126,7 +138,7 @@ def build_gen_matrices(gen_placements):
 
     gen_count = gens.shape[0]
 
-    gen_caps =  np.vstack([gen_baseline] * gen_count)
+    gen_caps = np.vstack([gen_baseline] * gen_count)
     gen_caps[:,0] = gens[:,0].astype(int)
 
     gen_costs = np.array([gen_types[gen[1]]["real_cost"] for gen in gens])
@@ -134,9 +146,10 @@ def build_gen_matrices(gen_placements):
     return gens[:,1], gen_caps, gen_costs
 
 def build_bus_data(gen_placements):
-    assert node_count == len(gen_placements), "Must specify generator placements at all nodes"
-
     # Update the BUS_TYPE column according to generator placements. 
+    # Returns the matrix to be put in ppc["bus"], only without the time-
+    # dependent demand values.
+    assert node_count == len(gen_placements), "Must specify generator placements at all nodes"
     for node, placement in enumerate(gen_placements):
         if sum(placement.values()) > 0 and bus_data[node, 1] == 1:
             bus_data[node, 1] = 2
