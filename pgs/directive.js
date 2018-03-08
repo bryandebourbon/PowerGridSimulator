@@ -77,7 +77,7 @@ app.directive('challengeDirective', function () {
 	}
 })
 
-var challengeDirectiveController = ['$scope', '$rootScope', 'ChallengeService', function ($scope, $rootScope, $ChallengeService) {
+var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'ChallengeService', function ($scope, $rootScope, $timeout, $ChallengeService) {
 	$scope.tab = 'simulation';
 
 	$scope.switchTab = function (evt) {
@@ -90,11 +90,16 @@ var challengeDirectiveController = ['$scope', '$rootScope', 'ChallengeService', 
 	}
 
 	$scope.submitChallenge = function (challenge) {
-		var res = $ChallengeService.submitChallenge(challenge);
+		$ChallengeService.submitChallenge(challenge)
+			.then(function (res) {
+				if (res && res.status == 'OK') {
+					$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'evaluation', evaluation: res.evaluation }); });
+				}
+			}).catch(function (error) {
+				console.log(error)
+			})
 
-		if (res && res.status == 'OK') {
-			$rootScope.$broadcast('pgsStateChanged', { state: 'evaluation', evaluation: res.evaluation });
-		}
+		
 	}
 }]
 
@@ -381,5 +386,5 @@ app.directive('evaluationDirective', function () {
 })
 
 var evaluationDirectiveController = ['$scope', '$rootScope', 'EvaluationService', function ($scope, $rootScope, $EvaluationService) {
-	// console.log($scope.evaluation);
+	console.log($scope.evaluation);
 }]

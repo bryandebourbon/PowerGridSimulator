@@ -80,11 +80,11 @@ app.service('LoginService', function () {
 					}).then(function() {
 						// Authenticate team.
 						var teamsRef = firebase.database().ref().child('teams');
-						teamsRef.orderByChild("team_name").equalTo(user.teamname).once("value",team => {
+						teamsRef.orderByChild('team_name').equalTo(user.teamname).once('value',team => {
 							const teamData = team.val();
 							if (teamData) {
 								// Else enter code and check.
-								// TODO(Annie): show text box of "Please enter team secret code"
+								// TODO(Annie): show text box of 'Please enter team secret code'
 								var inputCode = 'a';
 								teamKey = Object.keys(teamData)[0];
 								if (inputCode != teamKey) {
@@ -95,7 +95,7 @@ app.service('LoginService', function () {
 							} else {
 								// team doesn't exist, push to teams/ db.
 								var teamKey = teamsRef.push().key;
-								teamsRef.orderByChild('team_id').limitToLast(1).once("value",lastTeam => {
+								teamsRef.orderByChild('team_id').limitToLast(1).once('value',lastTeam => {
 									const lastTeamData = Object.values(lastTeam.val())[0];
 									var teamID = 1 + +lastTeamData.team_id;
 									var newTeam = {};
@@ -259,79 +259,36 @@ app.service('ChallengeService', function () {
 	var _challenge = null;
 	
 	var init = function (args) {
-		// console.log('Challenge service initiated.');
-
 		_challenge = args.challenge;
 	}
 
 	var submitChallenge = function (challenge) {
-		var minifyChallenge = function (complexChallenge) {
-			var nodes = [];
+		return new Promise(function (resolve, reject) {
+			var submission = [	{ 'node': 0, 'generators': {} },
+								{ 'node': 1, 'generators': { 'H': 1 } },
+								{ 'node': 2, 'generators': { 'N': 1 } },
+								{ 'node': 3, 'generators': { 'G': 1 } },
+								{ 'node': 4, 'generators': { 'S': 1 } },
+								{ 'node': 5, 'generators': { 'W': 1 } },
+								{ 'node': 6, 'generators': { 'H': 1, 'N': 1 } },
+								{ 'node': 7, 'generators': { 'G': 1, 'S': 1 } },
+								{ 'node': 8, 'generators': { 'G': 1, 'S': 1, 'W': 1 } },
+								{ 'node': 9, 'generators': { 'H': 1, 'N': 1, 'G': 1, 'S': 1, 'W': 1 } }];
 
-			_.forEach(complexChallenge.nodes, function (n, i) { 
-				var node = {
-					index: n.index,
-					generators: n.generators
-				}
+			$.ajax({
+				url: 'http://127.0.0.1:5000/submit',
+				type: 'POST',
+				data: submission,
+				success: function (data) {
+					var res = {
+						status: 'OK',
+						evaluation: evaluation
+					}
 
-				nodes.push(node);
+					resolve(res);
+				},
 			})
-
-			var challenge = {
-				guid: complexChallenge.guid,
-				nodes: nodes
-			}
-
-			return challenge;
-		}
-
-		var minifiedChallenge = minifyChallenge(challenge);
-
-		var pass = true;
-		var optimalCost = 15;
-		var environmentalFootprint = 10;
-
-		var nodes = [];
-		var links = [];
-
-		_.forEach(_.range(0, 24), function (i) {
-			var node = {
-				index: i,
-				demand: 3,
-				value: 5
-			}
-
-			nodes.push(node);
-
-			var link = {
-				index: i,
-				capacity: 5,
-				value: 4
-			}
-
-			links.push(link);
 		})
-
-		var lastIteration = {
-			nodes: nodes,
-			links: links
-		}
-
-		fakeAPI('submit', minifiedChallenge);
-
-		var evaluation = {
-			pass: pass,
-			optimalCost: optimalCost,
-			lastIteration: lastIteration,
-			environmentalFootprint: environmentalFootprint
-		}
-
-		var res = {
-			status: 'OK',
-			evaluation: evaluation
-		}
-
-		return res;
 	}
 
 	this.init = function (args) { return init(args); }
