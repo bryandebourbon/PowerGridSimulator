@@ -5,23 +5,25 @@
 
     <div class="col-xs-6">
         <div class="pgs-node-profile">
-            <div>{{node.name}}</div>
+            <div class="pgs-title">{{node.name}}</div>
             <div class="pgs-demand">
-                <div>Demand Profile</div>
-                <div>{{node.demand}}</div>
+                <div class="pgs-subtitle">Demand Profile</div>
+                <div>Real demands: {{node.demands.real}}</div>
+                <div>Reactive demands: {{node.demands.reactive}}</div>
             </div>
             <div class="pgs-generator">
-                <div>Generator Configurations</div>
+                <div class="pgs-subtitle">Generators Installed</div>
                 <span ng-repeat="generator in node.generators | orderBy : ['type', 'capacity']">
                     <button class="btn btn-light" ng-click="removeGenerator(generator)">{{generator.type}}, capacity: {{generator.capacity}}</button>
                 </span>
             </div>
         </div>
         <div class="pgs-inventory-profile">
-            <div>Inventory</div>
+            <div class="pgs-subtitle">Inventory Profile</div>
             <span ng-repeat="generator in generators | orderBy: 'type'">
-                <button class="btn btn-light" ng-click="viewGeneratorInfo(generator)">{{generator.name}}</button>
+                <button class="btn btn-default" ng-click="viewGeneratorInfo(generator)">{{generator.type}}</button>
             </span>
+            <div id="generator-info" hidden></div>
         </div>
     </div>
 </div>

@@ -29,6 +29,19 @@
 .pgs-submit-btn {
 	float: right;
 }
+.pgs-title {
+	font-size: large;
+	margin-top: 12px;
+	margin-bottom: 12px;
+}
+.pgs-subtitle {
+	font-size: larger;
+	margin-top: 6px;
+	margin-bottom: 6px;
+}
+#generator-info {
+	margin-top: 12px;
+}
 
 .modal-description {
 	margin-left: 24px;

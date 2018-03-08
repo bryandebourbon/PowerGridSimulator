@@ -111,7 +111,7 @@ app.directive('simulatorDirective', function () {
 	}
 })
 
-var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', function ($scope, $rootScope, $SimulatorService) {
+var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'SimulatorService', function ($scope, $rootScope, $timeout, $SimulatorService) {
 	$scope.renderGrid = function () {
 		//https://bost.ocks.org/mike/map/
 		//https://medium.com/@mbostock/command-line-cartography-part-1-897aa8f8ca2c
@@ -308,38 +308,65 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 	}
 
 	// demands, generators, lines
-	$scope.nodes = $scope.demands;	// assigning a synonym
-	$scope.node = _.find($scope.nodes, function (n) { return n.node == 0; });
-
 	var populateGeneratorInfo = function () {
 		_.forEach($scope.generators, function (generator) {
 			switch (generator.type) {
 				case 'G':
-					generator.name = 'Gas';
+					generator.type = 'Gas';
 					break;
 				case 'H':
-					generator.name = 'Hydro';
+					generator.type = 'Hydro';
 					break;
 				case 'N':
-					generator.name = 'Nuclear';
+					generator.type = 'Nuclear';
 					break;
 				case 'S':
-					generator.name = 'Solar';
+					generator.type = 'Solar';
 					break;
 				case 'W':
-					generator.name = 'Water';
+					generator.type = 'Water';
 					break;
 			}
 		})
 	}
 	var populateNodeInfo = function () {
-		_.forEach($scope.nodes, function (n) {
-			n.name = 'Node ' + n.node;
+		$scope.nodes = [];
+
+		_.forEach($scope.demands, function (d) {
+			var node = {
+				node: d.node,
+				demands: {
+					real: d.real,
+					reactive: d.reactive
+				},
+				generators: []
+			}
+
+			$scope.nodes.push(node);
 		})
+
+		$scope.node = _.find($scope.nodes, function (n) { return n.node == 0; });
+	}
+
+	$scope.viewGeneratorInfo = function (generator) {
+		var _generatorInfo = $('#generator-info');
+		_generatorInfo.children().remove();
+
+		_.forEach(generator, function (v, k) {
+			if (k != '$$hashKey') {
+				var _entry = $('<div>').text(k + ': ' + v);
+
+				_generatorInfo.append(_entry);
+			}
+		})
+
+		_generatorInfo.show();
 	}
 
 	populateGeneratorInfo();
 	populateNodeInfo();
+
+	$timeout(function () { $scope.$apply(); });
 }]
 
 app.directive('evaluationDirective', function () {
