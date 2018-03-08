@@ -52,7 +52,7 @@ app.directive('challengesDirective', function () {
 	}
 })
 
-var challengesDirectiveController = ['$scope', '$rootScope', 'ChallengesService', function ($scope, $rootScope, $ChallengesService) {
+var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', 'ChallengesService', function ($scope, $rootScope, $timeout, $ChallengesService) {
 	$scope.previewChallenge = function (id) {
 		$ChallengesService.previewChallenge(id);
 	}
@@ -61,7 +61,7 @@ var challengesDirectiveController = ['$scope', '$rootScope', 'ChallengesService'
 		var res = $ChallengesService.simulateChallenge(id);
 
 		if (res && res.status == 'OK') {
-			$rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: res.challenge });
+			$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: res.challenge }); });
 		}
 	}
 }]
@@ -308,6 +308,9 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 	}
 
 	// demands, generators, lines
+	$scope.nodes = $scope.demands;	// assigning a synonym
+	$scope.node = _.find($scope.nodes, function (n) { return n.node == 0; });
+
 	var populateGeneratorInfo = function () {
 		_.forEach($scope.generators, function (generator) {
 			switch (generator.type) {
@@ -329,8 +332,14 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 			}
 		})
 	}
+	var populateNodeInfo = function () {
+		_.forEach($scope.nodes, function (n) {
+			n.name = 'Node ' + n.node;
+		})
+	}
 
 	populateGeneratorInfo();
+	populateNodeInfo();
 }]
 
 app.directive('evaluationDirective', function () {
