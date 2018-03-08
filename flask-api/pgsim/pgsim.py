@@ -85,6 +85,7 @@ def get_challenge():
     return make_response(json.dumps(
         {"id": 1,
          "name": "Ontario Power Generation",
+         "description": "Design Ontario's generation system with real-life demand, generation cost, CO2 emission, and more data! (Description proposed by mighty Jane)",
          "saved": saved,
          "generators": gens,
          "demands": demands,
