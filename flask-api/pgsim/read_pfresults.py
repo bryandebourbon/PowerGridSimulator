@@ -23,6 +23,8 @@ from pypower.isload import isload
 from pypower.run_userfcn import run_userfcn
 from pypower.ppoption import ppoption
 
+from math import radians, cos, sin
+
 # NOTE: All indices out of this function will be zero-based.
 def convert_to_metrics(baseMVA, bus=None, gen=None, branch=None, f=None, success=None,
             et=None, fd=None, ppopt=None):
@@ -144,10 +146,13 @@ def convert_to_metrics(baseMVA, bus=None, gen=None, branch=None, f=None, success
 
     # see how much power is given to each bus, and generated at each bus; 
     # output: node_count x 4
+    pf_metrics["gen"] = gen[:, PG]
     pf_metrics["buses"] = {}
     for bus_idx in range(nb):
+        mag = bus[bus_idx, VM]
+        angle = radians(bus[bus_idx, VA])
         pf_metrics["buses"][bus_idx] = {
-                "supplied": {"mag": bus[bus_idx, VM], "angle": bus[bus_idx, VA]}, 
+                "supplied": {"real": cos(angle) * mag, "reactive": sin(angle) * mag}, 
                 "generated": {"real": 0, "reactive": 0}
             }
     for gen_node in gen:

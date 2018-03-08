@@ -1,4 +1,4 @@
-import numpy as np, csv, itertools, os
+import numpy as np, csv, itertools, os, math
 
 # NOTE: PYPOWER'S INDEX STARTS FROM 1!
 
@@ -68,43 +68,43 @@ gen_baseline = np.array(
     )
 
 # Hardcoded generator parameters for each generator type over a time series.
-# Cost is in thousands, power is in 100MW.
+# Cost is in thousands, power is in 100MW, CO2 is in tonnes.
 # TODO: Read these from csv or database (?) and over longer time series.
 # TODO: Consider making the capacity location-dependent; e.g. not all 
 # locations can support a lot of hydro generation.
 # TODO: Consider making the cost time-dependent; e.g. cheaper to generator at night.
 gen_types = {
-    "G":   {"real_capacity": np.full((6), 25), 
+    "G":   {"real_capacity": np.full((6), 25.0), 
             "reactive_capacity": np.zeros(6),
-            "real_cost": np.array([2, 0., 0., 2, 17.5, 0]),
+            "real_cost": np.array([2, 0., 0., 2, 15.6, 0]),
             "installation_cost": 2400000,
             "unit_CO2": 49.9, 
             "count": 10,
             "per_node_limit": {node:10 for node in range(10)}},
-    "H":   {"real_capacity": np.full((6), 12), 
+    "H":   {"real_capacity": np.full((6), 12.0), 
             "reactive_capacity": np.zeros(6),
-            "real_cost": np.array([2, 0., 0., 2, 14.8, 0]),
+            "real_cost": np.array([2, 0., 0., 2, 4.3, 0]),
             "installation_cost": 2750000,
             "unit_CO2": 2.6, 
             "count": 10,
             "per_node_limit": {0:1, 1:2, 2:0, 3:2, 4:0, 5:1, 6:0, 7:1, 8:2, 9:1}}, 
-    "N":   {"real_capacity": np.full((6), 25), 
+    "N":   {"real_capacity": np.full((6), 25.0), 
             "reactive_capacity": np.zeros(6),
-            "real_cost": np.array([2, 0., 0., 2, 9, 0]),
+            "real_cost": np.array([2, 0., 0., 2, 5.9, 0]),
             "installation_cost": 10000000,
             "unit_CO2": 2.9, 
             "count": 10,
             "per_node_limit": {node:10 for node in range(10)}}, 
     "S":   {"real_capacity": np.array([0.065, 0.18, 0.235, 0.31, 0.325, 0.245]), 
             "reactive_capacity": np.zeros(6),
-            "real_cost": np.array([2, 0., 0., 2, 35, 0]),
+            "real_cost": np.array([2, 0., 0., 2, 50.4, 0]),
             "installation_cost": 444000,
             "unit_CO2": 8.5, 
             "count": 10,
             "per_node_limit": {node:5 for node in range(10)}},
     "W":   {"real_capacity": np.array([5.374, 5.61, 5.612, 5.718, 5.31, 4.534]), 
             "reactive_capacity": np.zeros(6),
-            "real_cost": np.array([2, 0., 0., 2, 11.5, 0]),
+            "real_cost": np.array([2, 0., 0., 2, 10.6, 0]),
             "installation_cost": 1600000,
             "unit_CO2": 2.6, 
             "count": 10,
@@ -114,15 +114,34 @@ gen_types = {
 for _, gen_profile in gen_types.items():
     assert (timestep_count == gen_profile["real_capacity"].shape[0]), "Demand profiles and generation profiles must specify the same number of timesteps"
 
+def calculate_poly_cost(gen_type, time):
+    gen_cap = gen_types[gen_type]["real_capacity"][time]
+    real_cost = gen_types[gen_type]["real_cost"]
+    assert real_cost[0] == 2, "This function only supports polynomial cost functions"
+    assert real_cost[1] == 0 and real_cost[2] == 0, "This function only supports 0 startup and shutdown costs"
+
+    degree = int(real_cost[3])
+    assert len(real_cost) == 4 + degree, "The cost matrices must have exactly the number of polynomial coefficients required"
+    
+    total_cost = 0 
+    for i in range(degree):
+        cur_coeff = real_cost[len(real_cost) - i - 1]
+        total_cost += math.pow(gen_cap, i) * cur_coeff
+    return total_cost
+
 def build_gen_matrices(gen_placements):
     # Returns:
-    #  - gens: a list (in order) of all the generators (one-letter names)
+    #  - gens: a 2D array, each row is a generator, e.g. ['3', 'G']
+    #  - fixed_gens: same format as gens, but for negative demand generators
     #  - gen_caps: the matrix to be put in ppc["gen"], only without the time-
     #               dependent generator capacity values
     #  - gen_costs: the matrix to be put in ppc["gencost"]
 
     assert node_count == len(gen_placements), "Must specify generator placements at all nodes"
-    gens = np.zeros((0, 2)) # First column - node index (1-based), second column - name of gen type
+
+    # First column - node index (1-based), second column - name of gen type
+    gens = np.zeros((0, 2)) # non-negative-demand gens, up for optimization
+    fixed_gens = np.zeros((0, 2)) # negative-demand gens
 
     # Concatenate the generation capacity and cost matrics, and identify
     # negative demands (nuclear, wind, and solar).
@@ -130,20 +149,21 @@ def build_gen_matrices(gen_placements):
         for gen_type, count in placement.items():
             if count == 0: continue
             if gen_type in ["G", "H"]:  # Gen values need to be optimized
-                temp = np.array([[node + 1, gen_type],] * count)
+                temp = np.array([[node, gen_type],] * count)
                 gens = np.vstack((gens, temp))
-            else: # Simply a negative demand, no need to go through runopf()
+            elif gen_type in ["N", "S", "W"]: # Simply a negative demand, no need to go through runopf()
                 real_demand_profiles[:, node] -= gen_types[gen_type]["real_capacity"]
-                # TODO: Add a fixed cost for negative demands. 
+                temp = np.array([[node, gen_type],] * count)
+                fixed_gens = np.vstack((fixed_gens, temp))
+            else:
+                raise ValueError("Unrecognized generator type: {}".format(gen_type))
 
-    gen_count = gens.shape[0]
-
-    gen_caps = np.vstack([gen_baseline] * gen_count)
-    gen_caps[:,0] = gens[:,0].astype(int)
+    gen_caps = np.vstack([gen_baseline] * gens.shape[0])
+    gen_caps[:,0] = gens[:,0].astype(int) + 1 # Set the correct node numbers 
 
     gen_costs = np.array([gen_types[gen[1]]["real_cost"] for gen in gens])
     
-    return gens[:,1], gen_caps, gen_costs
+    return gens, fixed_gens, gen_caps, gen_costs
 
 def build_bus_data(gen_placements):
     # Update the BUS_TYPE column according to generator placements. 
