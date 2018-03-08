@@ -57,10 +57,8 @@ var challengesDirectiveController = ['$scope', '$rootScope', 'ChallengesService'
 		$ChallengesService.previewChallenge(id);
 	}
 
-	$scope.simulateChallenge = function (cid) {
-		// go to the grid page
-
-		var res = $ChallengesService.simulateChallenge(cid);
+	$scope.simulateChallenge = function (id) {
+		var res = $ChallengesService.simulateChallenge(id);
 
 		if (res && res.status == 'OK') {
 			$rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: res.challenge });
