@@ -5,64 +5,19 @@ app.service('LoginService', function () {
 
 	var getChallenges = function (args) {
 		return new Promise(function (resolve, reject) {
-			var success = function (data) {
-				if (data) {
-					var challenge = data;
+			$.ajax({
+				url: 'http://127.0.0.1:5000/getChallenge',
+				type: 'GET',
+				success: function (data) {
+					console.log(data);
+					
+					if (data) {
+						var challenge = JSON.parse(data);
 
-					// these are all fake data
-					// need to check with back end to see where all these information all
-					// also regarding the simulations that have been saved
-					challenge.id = 1;
-					challenge.name = 'Ontario Power Generation';
-					challenge.saved = 'False';
-
-					var challenges = [challenge];
-
-					return challenges
-				}
-			}
-
-			// $.ajax({
-			// 	url: 'http://127.0.0.1:5000/getChallenge?callback=success',
-			// 	type: 'GET',
-			// 	data: { user: user },
-			// 	// jsonpCallback: 'success',
-			// 	// dataType: 'JSONP',
-			// 	contentType: 'json',
-			// 	success: success,
-			// })
-
-			// this is just my hacky way of getting around same origin policy thing
-			// we will talk about actually making calls to backend without being hacky...
-			// BRYAN PLEASE HELP
-			var readTextFile = function (file) {
-				return new Promise(function (resolve, reject) {
-					var rawFile = new XMLHttpRequest();
-
-					rawFile.open('GET', file, false);
-					rawFile.onreadystatechange = function () {
-						if (rawFile.readyState == 4) {
-							if (rawFile.status == 200 || rawFile.status == 0) {
-								var allText = rawFile.responseText;
-
-								resolve(allText);
-							}
-						}
+						resolve([challenge]);
 					}
-
-					rawFile.send(null);
-				})
-			}
-
-			readTextFile('Challenge.txt')
-				.then(function (text) {
-					var data = JSON.parse(text);
-					var challenges = success(data);
-
-					resolve(challenges);
-				}).catch(function (error) {
-					reject(error);
-				})
+				},
+			})
 		})
 	}
 	
