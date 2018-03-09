@@ -30,6 +30,7 @@ def get_team_id(team_name):
         return list(team.values())[0]['team_id']
 
 def insert_submission_entry(gen_placements, team_id):
+    # TODO: add challenge_id
     submission_entry = {}
     latest_sub = SUBMISSIONS.order_by_child('submission_id').limit_to_last(1).get()
     if latest_sub:
@@ -45,18 +46,17 @@ def insert_submission_entry(gen_placements, team_id):
     return submission_id
     
 def update_scores_entry(submission_id, new_sys_info, team_id, new_scores):
-    # Argument: team_id must be a string.
     new_scores_entry = {}
     new_scores_entry['submit_id_best'] = submission_id
     new_scores_entry['num_attempts'] = new_sys_info['new_num_attempts']
     new_scores_entry['last_submit_success_time'] = new_sys_info['new_sub_datetime']
     new_scores_entry['scores_best'] = new_scores
 
-    score = SCORES.child(team_id)
+    score = SCORES.child(str(team_id))
     if score:
-        SCORES.child(team_id).update(new_scores_entry)
+        SCORES.child(str(team_id)).update(new_scores_entry)
     else:
-        SCORES.child(team_id).set(new_scores_entry)
+        SCORES.child(str(team_id)).set(new_scores_entry)
 
 def get_scores_status_entry(team_id):
     score = SCORES.order_by_child('team_id').equal_to(team_id).get()
@@ -76,19 +76,50 @@ def get_best_scores(current_best, new_scores):
         return new_scores
     return current_best
 
-# Leaderboard functions
-# TODO: Display best teams in different categories.
-def get_top_five():
-    # returns {{teamname1:score1}, {teamname2:score2}...}
-    top_scores = SCORES.order_by_child('scores_best/score').limit_to_last(5).get()
+# Leaderboard functions to display top 3 teams in different categories.
+def get_leaderboard():
+    """
+    Returns a dictionary in the follwing format, teams in names:
+        {
+          cat1: {
+            team1: val1, # best team
+            team2: val2, # second team
+            team3: val3  # third team
+          },
+          cat2: {
+            team1: val1,
+            team2: val2,
+            team3: val3
+          }
+        }
+    """
+    result, passed_teams = {}, {}
+    passed_teams = SCORES.order_by_child('scores_best/passed').equal_to(True).get()
+    passed_scores = {}
+    # get 'scores_best' for every passed team
+    for team_id in passed_teams:
+        passed_scores[team_id] = passed_teams[team_id]['scores_best']
+        if result == {}:
+            for cat in passed_scores[team_id]:
+                if cat == 'lines' or cat == 'nodes' or cat == 'passed':
+                    continue
+                result[cat] = {}
+
+    # get top 3 for each category by sorting the values
+    for cat in result:
+        if cat == 'lines' or cat == 'nodes' or cat == 'passed':
+            continue
+        # All current categories are the lower the better.
+        top_teams = sorted(passed_scores, key=lambda x: passed_scores[x][cat])
+        if len(top_teams) > 3:
+            top_teams = top_teams[:3]
+        # convert ids into names and put them into result.
+        for team_id in top_teams:
+            team = TEAMS.order_by_child('team_id').equal_to(team_id).get()
+            team_name = list(team.values())[0]['team_name']
+            result[cat][team_name] = passed_scores[team_id][cat]
     
-    top_five = {}
-    for team_id, score in top_scores.items():
-        team = TEAMS.order_by_child('team_id').equal_to(team_id).get()
-        team_name = list(team.values())[0]['team_name']
-        top_five[team_name] = score['scores_best']['score']
-    
-    return top_five
+    return result
 
 # TODO(Mel): Display previous entry and add the ability to pull one up 
 
@@ -128,22 +159,23 @@ def register_routes(current_app):
     return
 
 
-#if __name__ == "__main__":
+if __name__ == "__main__":
     # init_db_teams()
     # print(get_team_id("yourteam"))
     # print(insert_submission_entry([{'node': 0, 'generators': {} },
     #         {'node': 1, 'generators': {'H': 1}},
     #         {'node': 2, 'generators': {"N": 1}},
     #         {'node': 3, 'generators': {'H': 1, "N": 1, "R": 1}} ], 3))
-    # update_scores_entry(0, new_sys_info = {
-    #    'new_sub_datetime': '2018-02-25 11:20:18',
+    # update_scores_entry(1, new_sys_info = {
+    #    'new_sub_datetime': '2018-03-09 14:20:18',
     #    'new_num_attempts': 1}, 
-    #    team_id="3", new_scores={"loss": 1, 
-    #                             "cost": 10, 
+    #    team_id=3, new_scores={"cost": 6120.23, 
     #                             "passed": True, 
-    #                             "score": 100,
-    #                             "lines": None,
-    #                             "nodes": None})
+    #                             "score": 6120.23,
+    #                             "CO2": 10000.41, 
+    #                             "installation_cost": 523081,
+    #                             "lines": {0: {'from': 0}},
+    #                             "nodes": {0: {'node':0}}})
     # print(get_scores_status_entry(3))
     # print(get_scores_status_entry(10))
-    # print(get_top_five())
+    print(get_leaderboard())
