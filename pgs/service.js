@@ -264,7 +264,7 @@ app.service('ChallengeService', function () {
 
 	var submitChallenge = function (challenge) {
 		return new Promise(function (resolve, reject) {
-			var submission = [	{ 'node': 0, 'generators': {} },
+			var submission = JSON.stringify([	{ 'node': 0, 'generators': {} },
 								{ 'node': 1, 'generators': { 'H': 1 } },
 								{ 'node': 2, 'generators': { 'N': 1 } },
 								{ 'node': 3, 'generators': { 'G': 1 } },
@@ -273,13 +273,17 @@ app.service('ChallengeService', function () {
 								{ 'node': 6, 'generators': { 'H': 1, 'N': 1 } },
 								{ 'node': 7, 'generators': { 'G': 1, 'S': 1 } },
 								{ 'node': 8, 'generators': { 'G': 1, 'S': 1, 'W': 1 } },
-								{ 'node': 9, 'generators': { 'H': 1, 'N': 1, 'G': 1, 'S': 1, 'W': 1 } }];
+								{ 'node': 9, 'generators': { 'H': 1, 'N': 1, 'G': 1, 'S': 1, 'W': 1 } }]);
 
 			$.ajax({
-				url: 'http://127.0.0.1:5000/submit',
+				url: 'http://127.0.0.1:5000/submit/',
 				type: 'POST',
+				headers: { username: 'ourteam' },
 				data: submission,
-				success: function (data) {
+				success: function (res) {
+					var data = JSON.parse(res);
+					var evaluation = data.eval;
+					
 					var res = {
 						status: 'OK',
 						evaluation: evaluation
