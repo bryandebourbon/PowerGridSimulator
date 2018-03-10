@@ -8,8 +8,16 @@
             <div class="pgs-title">{{node.name}}</div>
             <div class="pgs-demand">
                 <div class="pgs-subtitle">Demand Profile</div>
-                <div>Real demands: {{node.demands.real}}</div>
-                <div>Reactive demands: {{node.demands.reactive}}</div>
+                <div class="col-xs-6">
+                    <div>Real demands</div>
+                    <svg id="node-real-demands" width="200" height="100"></svg>
+                </div>
+                <!-- <div>Real demands: {{node.demands.real}}</div> -->
+                <div class="col-xs-6">
+                    <div>Reactive demands</div>
+                    <svg id="node-reactive-demands" width="200" height="100"></svg>
+                </div>
+                <!-- <div>Reactive demands: {{node.demands.reactive}}</div> -->
             </div>
             <div class="pgs-generator">
                 <div class="pgs-subtitle">Generators Installed</div>

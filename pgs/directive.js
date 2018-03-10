@@ -324,7 +324,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 					{ index: 8, name: 'Niagara' },
 					{ index: 9, name: 'West' }];
 	
-	var populateGeneratorInfo = function () {
+	var populateGenerators = function () {
 		_.forEach($scope.generators, function (generator) {
 			switch (generator.type) {
 				case 'G':
@@ -345,7 +345,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 			}
 		})
 	}
-	var populateNodeInfo = function () {
+	var populateNodes = function () {
 		$scope.nodes = [];
 
 		_.forEach($scope.demands, function (d) {
@@ -372,6 +372,51 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 		$scope.node = _.find($scope.nodes, function (n) { return n.index == 0; });
 	}
 
+	var processNodeRealReactiveDemands = function () {
+		var processSingleRealReactivePowerArray = function (data) {
+			var data24h = data.length != 24 ? [] : data;
+
+			if (data.length == 6) {
+				_.forEach(data, function (v) {
+					_.forEach([1, 2, 3, 4], function (i) {
+						data24h.push(v);
+					})
+				})
+			}
+
+			var res = [];
+			_.forEach(data24h, function (v, i) {
+				var info = {
+					hour: i,
+					value: v
+				}
+
+				res.push(info);
+			})
+
+			return res;
+		}
+
+		_.forEach($scope.nodes || [], function (n) {
+			var realDemands = n.demands.real;
+			var reactiveDemands = n.demands.reactive;
+
+			n.demands.real = processSingleRealReactivePowerArray(realDemands);
+			n.demands.reactive = processSingleRealReactivePowerArray(reactiveDemands);
+		});
+	}
+	var visualizeNodeRealReactivePowerDemands = function () {
+		var realDemandsContainer = '#node-real-demands';
+		var reactiveDemandsContainer = '#node-reactive-demands';
+
+		var ZERO_VALUE = [0, 0, 0, 0, 0, 0];
+		var realDemandsData = [($scope.node && $scope.node.demands && $scope.node.demands.real) ? $scope.node.demands.real : ZERO_VALUE];
+		var reactiveDemandsData = [($scope.node && $scope.node.demands && $scope.node.demands.reactive) ? $scope.node.demands.reactive : ZERO_VALUE];
+
+		drawLineChart({ container: realDemandsContainer, series: 1, data: realDemandsData });
+		drawLineChart({ container: reactiveDemandsContainer, series: 1, data: reactiveDemandsData });
+	}
+
 	$scope.viewGeneratorInfo = function (generator) {
 		var _generatorInfo = $('#generator-info');
 		_generatorInfo.children().remove();
@@ -387,8 +432,11 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 		_generatorInfo.show();
 	}
 
-	populateGeneratorInfo();
-	populateNodeInfo();
+	populateGenerators();
+	populateNodes();
+
+	processNodeRealReactiveDemands();
+	visualizeNodeRealReactivePowerDemands();
 
 	$timeout(function () { $scope.$apply(); });
 }]
