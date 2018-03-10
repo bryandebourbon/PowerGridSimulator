@@ -26,16 +26,19 @@ var drawLineChart = function (args) {
     // args.series: number of lines we want to draw in our chart
     // args.data: [[data1](, [data2], [data3], ...)]
 
+    var _vis = $(args.container);
+    _vis.children().remove();
+
     var vis = d3.select(args.container);
 
     var width = vis.attr('width');
     var height = vis.attr('height');
     var margin = 20;
 
-    var x = d3.scale.linear().range([margin, width - margin]).domain([0, 24]);
-    var y = d3.scale.linear().range([height - margin, margin]).domain([0, 1.2 * d3.max(args.data[0], function (d) { return d.value; })]);
+    var x = d3.scale.linear().range([margin, width - margin]).domain([0, 23]);
+    var y = d3.scale.linear().range([height - margin, margin]).domain([0, d3.max(args.data[0], function (d) { return d.value; })]);
     
-    var xAxis = d3.svg.axis().scale(x).ticks(3);
+    var xAxis = d3.svg.axis().scale(x).ticks(4);
     var yAxis = d3.svg.axis().scale(y).orient('left').ticks(1);
 
     vis.append('svg:g')
