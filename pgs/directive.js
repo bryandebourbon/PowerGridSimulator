@@ -338,7 +338,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 		var res = [];
 		_.forEach(data24h, function (v, i) {
 			var info = {
-				hour: i,
+				key: i,
 				value: v
 			}
 
@@ -441,7 +441,11 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 
 				drawLineChart({ container: '#generator-profile-reactive-capacity', series: 1, data: [v] });
 			} else if (k == 'real_cost') {
-				_valueContainer.text(v);		
+				var _svg = _valueContainer.find('svg');
+
+				v = parsePolynomial(v);
+
+				drawLineChart({ container: '#generator-profile-real-cost', series: 1, data: [v] });
 			} else if (k == 'per_node_limit') {
 				_valueContainer.text(v);		
 			} else {

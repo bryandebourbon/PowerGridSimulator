@@ -35,11 +35,11 @@ var drawLineChart = function (args) {
     var height = vis.attr('height');
     var margin = 20;
 
-    var x = d3.scale.linear().range([margin, width - margin]).domain([0, 23]);
+    var x = d3.scale.linear().range([margin, width - margin]).domain([0, d3.max(args.data[0], function (d) { return d.key; })]);
     var y = d3.scale.linear().range([height - margin, margin]).domain([0, d3.max(args.data[0], function (d) { return d.value; })]);
     
     var xAxis = d3.svg.axis().scale(x).ticks(4);
-    var yAxis = d3.svg.axis().scale(y).orient('left').ticks(1);
+    var yAxis = d3.svg.axis().scale(y).orient('left').ticks(0);
 
     vis.append('svg:g')
         .attr('class', 'x pgs-axis')
@@ -52,7 +52,7 @@ var drawLineChart = function (args) {
         .call(yAxis);
 
     var line = d3.svg.line()
-        .x(function (d) { return x(d.hour); })
+        .x(function (d) { return x(d.key); })
         .y(function (d) { return y(d.value); })
         .interpolate('basis');
 
@@ -62,4 +62,26 @@ var drawLineChart = function (args) {
         .attr('stroke', 'green')
         .attr('stroke-width', 2)
         .attr('fill', 'none');
+}
+
+var parsePolynomial = function (args) {
+    var degree = args[0];
+
+    var startUpCost = args[1];
+    var shutDownCost = args[2];
+
+    var coefficients = args.slice(3).reverse();
+
+    var data = [];
+    _.forEach(_.range(11), function (xi) {
+        var yi = 0;
+
+        _.forEach(coefficients, function (c, i) {
+            yi = yi + c * Math.pow(xi, i);
+        })
+
+        data.push({ key: xi, value: yi });
+    })
+
+    return data;
 }
