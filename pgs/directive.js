@@ -313,6 +313,17 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 	}
 
 	// demands, generators, lines
+	var nodeMap = [	{ index: 0, name: 'Northwest' },
+					{ index: 1, name: 'Northeast' },
+					{ index: 2, name: 'Ottawa' },
+					{ index: 3, name: 'East' },
+					{ index: 4, name: 'Toronto' },
+					{ index: 5, name: 'Essa' },
+					{ index: 6, name: 'Bruce' },
+					{ index: 7, name: 'Southwest' },
+					{ index: 8, name: 'Niagara' },
+					{ index: 9, name: 'West' }];
+	
 	var populateGeneratorInfo = function () {
 		_.forEach($scope.generators, function (generator) {
 			switch (generator.type) {
@@ -338,8 +349,16 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 		$scope.nodes = [];
 
 		_.forEach($scope.demands, function (d) {
+			var nodeInfo = _.find(nodeMap, function (n) { return n.index == d.node; });
+			var name;
+
+			if (nodeInfo) {
+				name = nodeInfo.name;
+			}
+
 			var node = {
-				node: d.node,
+				index: d.node,
+				name: name || 'Node ' + d.node,
 				demands: {
 					real: d.real,
 					reactive: d.reactive
@@ -350,7 +369,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 			$scope.nodes.push(node);
 		})
 
-		$scope.node = _.find($scope.nodes, function (n) { return n.node == 0; });
+		$scope.node = _.find($scope.nodes, function (n) { return n.index == 0; });
 	}
 
 	$scope.viewGeneratorInfo = function (generator) {
