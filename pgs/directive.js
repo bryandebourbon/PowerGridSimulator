@@ -418,18 +418,34 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 	}
 
 	$scope.viewGeneratorInfo = function (generator) {
-		var _generatorInfo = $('#generator-info');
-		_generatorInfo.children().remove();
+		var generatorKeyMap = [{ key: 'real_cost', display: 'Real Cost' },
+			{ key: 'real_capacity', display: 'Real Capacity' },
+			{ key: 'reactive_capacity', display: 'Reactive Capacity' },
+			{ key: 'installation_cost', display: 'Installation Cost' },
+			{ key: 'unit_CO2', display: 'Unit CO2' },
+			{ key: 'count', display: 'Count' },
+			{ key: 'per_node_limit', display: 'Per Node Limit' }];
+
+		var _generatorProfileTitle = $('#generator-profile-modal .modal-title');
+		var _generatorProfileDescription = $('#generator-profile-modal .modal-description');
+
+		_generatorProfileTitle.text(generator.type);
+		_generatorProfileDescription.children().remove();
 
 		_.forEach(generator, function (v, k) {
-			if (k != '$$hashKey') {
-				var _entry = $('<div>').text(k + ': ' + v);
+			if (k != '$$hashKey' && k != 'type') {
+				var keyMapEntry = _.find(generatorKeyMap, function (gk) { return gk.key == k; });
+				var keyDisplay = keyMapEntry.display || '';
 
-				_generatorInfo.append(_entry);
+				var _entry = $('<div>').text(keyDisplay + ': ' + v);
+
+				if (k == 'per_node_limit') {
+					console.log(v);
+				}
+
+				_generatorProfileDescription.append(_entry);
 			}
 		})
-
-		_generatorInfo.show();
 	}
 
 	populateGenerators();
