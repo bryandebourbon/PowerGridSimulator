@@ -21,15 +21,21 @@
             </div>
             <div class="pgs-generator">
                 <div class="pgs-subtitle">Generators Installed</div>
-                <span ng-repeat="generator in node.generators | orderBy : ['type', 'capacity']">
-                    <button class="btn btn-light" ng-click="removeGenerator(generator)">{{generator.type}}, capacity: {{generator.capacity}}</button>
+                <span ng-repeat="generator in node.generators | orderBy : 'type'">
+                    <div class="btn-group col-xs-12" role="group" aria-label="Basic example">
+                        <button class="btn btn-default" ng-click="viewGeneratorInfo(generator)" data-toggle="modal" data-target="#generator-profile-modal">{{generator.type}} ({{generator.count}})</button>
+                        <button class="btn btn-default" ng-click="removeGenerator(generator)">Remove</button>
+                    </div>
                 </span>
             </div>
         </div>
         <div class="pgs-inventory-profile">
             <div class="pgs-subtitle">Inventory Profile</div>
             <span ng-repeat="generator in generators | orderBy: 'type'">
-                <button class="btn btn-default" ng-click="viewGeneratorInfo(generator)"  data-toggle="modal" data-target="#generator-profile-modal">{{generator.type}}</button>
+                <div class="btn-group col-xs-12" role="group" aria-label="Basic example">
+                    <button class="btn btn-default" ng-click="viewGeneratorInfo(generator)" data-toggle="modal" data-target="#generator-profile-modal">{{generator.type}} ({{generator.count}})</button>
+                    <button class="btn btn-default" ng-click="addGenerator(generator)">Add</button>
+                </div>
             </span>
             <!-- <div id="generator-info" hidden></div> -->
         </div>
@@ -71,14 +77,6 @@
                     </div>
                     <div data-key="unit_CO2">
                         <span>Unit CO2: </span>
-                        <span></span>
-                    </div>
-                    <div data-key="count">
-                        <span>Count: </span>
-                        <span></span>
-                    </div>
-                    <div data-key="per_node_limit">
-                        <span>Per Node Limit: </span>
                         <span></span>
                     </div>
                 </div>

@@ -453,6 +453,26 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 			}
 		})
 	}
+	$scope.addGenerator = function (generator) {
+		var targetBin = _.find($scope.node.generators, function (g) { return g.type == generator.type; });
+		if (targetBin) {
+			targetBin.count ++;
+		} else {
+			$scope.node.generators.push(_.merge(_.cloneDeep(generator), { count: 1 }));
+		}
+
+		generator.count --;
+	}
+	$scope.removeGenerator = function (generator) {
+		var targetBin = _.find($scope.generators, function (g) { return g.type == generator.type; });
+		targetBin.count ++;
+
+		if (generator.count > 1) {
+			generator.count --;
+		} else {
+			_.remove($scope.node.generators, function (g) { return g.type == generator.type; });
+		}
+	}
 
 	populateGenerators();
 	populateNodes();

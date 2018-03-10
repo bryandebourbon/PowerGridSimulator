@@ -54,6 +54,9 @@
 .navbar-brand {
 	height: 36px !IMPORTANT;
 }
+.btn-group {
+	margin: 6px;
+}
 
 .pgs-path {
 	stroke: steelblue;
