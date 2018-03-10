@@ -63,6 +63,21 @@
 	stroke-width: 2px;
 	fill: none;
 }
+.pgs-alert {
+	color: #a94442;
+	background-color: #f2dede;
+	border-color: #ebccd1;
+	border-radius: 6px;
+	margin-top: 12px;
+	margin-left: calc(2.5%);
+	margin-right: calc(2.5%);
+	padding: 15px;
+	position: absolute;
+	top: 0;
+	width: 95%;
+	z-index: 1000;
+	text-align: center;
+}
 
 .pgs-axis path,
 .pgs-axis line {

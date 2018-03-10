@@ -454,7 +454,19 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 		})
 	}
 	$scope.addGenerator = function (generator) {
+		if (generator.count == 0) {
+			showWarning('No more generator of type ' + generator.type + ' available');
+			return;
+		}
+		
 		var targetBin = _.find($scope.node.generators, function (g) { return g.type == generator.type; });
+		var count = targetBin ? targetBin.count + 1 : 1;
+
+		if (count > generator.per_node_limit[$scope.node.index]) {
+			showWarning('Generator count for ' + $scope.node.name + ' exceeds maximum node capacity');
+			return;
+		}
+
 		if (targetBin) {
 			targetBin.count ++;
 		} else {
