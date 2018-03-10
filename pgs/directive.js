@@ -89,7 +89,8 @@ var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'Challen
 		}
 	}
 
-	$scope.submitChallenge = function (challenge) {
+	$scope.submitChallenge = function () {
+		var challenge = $scope.challenge;
 		$ChallengeService.submitChallenge(challenge)
 			.then(function (res) {
 				if (res && res.status == 'OK') {
@@ -98,8 +99,6 @@ var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'Challen
 			}).catch(function (error) {
 				console.log(error)
 			})
-
-		
 	}
 }]
 
@@ -108,14 +107,11 @@ app.directive('simulatorDirective', function () {
 		restrict: 'EA',
 		templateUrl: './_Simulator.html',
 		scope: {
-			generators: '=?',
-			demands: '=?',
-			lines: '=?'
+			challenge: '=?'
 		},
 		controller: simulatorDirectiveController
 	}
 })
-
 var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'SimulatorService', function ($scope, $rootScope, $timeout, $SimulatorService) {
 	$scope.renderGrid = function () {
 		//https://bost.ocks.org/mike/map/
@@ -349,7 +345,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 	}
 	
 	var populateGenerators = function () {
-		_.forEach($scope.generators, function (generator) {
+		_.forEach($scope.challenge.generators, function (generator) {
 			switch (generator.type) {
 				case 'G':
 					generator.type = 'Gas';
@@ -370,9 +366,9 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 		})
 	}
 	var populateNodes = function () {
-		$scope.nodes = [];
+		$scope.challenge.nodes = [];
 
-		_.forEach($scope.demands, function (d) {
+		_.forEach($scope.challenge.demands, function (d) {
 			var nodeInfo = _.find(nodeMap, function (n) { return n.index == d.node; });
 			var name;
 
@@ -390,14 +386,14 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 				generators: []
 			}
 
-			$scope.nodes.push(node);
+			$scope.challenge.nodes.push(node);
 		})
 
-		$scope.node = _.find($scope.nodes, function (n) { return n.index == 0; });
+		$scope.node = _.find($scope.challenge.nodes, function (n) { return n.index == 0; });
 	}
 
 	var processNodeRealReactiveDemands = function () {
-		_.forEach($scope.nodes || [], function (n) {
+		_.forEach($scope.challenge.nodes || [], function (n) {
 			var realDemands = n.demands.real;
 			var reactiveDemands = n.demands.reactive;
 
@@ -410,11 +406,11 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 		var reactiveDemandsContainer = '#node-reactive-demands';
 
 		var ZERO_VALUE = [0, 0, 0, 0, 0, 0];
-		var realDemandsData = [($scope.node && $scope.node.demands && $scope.node.demands.real) ? $scope.node.demands.real : ZERO_VALUE];
-		var reactiveDemandsData = [($scope.node && $scope.node.demands && $scope.node.demands.reactive) ? $scope.node.demands.reactive : ZERO_VALUE];
+		var realDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.real) ? $scope.node.demands.real : ZERO_VALUE;
+		var reactiveDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.reactive) ? $scope.node.demands.reactive : ZERO_VALUE;
 
-		drawLineChart({ container: realDemandsContainer, series: 1, data: realDemandsData });
-		drawLineChart({ container: reactiveDemandsContainer, series: 1, data: reactiveDemandsData });
+		drawLineChart({ container: realDemandsContainer, series: 1, data: [realDemandsData] });
+		drawLineChart({ container: reactiveDemandsContainer, series: 1, data: [reactiveDemandsData] });
 	}
 
 	$scope.viewGeneratorInfo = function (generator) {
@@ -458,7 +454,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 			showWarning('No more generator of type ' + generator.type + ' available');
 			return;
 		}
-		
+
 		var targetBin = _.find($scope.node.generators, function (g) { return g.type == generator.type; });
 		var count = targetBin ? targetBin.count + 1 : 1;
 
@@ -476,7 +472,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 		generator.count --;
 	}
 	$scope.removeGenerator = function (generator) {
-		var targetBin = _.find($scope.generators, function (g) { return g.type == generator.type; });
+		var targetBin = _.find($scope.challenge.generators, function (g) { return g.type == generator.type; });
 		targetBin.count ++;
 
 		if (generator.count > 1) {
@@ -508,4 +504,18 @@ app.directive('evaluationDirective', function () {
 
 var evaluationDirectiveController = ['$scope', '$rootScope', 'EvaluationService', function ($scope, $rootScope, $EvaluationService) {
 	console.log($scope.evaluation);
+}]
+
+app.directive('tooltipIcon', function () {
+	return {
+		restrict: 'EA',
+		templateUrl: './_TooltipIcon.html',
+		scope: {
+			icon: '='
+		},
+		controller: tooltipIconController
+	}
+})
+var tooltipIconController = ['$scope', function ($scope) {
+
 }]

@@ -104,3 +104,5 @@ var hideWarning = function () {
 
     _alert.hide();
 }
+
+_.delay(function () { $('[data-toggle="tooltip"]').tooltip(); });
