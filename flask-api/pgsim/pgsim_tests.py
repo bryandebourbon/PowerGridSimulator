@@ -87,13 +87,15 @@ class PgsimTestCase(unittest.TestCase):
     def test_submit_empty(self):
         placements = []
         rv = self.app.post('/submit/', data=json.dumps(placements),
-                       content_type='application/json', headers={"username": "ourteam"})
+                       content_type='application/json',
+                       headers={"team_id": 1, "challenge_id": 10})
         print(rv.data)
         
     def test_submit_simple(self):
         placements = [{'node': 4, 'generators': {'H':1} }]
         rv = self.app.post('/submit/', data=json.dumps(placements),
-                       content_type='application/json', headers={"username": "ourteam"})
+                            content_type='application/json',
+                            headers={"team_id": 1, "challenge_id": 10})
 
     def test_submit(self):
         placements = [ {"node": 0, "generators": {} }, 
@@ -107,7 +109,8 @@ class PgsimTestCase(unittest.TestCase):
                     {"node": 8, "generators": {"G": 1, "S": 1, "W": 1}},
                     {"node": 9, "generators": {"H": 1, "N":1, "G":1, "S":1, "W":1}}]
         rv = self.app.post('/submit/', data=json.dumps(placements),
-                       content_type='application/json', headers={"username": "ourteam"})
+                            content_type='application/json',
+                            headers={"team_id": 1, "challenge_id": 10})
         print(rv.data)
 
     #def tearDown(self):

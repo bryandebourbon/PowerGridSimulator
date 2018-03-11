@@ -13,6 +13,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 from flask_cors import CORS 
 
 import pgsim.ppc_utils as ppc_utils, pgsim.db_utils as db_utils, pgsim.eval_pg as eval_pg
+# import  ppc_utils, db_utils, eval_pg
 
 from datetime import datetime, timedelta
 import pprint
@@ -68,7 +69,9 @@ def get_challenge():
     pr = cProfile.Profile()
     pr.enable()
 
-    saved = db_utils.is_saved(1)
+    team_id = request.headers["team_id"]
+    challenge_id = request.headers["challenge_id"]
+    saved_challenge = db_utils.get_saved_challenge(challenge_id, team_id)
 
     gens = []
     for gen_type, gen_params in ppc_utils.gen_types.items():
@@ -90,7 +93,7 @@ def get_challenge():
         {"id": 1,
          "name": "Ontario Power Generation",
          "description": "Design Ontario's generation system with real-life demand, generation cost, CO2 emission, and more data! (Description proposed by mighty Jane)",
-         "saved": saved,
+         "saved_challenge": saved_challenge,
          "generators": gens,
          "demands": demands,
          "lines": lines}))
@@ -135,12 +138,12 @@ def submit():
             'success': False, 
             'message': 'Please specify at least one generator.'}))
 
-    # Get the team ID.
-    team_name = str(request.headers["username"])
-    team_id = db_utils.get_team_id(team_name)
+    # Get the team and challenge ID.
+    team_id = request.headers["team_id"]
+    challenge_id = request.headers["challenge_id"]
 
     # Evaluate the submitted design.
-    status = do_submit_routine(gen_placements, team_id)
+    status = do_submit_routine(gen_placements, team_id, challenge_id)
 
     #pp = pprint.PrettyPrinter(indent=4)
     #pp.pprint(status)
@@ -148,7 +151,7 @@ def submit():
 
     return make_response(json.dumps(status))
 
-def do_submit_routine(gen_placements, team_id):
+def do_submit_routine(gen_placements, team_id, challenge_id):
     status = {'success': True, 'message': 'Processing...'}
 
     # Check if the team has waited long enough since the last submission.
@@ -174,7 +177,7 @@ def do_submit_routine(gen_placements, team_id):
        return status
 
     # Store the submitted design into the database.
-    submission_id = db_utils.insert_submission_entry(gen_placements, team_id)
+    submission_id = db_utils.insert_submission_entry(gen_placements, team_id, challenge_id)
     if submission_id < 0:
        status['success'] = False
        status['message'] = "Could not insert submission to database."
@@ -187,7 +190,8 @@ def do_submit_routine(gen_placements, team_id):
     # Update the stored metrics of this team.
     new_sys_info = {
        'new_sub_datetime': sub_date_time.strftime("%Y-%m-%d %H:%M:%S"),
-       'new_num_attempts': sub_index + 1
+       'new_num_attempts': sub_index + 1,
+       'challenge_id': challenge_id
     }
     if sub_index == 0:
         db_utils.update_scores_entry(submission_id, new_sys_info, team_id, new_scores)

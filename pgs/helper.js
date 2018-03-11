@@ -37,7 +37,7 @@ var drawLineChart = function (args) {
 
     var x = d3.scale.linear().range([margin, width - margin]).domain([0, d3.max(args.data[0], function (d) { return d.key; })]);
     var y = d3.scale.linear().range([height - margin, margin]).domain([0, d3.max(args.data[0], function (d) { return d.value; })]);
-    
+
     var xAxis = d3.svg.axis().scale(x).ticks(4);
     var yAxis = d3.svg.axis().scale(y).orient('left').ticks(0);
 
@@ -65,23 +65,27 @@ var drawLineChart = function (args) {
 }
 
 var parsePolynomial = function (args) {
-    var degree = args[0];
+    var type = args[0] == 2 ? 'polynomial' : 'piecewise';
 
     var startUpCost = args[1];
     var shutDownCost = args[2];
 
-    var coefficients = args.slice(3).reverse();
+    var degree = args[3];
+
+    var coefficients = args.slice(4).reverse();
 
     var data = [];
-    _.forEach(_.range(11), function (xi) {
-        var yi = 0;
+    if (type == 'polynomial') {
+        _.forEach(_.range(11), function (xi) {
+            var yi = 0;
 
-        _.forEach(coefficients, function (c, i) {
-            yi = yi + c * Math.pow(xi, i);
+            _.forEach(coefficients, function (c, i) {
+                yi = yi + c * Math.pow(xi, i);
+            })
+
+            data.push({ key: xi, value: yi });
         })
-
-        data.push({ key: xi, value: yi });
-    })
+    }
 
     return data;
 }
