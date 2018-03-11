@@ -18,7 +18,7 @@ app.service('LoginService', function () {
 			})
 		})
 	}
-	
+
 	var register = function (args) {
 		return new Promise(function (resolve, reject) {
 			var user = {
@@ -74,48 +74,98 @@ app.service('LoginService', function () {
 
 			// Sign in with email and pass.
 			firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-				.then(function(firebaseUser) {
-					firebaseUser.updateProfile ({
+				.then(function (firebaseUser) {
+					firebaseUser.updateProfile({
 						displayName: user.teamname
-					}).then(function() {
+					}).then(function () {
 						// Authenticate team.
 						var teamsRef = firebase.database().ref().child('teams');
-						teamsRef.orderByChild('team_name').equalTo(user.teamname).once('value',team => {
-							const teamData = team.val();
-							if (teamData) {
-								// Else enter code and check.
-								// TODO(Annie): show text box of 'Please enter team secret code'
-								var inputCode = 'a';
-								teamKey = Object.keys(teamData)[0];
-								if (inputCode != teamKey) {
-									_authErrorMessage.show();
-									var errorMessage = 'Wrong team secret code.';
-									_authErrorMessage.text(errorMessage);
-								}
+						teamsRef.orderByChild('team_name').equalTo(user.teamname).once('value', team => {
+							const data = team.val();
+							if (data) {
+								// enter code and check.
+								var secretCode = _.keys(data)[0];
+
+								var _teamSecretCodeModal = $('#team-secret-code-modal');
+								var _distributeTeamSecretCode = $('#distribute-team-secret-code');
+								var _collectTeamSecretCode = $('#collect-team-secret-code');
+								var _secretCodeInput = $('#secret-code-input');
+
+								_distributeTeamSecretCode.hide();
+								_collectTeamSecretCode.show();
+
+								_secretCodeInput.val('');
+
+								$('#team-secret-code-modal').modal('show');
+
+								$('#submit-secret-code').on('click', function (evt) {
+									var inputCode = $('#secret-code-input').val();
+
+									if (inputCode == secretCode) {
+										$('#team-secret-code-modal').modal('hide');
+
+										getChallenges(user)
+											.then(function (data) {
+												var res = {
+													status: 'OK',
+													uid: guid(),
+													challenges: data
+												}
+
+												resolve(res);
+											}).catch(function (error) {
+												reject(error);
+											})
+									} else {
+										showWarning('Wrong team secret code, please re-enter.');
+									}
+								})
 							} else {
-								// team doesn't exist, push to teams/ db.
-								var teamKey = teamsRef.push().key;
-								teamsRef.orderByChild('team_id').limitToLast(1).once('value',lastTeam => {
+								// else if team doesn't exist, push to teams/ db.
+								var secretCode = teamsRef.push().key;
+								teamsRef.orderByChild('team_id').limitToLast(1).once('value', lastTeam => {
 									const lastTeamData = Object.values(lastTeam.val())[0];
 									var teamID = 1 + +lastTeamData.team_id;
 									var newTeam = {};
-									newTeam[teamKey] = {
-										'team_id': teamID.toString(),
+									newTeam[secretCode] = {
+										'team_id': teamID,
 										'team_name': user.teamname
 									};
 									teamsRef.update(newTeam);
 
-									// TODO(Annie): page redirects to challenges after creating, cannot show this code.
-									_teamCodeMessage.show();
-									var codeMessage = 'The secret code for your team is: ' + teamKey;
-									_teamCodeMessage.text(codeMessage);
+									var _teamSecretCodeModal = $('#team-secret-code-modal');
+									var _distributeTeamSecretCode = $('#distribute-team-secret-code');
+									var _collectTeamSecretCode = $('#collect-team-secret-code');
+									var _secretCode = $('.pgs-secret-code');
+									var _submitSecretCodeButton = $('#submit-secret-code');
+
+									_distributeTeamSecretCode.show();
+									_collectTeamSecretCode.hide();
+									_submitSecretCodeButton.hide();
+
+									_secretCode.text(secretCode);
+
+									$('#team-secret-code-modal').modal('show');
+
+									$('#team-secret-code-modal').on('hide.bs.modal', function (evt) {
+										getChallenges(user)
+											.then(function (data) {
+												var res = {
+													status: 'OK',
+													uid: guid(),
+													challenges: data
+												}
+
+												resolve(res);
+											}).catch(function (error) {
+												reject(error);
+											})
+									})
 								});
 							}
-							
-							getChallenges(user);
 						});
 
-					}, function(error) {
+					}, function (error) {
 						console.log('could not update your team');
 					});
 				}, function (error) {
@@ -125,24 +175,11 @@ app.service('LoginService', function () {
 
 					_authErrorMessage.text(error.message);
 				})
-
-			getChallenges(user)
-				.then(function (data) {
-					var res = {
-						status: 'OK',
-						uid: guid(),
-						challenges: data
-					}
-
-					resolve(res);
-				}).catch(function (error) {
-					reject(error);
-				})
 		})
 	}
 
 	var login = function (args) {
-		return new Promise (function (resolve, reject) {
+		return new Promise(function (resolve, reject) {
 			var user = {
 				email: args.email || '',
 				password: args.password || '',
@@ -192,7 +229,7 @@ app.service('LoginService', function () {
 				return;
 			}
 
-			firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch(function(error) {
+			firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch(function (error) {
 				_authErrorContainer.show();
 				_firebaseAuthErrorHeader.show();
 				_authErrorMessage.show();
@@ -257,7 +294,7 @@ app.service('ChallengesService', function () {
 
 app.service('ChallengeService', function () {
 	var _challenge = null;
-	
+
 	var init = function (args) {
 		_challenge = args.challenge;
 	}
@@ -277,14 +314,14 @@ app.service('ChallengeService', function () {
 
 			var minifiChallenge = function (challenge) {
 				var generatorTypeMap = [{ abbreviation: 'G', display: 'Gas' },
-										{ abbreviation: 'H', display: 'Hydro' },
-										{ abbreviation: 'N', display: 'Nuclear' },
-										{ abbreviation: 'S', display: 'Solar' },
-										{ abbreviation: 'W', display: 'Water' }];
+				{ abbreviation: 'H', display: 'Hydro' },
+				{ abbreviation: 'N', display: 'Nuclear' },
+				{ abbreviation: 'S', display: 'Solar' },
+				{ abbreviation: 'W', display: 'Water' }];
 
 				var mChallenge = [];
 				_.forEach(challenge.nodes, function (n) {
-					var node = { 
+					var node = {
 						node: n.index,
 						generators: {}
 					};
@@ -313,7 +350,7 @@ app.service('ChallengeService', function () {
 				success: function (res) {
 					var data = JSON.parse(res);
 					var evaluation = data.eval;
-					
+
 					var res = {
 						status: 'OK',
 						evaluation: evaluation
