@@ -130,8 +130,8 @@ def get_leaderboard():
 
 def get_saved_challenge(challenge_id, team_id):
     """
-    Check if the team has this challenge saved. 
-    If yes return 'submission_info' field in the format of:
+    Check if the team has submitted this challenge before. 
+    If yes return the latest submission's 'submission_info' field in the format of:
     {
         'node_id1': {
             'H': 1,
@@ -144,10 +144,14 @@ def get_saved_challenge(challenge_id, team_id):
     Else return empty dictionary.
     """
     result = {}
-    # team_subs = SUBMISSIONS.order_by_child('team_id').equal_to(team_id).get()
-    # for sub in team_subs:
-    #     if team_subs['challenge_id'] == str(challenge_id):
-    #         result
+    latest_time = datetime.now()
+    team_subs = SUBMISSIONS.order_by_child('team_id').equal_to(team_id).get()
+    for sub in team_subs.values():
+        if sub['challenge_id'] == challenge_id:
+            dt = datetime.strptime(sub['submission_time'], "%Y-%m-%d %H:%M:%S")
+            if dt < latest_time:
+                result = sub['submission_info']
+                latest_time = dt
 
     return result
 
@@ -197,3 +201,4 @@ def register_routes(current_app):
     # print(get_scores_status_entry(3))
     # print(get_scores_status_entry(10))
     # print(get_leaderboard())
+    # print(get_saved_challenge('10', '1'))
