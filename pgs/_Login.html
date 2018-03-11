@@ -5,7 +5,7 @@
 		<hr>
 		<p class="mb-0" id="auth-error-message" hidden></p>
 	</div>
-	
+
 	<div class="mb-3">
 		<div class="form-group input-group">
 			<div>
@@ -28,5 +28,37 @@
 
 		<button type="submit" class="btn btn-primary pgs-btn" ng-click="register()">Register</button>
 		<button type="submit" class="btn btn-primary pgs-btn" ng-click="login()">Login</button>
+	</div>
+</div>
+
+<div class="modal fade" id="team-secret-code-modal" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title col-xs-6">Team Secret Code</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div id="distribute-team-secret-code" class="modal-description" hidden>
+					<div>
+						<span>Your team secret code is: </span>
+						<span class="pgs-secret-code"></span>
+					</div>
+					<div class="pgs-notice">Please remember team secret code for we may ask for the code when you log in again.</div>
+				</div>
+				<div id="collect-team-secret-code" class="modal-description" hidden>
+					<div class="form-group input-group">
+						<div>Please enter team secret code :</div>
+						<input type="text" class="form-control pgs-input" id="secret-code-input" />
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" id="submit-secret-code">Done</button>
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
 	</div>
 </div>
