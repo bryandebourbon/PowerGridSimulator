@@ -100,7 +100,7 @@ app.service('LoginService', function () {
 									var teamID = 1 + +lastTeamData.team_id;
 									var newTeam = {};
 									newTeam[teamKey] = {
-										'team_id': teamID,
+										'team_id': teamID.toString(),
 										'team_name': user.teamname
 									};
 									teamsRef.update(newTeam);

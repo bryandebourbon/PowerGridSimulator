@@ -3,6 +3,7 @@ from flask import Blueprint, request, session, g, redirect, url_for, abort, \
      render_template, flash, current_app
 import firebase_admin
 from firebase_admin import auth, credentials, db
+from datetime import datetime
 
 cred = credentials.Certificate('pgsim/data/serviceAccountKey.json')
 firebase_admin.initialize_app(cred, {
@@ -27,10 +28,9 @@ def get_team_id(team_name):
     if not team:
         return -1
     else:
-        return list(team.values())[0]['team_id']
+        return int(list(team.values())[0]['team_id'])
 
-def insert_submission_entry(gen_placements, team_id):
-    # TODO: add challenge_id
+def insert_submission_entry(gen_placements, team_id, challenge_id):
     submission_entry = {}
     latest_sub = SUBMISSIONS.order_by_child('submission_id').limit_to_last(1).get()
     if latest_sub:
@@ -40,7 +40,9 @@ def insert_submission_entry(gen_placements, team_id):
 
     submission_entry['submission_id'] = submission_id
     submission_entry['team_id'] = team_id
+    submission_entry['challenge_id'] = challenge_id
     submission_entry['submission_info'] = gen_placements
+    submission_entry['submission_time'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     SUBMISSIONS.push().set(submission_entry)
     return submission_id
@@ -50,6 +52,7 @@ def update_scores_entry(submission_id, new_sys_info, team_id, new_scores):
     new_scores_entry['submit_id_best'] = submission_id
     new_scores_entry['num_attempts'] = new_sys_info['new_num_attempts']
     new_scores_entry['last_submit_success_time'] = new_sys_info['new_sub_datetime']
+    new_scores_entry['challenge_id'] = new_sys_info['challenge_id']
     new_scores_entry['scores_best'] = new_scores
 
     score = SCORES.child(str(team_id))
@@ -59,7 +62,7 @@ def update_scores_entry(submission_id, new_sys_info, team_id, new_scores):
         SCORES.child(str(team_id)).set(new_scores_entry)
 
 def get_scores_status_entry(team_id):
-    score = SCORES.order_by_child('team_id').equal_to(team_id).get()
+    score = SCORES.order_by_child('team_id').equal_to(str(team_id)).get()
     if not score:
         return {
             'team_id': None,
@@ -76,9 +79,9 @@ def get_best_scores(current_best, new_scores):
         return new_scores
     return current_best
 
-# Leaderboard functions to display top 3 teams in different categories.
 def get_leaderboard():
     """
+    Leaderboard functions to display top 3 teams in different categories.
     Returns a dictionary in the follwing format, teams in names:
         {
           cat1: {
@@ -123,13 +126,31 @@ def get_leaderboard():
 
 # TODO(Mel): Display previous entry and add the ability to pull one up 
 
-# TODO(Mel): Given the id of the challenge, check if the currently signed-in
-# team has their work saved for this challenge or not. 
-def is_saved(id):
-    return False
 
-# The following functions are example operations that the front-end can call.
-# The specific route and methods will be modified to reflect frontend's real needs.
+def get_saved_challenge(challenge_id, team_id):
+    """
+    Check if the team has this challenge saved. 
+    If yes return 'submission_info' field in the format of:
+    {
+        'node_id1': {
+            'H': 1,
+            'N': 2
+        },
+        'node_id2': {
+            'H': 2
+        }
+    }
+    Else return empty dictionary.
+    """
+    result = {}
+    # team_subs = SUBMISSIONS.order_by_child('team_id').equal_to(team_id).get()
+    # for sub in team_subs:
+    #     if team_subs['challenge_id'] == str(challenge_id):
+    #         result
+
+    return result
+
+# Endpoints of database related frontend call.
 def register_routes(current_app):
     '''
     @current_app.route('/')
@@ -159,16 +180,13 @@ def register_routes(current_app):
     return
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     # init_db_teams()
     # print(get_team_id("yourteam"))
-    # print(insert_submission_entry([{'node': 0, 'generators': {} },
-    #         {'node': 1, 'generators': {'H': 1}},
-    #         {'node': 2, 'generators': {"N": 1}},
-    #         {'node': 3, 'generators': {'H': 1, "N": 1, "R": 1}} ], 3))
     # update_scores_entry(1, new_sys_info = {
     #    'new_sub_datetime': '2018-03-09 14:20:18',
-    #    'new_num_attempts': 1}, 
+    #    'new_num_attempts': 1,
+    #    'challenge_id': 1}, 
     #    team_id=3, new_scores={"cost": 6120.23, 
     #                             "passed": True, 
     #                             "score": 6120.23,
@@ -178,4 +196,4 @@ if __name__ == "__main__":
     #                             "nodes": {0: {'node':0}}})
     # print(get_scores_status_entry(3))
     # print(get_scores_status_entry(10))
-    print(get_leaderboard())
+    # print(get_leaderboard())
