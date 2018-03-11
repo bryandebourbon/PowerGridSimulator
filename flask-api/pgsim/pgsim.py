@@ -20,6 +20,7 @@ import pprint
 from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A
 import ast, json
 import numpy as np
+import cProfile, pstats, io
 
 pgsim_app = Flask(__name__) # create the application instance :)
 pgsim_app.config.from_object(__name__) # load config from this file , flaskr.py
@@ -64,6 +65,9 @@ def get_challenge():
     #    “capacity”: one number, constant capacity
     #    This is up for change, might add more parameters},
     #   { some other line...}, { ... }]
+    pr = cProfile.Profile()
+    pr.enable()
+
     saved = db_utils.is_saved(1)
 
     gens = []
@@ -82,7 +86,7 @@ def get_challenge():
     lines = [{"from": int(line[F_BUS]), "to": int(line[T_BUS]), "capacity": float(line[RATE_A])} 
                 for line in ppc_utils.transmission_limits]
 
-    return make_response(json.dumps(
+    challenge = make_response(json.dumps(
         {"id": 1,
          "name": "Ontario Power Generation",
          "description": "Design Ontario's generation system with real-life demand, generation cost, CO2 emission, and more data! (Description proposed by mighty Jane)",
@@ -90,6 +94,17 @@ def get_challenge():
          "generators": gens,
          "demands": demands,
          "lines": lines}))
+
+    pr.disable()
+    s = io.StringIO()
+    sortby = 'cumulative'
+    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+    ps.print_stats()
+    print(s.getvalue(), file=open(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "get_challenge_profile.txt"), 
+        "a"))
+
+    return challenge
 
 # Submit and evaluate submitted form data.
 @pgsim_app.route("/submit/", methods=["POST"])
