@@ -86,9 +86,10 @@ class PgsimTestCase(unittest.TestCase):
 
     def test_submit_empty(self):
         placements = []
-        self.assertRaises(AssertionError, self.app.post,'/submit/', data=json.dumps(placements),
+        rv = self.app.post('/submit/', data=json.dumps(placements),
                        content_type='application/json', headers={"username": "ourteam"})
-
+        print(rv.data)
+        
     def test_submit_simple(self):
         placements = [{'node': 4, 'generators': {'H':1} }]
         rv = self.app.post('/submit/', data=json.dumps(placements),
