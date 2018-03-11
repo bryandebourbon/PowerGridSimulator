@@ -9,8 +9,10 @@ import numpy as np
 
 from pypower import case14
 from pypower.api import runpf, runopf
+from math import radians, sin, cos
 
 import json
+
 
 class PypowerTestCase(unittest.TestCase):
     def test_runpf_case14(self):
@@ -37,11 +39,16 @@ class PypowerTestCase(unittest.TestCase):
                 [   1.03552995,  -16.03364453,    0.        ,    0.        ]
             ])
         assert pf_metrics["passed"]
-        np.testing.assert_array_almost_equal(pf_metrics["buses"], expected_bus_data)
-
-    def test_runopf(self):
-        # TODO: Find a test case for runopf (pending Kevin's input).
-        assert True
+        assert len(pf_metrics["buses"]) == 14
+        for i, node in pf_metrics["buses"].items():
+            np.testing.assert_almost_equal(node["generated"]["real"], 
+                expected_bus_data[i, 2])
+            np.testing.assert_almost_equal(node["generated"]["reactive"], 
+                expected_bus_data[i, 3])
+            np.testing.assert_almost_equal(node["supplied"]["real"], 
+                expected_bus_data[i, 0]*cos(radians(expected_bus_data[i, 1])))
+            np.testing.assert_almost_equal(node["supplied"]["reactive"], 
+                expected_bus_data[i, 0]*sin(radians(expected_bus_data[i, 1])))
 
 class PgsimutilsTestCase(unittest.TestCase):
     def setUp(self):
