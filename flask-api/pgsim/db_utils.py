@@ -1,11 +1,12 @@
 import sqlite3
 from flask import Blueprint, request, session, g, redirect, url_for, abort, \
      render_template, flash, current_app
-import firebase_admin
+import os, firebase_admin
 from firebase_admin import auth, credentials, db
 from datetime import datetime
 
-cred = credentials.Certificate('pgsim/data/serviceAccountKey.json')
+cred = credentials.Certificate(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+    "data/serviceAccountKey.json"))
 firebase_admin.initialize_app(cred, {
     "databaseURL": "https://power-grid-simulator.firebaseio.com"
     })
@@ -189,7 +190,6 @@ def register_routes(current_app):
     #    'challenge_id': 1}, 
     #    team_id=3, new_scores={"cost": 6120.23, 
     #                             "passed": True, 
-    #                             "score": 6120.23,
     #                             "CO2": 10000.41, 
     #                             "installation_cost": 523081,
     #                             "lines": {0: {'from': 0}},

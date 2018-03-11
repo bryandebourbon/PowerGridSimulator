@@ -118,7 +118,10 @@ def submit():
     for submitted_node in submitted_data:
         gen_placements[int(submitted_node["node"])] = submitted_node["generators"]
         if submitted_node["generators"]: no_gens = False
-    assert not no_gens, "Must specify at least one generator for PyPower to process."
+    if no_gens: 
+        return make_response(json.dumps({
+            'success': False, 
+            'message': 'Please specify at least one generator.'}))
 
     # Get the team and challenge ID.
     team_id = request.headers["team_id"]

@@ -8,22 +8,81 @@
             <div class="pgs-title">{{node.name}}</div>
             <div class="pgs-demand">
                 <div class="pgs-subtitle">Demand Profile</div>
-                <div>Real demands: {{node.demands.real}}</div>
-                <div>Reactive demands: {{node.demands.reactive}}</div>
+                <div class="col-xs-6">
+                    <div>Real demands</div>
+                    <svg id="node-real-demands" width="200" height="100"></svg>
+                </div>
+                <div class="col-xs-6">
+                    <div>Reactive demands</div>
+                    <svg id="node-reactive-demands" width="200" height="100"></svg>
+                </div>
             </div>
             <div class="pgs-generator">
                 <div class="pgs-subtitle">Generators Installed</div>
-                <span ng-repeat="generator in node.generators | orderBy : ['type', 'capacity']">
-                    <button class="btn btn-light" ng-click="removeGenerator(generator)">{{generator.type}}, capacity: {{generator.capacity}}</button>
+                <span ng-repeat="generator in node.generators | orderBy : 'type'">
+                    <div class="btn-group col-xs-12" role="group" aria-label="Basic example">
+                        <button class="btn btn-default" ng-click="viewGeneratorInfo(generator)" data-toggle="modal" data-target="#generator-profile-modal">{{generator.type}} ({{generator.count}})</button>
+                        <button class="btn btn-default" ng-click="removeGenerator(generator)">Remove</button>
+                    </div>
                 </span>
             </div>
         </div>
         <div class="pgs-inventory-profile">
             <div class="pgs-subtitle">Inventory Profile</div>
-            <span ng-repeat="generator in generators | orderBy: 'type'">
-                <button class="btn btn-default" ng-click="viewGeneratorInfo(generator)">{{generator.type}}</button>
+            <span ng-repeat="generator in challenge.generators | orderBy: 'type'">
+                <div class="btn-group col-xs-12" role="group">
+                    <button class="btn btn-default" ng-click="viewGeneratorInfo(generator)" data-toggle="modal" data-target="#generator-profile-modal">{{generator.type}} ({{generator.count}})</button>
+                    <button class="btn btn-default" ng-click="addGenerator(generator)" ng-disabled="generator.count==0">Add</button>
+                </div>
             </span>
-            <div id="generator-info" hidden></div>
+        </div>
+    </div>
+</div>
+ 
+<div class="modal fade" id="generator-profile-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title col-xs-6"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-description">
+                    <div data-key="real_capacity">
+                        <span>Real Capacity</span>
+                        <!-- <tooltip-icon icon="real-capacity-tooltip-icon"></tooltip-icon> -->
+                        <span>: </span>
+                        <span>
+                            <svg id="generator-profile-real-capacity" width="200" height="100"></svg>
+                        </span>
+                    </div>
+                    <div data-key="reactive_capacity">
+                        <span>Reactive Capacity: </span>
+                        <span>
+                            <svg id="generator-profile-reactive-capacity" width="200" height="100"></svg>
+                        </span>
+                    </div>
+                    <div data-key="real_cost">
+                        <span>Real Cost: </span>
+                        <span>
+                            <svg id="generator-profile-real-cost" width="200" height="100"></svg>
+                        </span>
+                    </div>
+                    <div data-key="installation_cost">
+                        <span>Installation Cost: </span>
+                        <span></span>
+                    </div>
+                    <div data-key="unit_CO2">
+                        <span>Unit CO2: </span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>

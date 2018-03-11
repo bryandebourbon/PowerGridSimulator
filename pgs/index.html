@@ -8,7 +8,6 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
-        <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
         <script src="https://d3js.org/d3.v3.min.js"></script>
         <script src="//d3js.org/topojson.v1.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
@@ -27,5 +26,8 @@
             <challenge-directive ng-if="state=='grid'" challenge="challenge"></challenge-directive>
             <evaluation-directive ng-if="state=='evaluation'" evaluation="evaluation"></challenge-directive>
         </div>
-    </body>
+
+        <div class="pgs-alert" hidden>
+            <span class="pgs-alert-content"></span>
+        </div>
 </html>

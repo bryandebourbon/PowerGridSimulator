@@ -264,16 +264,46 @@ app.service('ChallengeService', function () {
 
 	var submitChallenge = function (challenge) {
 		return new Promise(function (resolve, reject) {
-			var submission = JSON.stringify([	{ 'node': 0, 'generators': {} },
-								{ 'node': 1, 'generators': { 'H': 1 } },
-								{ 'node': 2, 'generators': { 'N': 1 } },
-								{ 'node': 3, 'generators': { 'G': 1 } },
-								{ 'node': 4, 'generators': { 'S': 1 } },
-								{ 'node': 5, 'generators': { 'W': 1 } },
-								{ 'node': 6, 'generators': { 'H': 1, 'N': 1 } },
-								{ 'node': 7, 'generators': { 'G': 1, 'S': 1 } },
-								{ 'node': 8, 'generators': { 'G': 1, 'S': 1, 'W': 1 } },
-								{ 'node': 9, 'generators': { 'H': 1, 'N': 1, 'G': 1, 'S': 1, 'W': 1 } }]);
+			// var submission = JSON.stringify([	{ 'node': 0, 'generators': {} },
+			// 					{ 'node': 1, 'generators': { 'H': 1 } },
+			// 					{ 'node': 2, 'generators': { 'N': 1 } },
+			// 					{ 'node': 3, 'generators': { 'G': 1 } },
+			// 					{ 'node': 4, 'generators': { 'S': 1 } },
+			// 					{ 'node': 5, 'generators': { 'W': 1 } },
+			// 					{ 'node': 6, 'generators': { 'H': 1, 'N': 1 } },
+			// 					{ 'node': 7, 'generators': { 'G': 1, 'S': 1 } },
+			// 					{ 'node': 8, 'generators': { 'G': 1, 'S': 1, 'W': 1 } },
+			// 					{ 'node': 9, 'generators': { 'H': 1, 'N': 1, 'G': 1, 'S': 1, 'W': 1 } }]);
+
+			var minifiChallenge = function (challenge) {
+				var generatorTypeMap = [{ abbreviation: 'G', display: 'Gas' },
+										{ abbreviation: 'H', display: 'Hydro' },
+										{ abbreviation: 'N', display: 'Nuclear' },
+										{ abbreviation: 'S', display: 'Solar' },
+										{ abbreviation: 'W', display: 'Water' }];
+
+				var mChallenge = [];
+				_.forEach(challenge.nodes, function (n) {
+					var node = { 
+						node: n.index,
+						generators: {}
+					};
+
+					_.forEach(n.generators, function (g) {
+						var generatorType = _.find(generatorTypeMap, function (gt) { return gt.display == g.type; });
+
+						if (generatorType) {
+							node.generators[generatorType.abbreviation] = g.count;
+						}
+					})
+
+					mChallenge.push(node);
+				})
+
+				return JSON.stringify(mChallenge);
+			}
+
+			var submission = minifiChallenge(challenge);
 
 			$.ajax({
 				url: 'http://127.0.0.1:5000/submit/',
