@@ -4,10 +4,13 @@ app.service('LoginService', function () {
 	}
 
 	var getChallenges = function (args) {
+		headers = { "team_id": 1, "challenge_id": 10 };
 		return new Promise(function (resolve, reject) {
 			$.ajax({
-				url: 'http://127.0.0.1:5000/getChallenge',
+				url: 'http://127.0.0.1:5000/getChallenge/',
 				type: 'GET',
+				// (TODO Annie) the challenge ID and team ID are fake. Please present the real ones.
+				headers: headers,
 				success: function (data) {
 					if (data) {
 						var challenge = JSON.parse(data);
@@ -24,7 +27,11 @@ app.service('LoginService', function () {
 			var user = {
 				email: args.email || '',
 				password: args.password || '',
-				teamname: args.teamname || ''
+				teamname: args.teamname || '',
+
+				// (TODO Annie) these are dummy data
+				team_id: 1,
+				challenge_id: 10
 			}
 
 			var _authErrorContainer = $('#auth-error-container');
@@ -183,7 +190,11 @@ app.service('LoginService', function () {
 			var user = {
 				email: args.email || '',
 				password: args.password || '',
-				teamname: args.teamname || ''
+				teamname: args.teamname || '',
+
+				// (TODO Annie) these are dummy data
+				team_id: 1,
+				challenge_id: 10
 			}
 
 			var _authErrorContainer = $('#auth-error-container');

@@ -69,6 +69,8 @@ def get_challenge():
     pr = cProfile.Profile()
     pr.enable()
 
+    print(request.headers)
+
     team_id = request.headers["team_id"]
     challenge_id = request.headers["challenge_id"]
     saved_challenge = db_utils.get_saved_challenge(challenge_id, team_id)
