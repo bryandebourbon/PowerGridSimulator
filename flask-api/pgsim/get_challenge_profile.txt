@@ -1,0 +1,47 @@
+         144 function calls in 0.000 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/json/__init__.py:183(dumps)
+        1    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/json/encoder.py:182(encode)
+        1    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/json/encoder.py:204(iterencode)
+        1    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/flask/helpers.py:145(make_response)
+        1    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/flask/app.py:1690(make_response)
+        1    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/werkzeug/wrappers.py:794(__init__)
+        1    0.000    0.000    0.000    0.000 /Users/jane/Documents/Academics/capstone/PowerGridSimulator/flask-api/pgsim/pgsim.py:81(<listcomp>)
+        1    0.000    0.000    0.000    0.000 /Users/jane/Documents/Academics/capstone/PowerGridSimulator/flask-api/pgsim/pgsim.py:86(<listcomp>)
+       35    0.000    0.000    0.000    0.000 {method 'tolist' of 'numpy.ndarray' objects}
+        1    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/werkzeug/wrappers.py:950(set_data)
+        2    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/werkzeug/datastructures.py:1231(__setitem__)
+        2    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/werkzeug/datastructures.py:1184(set)
+        1    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/werkzeug/local.py:344(__getattr__)
+       54    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
+        1    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/werkzeug/local.py:300(_get_current_object)
+        1    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/werkzeug/wrappers.py:908(_set_status_code)
+        1    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/werkzeug/datastructures.py:1126(__contains__)
+        1    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/flask/globals.py:48(_find_app)
+        1    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/werkzeug/datastructures.py:948(__getitem__)
+        1    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/werkzeug/utils.py:215(get_content_type)
+        1    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/werkzeug/local.py:160(top)
+        3    0.000    0.000    0.000    0.000 {method 'lower' of 'str' objects}
+        2    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/werkzeug/datastructures.py:897(_unicodify_header_value)
+        2    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/werkzeug/datastructures.py:1165(_validate_value)
+        1    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/werkzeug/local.py:68(__getattr__)
+        6    0.000    0.000    0.000    0.000 {method 'items' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 {method 'encode' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 {method 'startswith' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.hasattr}
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.iter}
+        1    0.000    0.000    0.000    0.000 /anaconda3/lib/python3.6/site-packages/werkzeug/datastructures.py:940(__init__)
+        1    0.000    0.000    0.000    0.000 {built-in method greenlet.getcurrent}
+        7    0.000    0.000    0.000    0.000 {method 'append' of 'list' objects}
+        1    0.000    0.000    0.000    0.000 {method 'join' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 {method 'upper' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.getattr}
+        2    0.000    0.000    0.000    0.000 {built-in method builtins.len}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        1    0.000    0.000    0.000    0.000 /Users/jane/Documents/Academics/capstone/PowerGridSimulator/flask-api/pgsim/db_utils.py:129(is_saved)
+
+
+

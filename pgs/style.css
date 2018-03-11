@@ -75,8 +75,17 @@
 	position: absolute;
 	top: 0;
 	width: 95%;
-	z-index: 1000;
+	z-index: 1100;
 	text-align: center;
+}
+.pgs-secret-code {
+    font-style: italic;
+    font-weight: bolder;
+}
+.pgs-notice {
+    color: #a94442;
+    font-size: small;
+    margin-top: 24px;
 }
 
 .help-tip{
