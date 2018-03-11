@@ -29,7 +29,7 @@ def get_team_id(team_name):
     if not team:
         return -1
     else:
-        return int(list(team.values())[0]['team_id'])
+        return list(team.values())[0]['team_id']
 
 def insert_submission_entry(gen_placements, team_id, challenge_id):
     submission_entry = {}

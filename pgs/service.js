@@ -4,7 +4,7 @@ app.service('LoginService', function () {
 	}
 
 	var getChallenges = function (args) {
-		headers = { "team_id": 1, "challenge_id": 10 };
+		headers = {"team_name": 'ourteam', "challenge_id": 10 };
 		return new Promise(function (resolve, reject) {
 			$.ajax({
 				url: 'http://127.0.0.1:5000/getChallenge/',
@@ -135,7 +135,7 @@ app.service('LoginService', function () {
 									var teamID = 1 + +lastTeamData.team_id;
 									var newTeam = {};
 									newTeam[secretCode] = {
-										'team_id': teamID,
+										'team_id': teamID.toString(),
 										'team_name': user.teamname
 									};
 									teamsRef.update(newTeam);

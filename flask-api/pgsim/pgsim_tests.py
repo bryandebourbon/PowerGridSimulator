@@ -84,14 +84,14 @@ class PgsimTestCase(unittest.TestCase):
         placements = []
         rv = self.app.post('/submit/', data=json.dumps(placements),
                        content_type='application/json',
-                       headers={"team_id": 1, "challenge_id": 10})
+                       headers={"team_name": 'ourteam', "challenge_id": 10})
         print(rv.data)
         
     def test_submit_simple(self):
         placements = [{'node': 4, 'generators': {'H':1} }]
         rv = self.app.post('/submit/', data=json.dumps(placements),
                             content_type='application/json',
-                            headers={"team_id": 1, "challenge_id": 10})
+                            headers={"team_name": 'ourteam', "challenge_id": 10})
 
     def test_submit(self):
         placements = [ {"node": 0, "generators": {} }, 
@@ -106,7 +106,7 @@ class PgsimTestCase(unittest.TestCase):
                     {"node": 9, "generators": {"H": 1, "N":1, "G":1, "S":1, "W":1}}]
         rv = self.app.post('/submit/', data=json.dumps(placements),
                             content_type='application/json',
-                            headers={"team_id": 1, "challenge_id": 10})
+                            headers={"team_name": 'ourteam', "challenge_id": 10})
         print(rv.data)
 
     # Note: Firebase is not completely realtime, so the following cases are assuming
@@ -114,7 +114,7 @@ class PgsimTestCase(unittest.TestCase):
     def test_get_challenge_simple(self):
         saved_challenge = {'4': {'H':1}}
         rv = self.app.get('/getChallenge/',
-                        headers={"team_id": 1, "challenge_id": 10})
+                        headers={"team_name": 'ourteam', "challenge_id": 10})
         get_challenge = json.loads(rv.data.decode('unicode_escape'))
         # print("getChallenge output:\n{}".format(get_challenge))
         assert get_challenge['saved_challenge'] == saved_challenge
@@ -122,7 +122,7 @@ class PgsimTestCase(unittest.TestCase):
     def test_get_challenge_latest(self):
         saved_challenge = {'4': {'H':1}}
         rv = self.app.get('/getChallenge/',
-                        headers={"team_id": 1, "challenge_id": 10})
+                        headers={"team_name": 'ourteam', "challenge_id": 10})
         get_challenge = json.loads(rv.data.decode('unicode_escape'))
         print("getChallenge output:\n{}".format(get_challenge))
         assert get_challenge['saved_challenge'] == saved_challenge

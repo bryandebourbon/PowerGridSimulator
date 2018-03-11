@@ -71,7 +71,8 @@ def get_challenge():
 
     print(request.headers)
 
-    team_id = request.headers["team_id"]
+    team_name = request.headers["team_name"]
+    team_id = db_utils.get_team_id(team_name)
     challenge_id = request.headers["challenge_id"]
     saved_challenge = db_utils.get_saved_challenge(challenge_id, team_id)
 
@@ -141,7 +142,8 @@ def submit():
             'message': 'Please specify at least one generator.'}))
 
     # Get the team and challenge ID.
-    team_id = request.headers["team_id"]
+    team_name = request.headers["team_name"]
+    team_id = db_utils.get_team_id(team_name)
     challenge_id = request.headers["challenge_id"]
 
     # Evaluate the submitted design.
