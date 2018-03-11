@@ -1,10 +1,11 @@
 import sqlite3
 from flask import Blueprint, request, session, g, redirect, url_for, abort, \
      render_template, flash, current_app
-import firebase_admin
+import os, firebase_admin
 from firebase_admin import auth, credentials, db
 
-cred = credentials.Certificate('pgsim/data/serviceAccountKey.json')
+cred = credentials.Certificate(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+    "data/serviceAccountKey.json"))
 firebase_admin.initialize_app(cred, {
     "databaseURL": "https://power-grid-simulator.firebaseio.com"
     })
