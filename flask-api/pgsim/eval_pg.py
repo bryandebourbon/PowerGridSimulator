@@ -126,7 +126,6 @@ def calc_score(gen_placements):
             "installation_cost": installation_cost,
             "passed": overall_pass, 
             "CO2": total_CO2,
-            "score": total_cost,
             "nodes": nodes_list,
             "lines": trans_list}
 

@@ -171,7 +171,6 @@ if __name__ == "__main__":
     #    'new_num_attempts': 1}, 
     #    team_id=3, new_scores={"cost": 6120.23, 
     #                             "passed": True, 
-    #                             "score": 6120.23,
     #                             "CO2": 10000.41, 
     #                             "installation_cost": 523081,
     #                             "lines": {0: {'from': 0}},
