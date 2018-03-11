@@ -80,10 +80,6 @@ class PgsimTestCase(unittest.TestCase):
         #with pgsim.pgsim_app.app_context():
         #    pgsim.db_utils.init_db()
 
-    def test_get_challenge(self):
-        rv = self.app.get('/getChallenge/')
-        print("getChallenge output:\n{}".format(rv.data))
-
     def test_submit_empty(self):
         placements = []
         rv = self.app.post('/submit/', data=json.dumps(placements),
@@ -112,6 +108,24 @@ class PgsimTestCase(unittest.TestCase):
                             content_type='application/json',
                             headers={"team_id": 1, "challenge_id": 10})
         print(rv.data)
+
+    # Note: Firebase is not completely realtime, so the following cases are assuming
+    #       two submissions are in the database. I have left two there untouched.
+    def test_get_challenge_simple(self):
+        saved_challenge = {'4': {'H':1}}
+        rv = self.app.get('/getChallenge/',
+                        headers={"team_id": 1, "challenge_id": 10})
+        get_challenge = json.loads(rv.data.decode('unicode_escape'))
+        # print("getChallenge output:\n{}".format(get_challenge))
+        assert get_challenge['saved_challenge'] == saved_challenge
+
+    def test_get_challenge_latest(self):
+        saved_challenge = {'4': {'H':1}}
+        rv = self.app.get('/getChallenge/',
+                        headers={"team_id": 1, "challenge_id": 10})
+        get_challenge = json.loads(rv.data.decode('unicode_escape'))
+        print("getChallenge output:\n{}".format(get_challenge))
+        assert get_challenge['saved_challenge'] == saved_challenge
 
     #def tearDown(self):
         #os.close(self.db_fd)
