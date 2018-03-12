@@ -373,14 +373,26 @@ app.service('ChallengeService', function () {
 					hideSpinner();
 
 					var data = JSON.parse(res);
-					var evaluation = data.eval;
 
-					var res = {
-						status: 'OK',
-						evaluation: evaluation
+					if (data.success) {
+						var evaluation = data.eval;
+
+						var res = {
+							status: 'OK',
+							evaluation: evaluation
+						}
+
+						resolve(res);
+					} else {
+						showWarning(data.message);
+
+						var res = {
+							status: 'ERROR',
+							reason: data.message
+						}
+
+						resolve(res);
 					}
-
-					resolve(res);
 				},
 				error: function (data) {
 					console.log(data);
