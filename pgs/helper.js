@@ -46,7 +46,6 @@ var multiplexArray = function (data) {
 var drawLineChart = function (args) {
     // we have the option of drawing a line chart with 1 line or with 2 lines
     // args.container: container id for the chart svg
-    // args.series: number of lines we want to draw in our chart
     // args.data: [[data1](, [data2], [data3], ...)]
 
     var _vis = $(args.container);

@@ -308,18 +308,6 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 		$scope.$apply();
 	}
 
-	// demands, generators, lines
-	var nodeMap = [{ index: 0, name: 'Northwest' },
-	{ index: 1, name: 'Northeast' },
-	{ index: 2, name: 'Ottawa' },
-	{ index: 3, name: 'East' },
-	{ index: 4, name: 'Toronto' },
-	{ index: 5, name: 'Essa' },
-	{ index: 6, name: 'Bruce' },
-	{ index: 7, name: 'Southwest' },
-	{ index: 8, name: 'Niagara' },
-	{ index: 9, name: 'West' }];
-
 	var populateGenerators = function () {
 		_.forEach($scope.challenge.generators, function (generator) {
 			switch (generator.type) {
@@ -497,6 +485,16 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'Evalua
 
 					renderNode($scope.node);
 				})
+			} else if ($scope.tab == 'lines') {
+				$scope.line = _.find($scope.lines, function (l) { return l.from == 0 && l.to == 1; });
+
+				$timeout(function () {
+					var _line = $('.lines').find('[data-from="0"][data-to="1"]');
+					_line.addClass('active');
+					_line.siblings().removeClass('active');
+
+					renderLine($scope.line);
+				})
 			}
 
 			$(evt.currentTarget).addClass('active');
@@ -516,6 +514,19 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'Evalua
 			$(evt.currentTarget).siblings().removeClass('active');
 		}
 	}
+	$scope.switchLine = function (evt) {
+		if (evt && evt.currentTarget) {
+			var from = evt.currentTarget.dataset.from;
+			var to = evt.currentTarget.dataset.to;
+
+			$scope.line = _.find($scope.lines, function (l) { return l.from == from && l.to == to; });
+
+			$timeout(function () { renderLine($scope.line); });
+
+			$(evt.currentTarget).addClass('active');
+			$(evt.currentTarget).siblings().removeClass('active');
+		}
+	}
 
 	var processNodes = function () {
 		$scope.nodes = $scope.evaluation.nodes;
@@ -529,11 +540,26 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'Evalua
 		var suppliedRealPower = multiplexArray(node.supplied.real);
 		var suppliedReactivePower = multiplexArray(node.supplied.reactive);
 
-		drawLineChart({ container: '#node-evaluation-real-power-svg', series: 2, data: [generatedRealPower, suppliedRealPower] });
-		drawLineChart({ container: '#node-evaluation-reactive-power-svg', series: 2, data: [generatedReactivePower, suppliedReactivePower] });
+		drawLineChart({ container: '#node-evaluation-real-power-svg', data: [generatedRealPower, suppliedRealPower] });
+		drawLineChart({ container: '#node-evaluation-reactive-power-svg', data: [generatedReactivePower, suppliedReactivePower] });
+	}
+
+	var processLines = function () {
+		$scope.lines = $scope.evaluation.lines;
+		$scope.line = _.find($scope.lines, function (l) { return l.from == 0 && l.to == 1; });
+
+		// $timeout(function () { renderLine($scope.line); });
+	}
+	var renderLine = function (line) {
+		var realPowerFlow = multiplexArray(line.real_power);
+		var reactivePowerFlow = multiplexArray(line.reactive_power);
+
+		drawLineChart({ container: '#line-evaluation-real-power-svg', data: [realPowerFlow] });
+		drawLineChart({ container: '#line-evaluation-reactive-power-svg', data: [reactivePowerFlow] });
 	}
 
 	processNodes();
+	processLines();
 }]
 
 app.directive('tooltipIcon', function () {
