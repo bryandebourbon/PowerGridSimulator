@@ -1,8 +1,7 @@
 var app = angular.module('PowerGridSimulator', []);
 
-app.controller('PowerGridSimulatorController', function ($scope, LoginService, EvaluationService) {
+app.controller('PowerGridSimulatorController', function ($scope, LoginService) {
 	LoginService.init();
-	EvaluationService.init();
 
 	$scope.state = 'login';
 
