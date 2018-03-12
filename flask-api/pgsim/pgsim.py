@@ -32,7 +32,6 @@ CORS(pgsim_app)
 # Load default config and override config from an environment variable
 # TODO: can define env var FLASKR_SETTINGS that points to a config file to be loaded
 pgsim_app.config.update(dict(
-    DATABASE=os.path.join(pgsim_app.root_path, 'flaskr.db'), # TODO: is this needed??
     SECRET_KEY='development key', # to keep the client-side sessions secure
     USERNAME='admin',
     PASSWORD='default'
