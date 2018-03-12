@@ -74,11 +74,8 @@ class PgsimutilsTestCase(unittest.TestCase):
 class PgsimTestCase(unittest.TestCase):
 
     def setUp(self):
-        #self.db_fd, pgsim.pgsim_app.config['DATABASE'] = tempfile.mkstemp()
         pgsim.pgsim_app.testing = True
         self.app = pgsim.pgsim_app.test_client()
-        #with pgsim.pgsim_app.app_context():
-        #    pgsim.db_utils.init_db()
 
     def test_submit_empty(self):
         placements = []
