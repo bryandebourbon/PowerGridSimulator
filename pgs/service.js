@@ -4,7 +4,8 @@ app.service('LoginService', function () {
 	}
 
 	var getChallenges = function (args) {
-		headers = {"team_name": 'ourteam', "challenge_id": 10 };
+		var headers = {"team_name": 'ourteam', "challenge_id": 10 };
+		
 		return new Promise(function (resolve, reject) {
 			$.ajax({
 				url: 'http://127.0.0.1:5000/getChallenge/',
@@ -352,11 +353,12 @@ app.service('ChallengeService', function () {
 			}
 
 			var submission = minifiChallenge(challenge);
+			var headers = { team_name: 'ourteam', challenge_id: 10 };
 
 			$.ajax({
 				url: 'http://127.0.0.1:5000/submit/',
 				type: 'POST',
-				headers: { username: 'ourteam' },
+				headers: headers,
 				data: submission,
 				success: function (res) {
 					var data = JSON.parse(res);
