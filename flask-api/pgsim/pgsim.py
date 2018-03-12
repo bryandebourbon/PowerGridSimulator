@@ -101,14 +101,12 @@ def get_challenge():
          "demands": demands,
          "lines": lines}))
 
-    pr.disable()
-    s = io.StringIO()
-    sortby = 'cumulative'
-    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-    ps.print_stats()
-    print(s.getvalue(), file=open(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "get_challenge_profile.txt"), 
-        "a"))
+    ps = pstats.Stats(pr, stream=s)
+    if ps.total_tt > 1.0:
+        ps.sort_stats(sortby).print_stats(20)
+        print(s.getvalue(), file=open(
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), "get_challenge_profile.txt"), 
+            "a"))
 
     return challenge
 
