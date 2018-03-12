@@ -136,3 +136,14 @@ var hideWarning = function () {
 }
 
 _.delay(function () { $('[data-toggle="tooltip"]').tooltip(); });
+
+var showSpinner = function () {
+    $('#pgs-app').addClass('pgs-dim');
+
+    $('.pgs-spinner').show();
+}
+var hideSpinner = function () {
+    $('#pgs-app').removeClass('pgs-dim');
+    
+    $('.pgs-spinner').hide();
+}

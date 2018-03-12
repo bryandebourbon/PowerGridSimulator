@@ -7,6 +7,8 @@ app.service('LoginService', function () {
 		var headers = {"team_name": 'ourteam', "challenge_id": 10 };
 		
 		return new Promise(function (resolve, reject) {
+			showSpinner();
+
 			$.ajax({
 				url: 'http://127.0.0.1:5000/getChallenge/',
 				type: 'GET',
@@ -14,11 +16,16 @@ app.service('LoginService', function () {
 				headers: headers,
 				success: function (data) {
 					if (data) {
+						hideSpinner();
+
 						var challenge = JSON.parse(data);
 
 						resolve([challenge]);
 					}
 				},
+				error: function (data) {
+					console.log(data);
+				}
 			})
 		})
 	}
@@ -355,12 +362,16 @@ app.service('ChallengeService', function () {
 			var submission = minifiChallenge(challenge);
 			var headers = { team_name: 'ourteam', challenge_id: 10 };
 
+			showSpinner();
+
 			$.ajax({
 				url: 'http://127.0.0.1:5000/submit/',
 				type: 'POST',
 				headers: headers,
 				data: submission,
 				success: function (res) {
+					hideSpinner();
+
 					var data = JSON.parse(res);
 					var evaluation = data.eval;
 
@@ -371,6 +382,9 @@ app.service('ChallengeService', function () {
 
 					resolve(res);
 				},
+				error: function (data) {
+					console.log(data);
+				}
 			})
 		})
 	}
