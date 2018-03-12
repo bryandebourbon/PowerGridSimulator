@@ -120,10 +120,10 @@ def calc_score(gen_placements):
     for gen in np.vstack((gens, fixed_gens)):
         installation_cost += ppc_utils.gen_types[gen[1]]["installation_cost"]
     
-    return {"cost": total_cost, 
+    return {"cost": total_cost if overall_pass else 0, 
             "installation_cost": installation_cost,
             "passed": overall_pass, 
-            "CO2": total_CO2,
+            "CO2": total_CO2 if overall_pass else 0,
             "nodes": nodes_list,
             "lines": trans_list}
 
