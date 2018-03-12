@@ -141,10 +141,9 @@ app.service('LoginService', function () {
 								teamsRef.orderByChild('team_id').limitToLast(1).once('value', lastTeam => {
 									const lastTeamData = Object.values(lastTeam.val())[0];
 									var teamID = 1 + +lastTeamData.team_id;
-									console.log(lastTeamData.team_id, teamID)
 									var newTeam = {};
 									newTeam[secretCode] = {
-										'team_id': teamID.toString(),
+										'team_id': teamID,
 										'team_name': user.teamname
 									};
 									teamsRef.update(newTeam);
