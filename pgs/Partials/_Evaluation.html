@@ -1,12 +1,11 @@
 <div class="pgs-navigation">
-    <button class="btn btn-default" ng-click="goBack()">&larr; Go Back</button>
+    <button class="btn btn-default pgs-float-left-btn" ng-click="goBack()">&larr; Go Back</button>
+    <div class="navbar-brand nav-link">Submission Results</div>
+    <button class="btn btn-default pgs-float-right-btn" ng-click="viewLeaderBoard()">Leader Board</button>
 </div>
 
-<div class="pgs-page">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <span class="pgs-submission-header">Thank you for your submission. Your submission result can be found below:</span>
-        <button class="btn btn-default pgs-float-right-btn" ng-click="viewLeaderBoard()">Leader Board</button>
-    </nav>
+<div class="pgs-page col-xs-12">
+    <div class="pgs-submission-header">Thank you for your submission. Your submission result can be found below:</div>
 
     <div class="pgs-evaluation-summary">
         <div>Result: {{evaluation.passed}}</div>
