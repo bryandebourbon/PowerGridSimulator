@@ -1,29 +1,27 @@
 import numpy as np, csv, itertools, os, math
+from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, \
+    TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST
 
 # NOTE: PYPOWER'S INDEX STARTS FROM 1!
 
 # Hardcoded transmission limits for all lines. The limits are constant over time.
 # The lines are designed to connect adjacent Ontario power zones. 
-# TODO: Update these limits with realistic transmission line values (pending 
-# Kevin's input), and read from csv or database. 
-transmission_limits = np.array([ 
-    # fbus, tbus,   r,       x,        b, rateA, rateB, rateC, ratio, angle, status, angmin, angmax
-        [1,   2, 0.01938, 0.05917, 0.0528, 9900,    0,      0,   0,     0,      1,     -360, 360],
-        [2,   6, 0.05403, 0.22304, 0.0492, 9900,    0,      0,   0,     0,      1,     -360, 360],
-        [2,   8, 0.04699, 0.19797, 0.0438, 9900,    0,      0,   0,     0,      1,     -360, 360],
-        [3,   4, 0.05811, 0.17632, 0.034,  9900,    0,      0,   0,     0,      1,     -360, 360],
-        [4,   5, 0.05695, 0.17388, 0.0346, 9900,    0,      0,   0,     0,      1,     -360, 360],
-        [4,   6, 0.06701, 0.17103, 0.0128, 9900,    0,      0,   0,     0,      1,     -360, 360],
-        [5,   6, 0.01335, 0.04211, 0,      9900,    0,      0,   0,     0,      1,     -360, 360],
-        [5,   8, 0,       0.20912, 0,      9900,    0,      0,   0,     0,      1,     -360, 360],
-        [6,   8, 0,       0.55618, 0,      9900,    0,      0,   0,     0,      1,     -360, 360],
-        [7,   8, 0,       0.25202, 0,      9900,    0,      0,   0,     0,      1,     -360, 360],
-        [8,   9, 0,       0.11001, 0,      9900,    0,      0,   0,     0,      1,     -360, 360],
-        [8,  10, 0,       0.11001, 0,      9900,    0,      0,   0,     0,      1,     -360, 360]
-    ])
-
-straight_km_distances = np.array([600,430,530,130,180,150,150,100,200,100,120,160])
+transmission_limits = np.genfromtxt(os.path.join(os.path.dirname(os.path.abspath(__file__)), 
+    "data/transmission_lines.csv"), delimiter=',')
+# Calculate the r, x, b, and rateA parameters for each line.
+straight_km_distances = np.array([600,430,130,180,150,100,200,100,120,160])
+assert transmission_limits.shape[0] == straight_km_distances.shape[0], "Jane's fault for straight_km_distances"
 line_km = 1.3 * straight_km_distances
+line_specs = np.array(["243", "500", "500", "500", "500", "243", 
+    "243", "243", "243", "243"])
+assert transmission_limits.shape[0] == line_specs.shape[0], "Jane's fault for line_specs"
+specs_library = {"243": {BR_R: 0.04, BR_X: 0.4, BR_B: 0}, 
+                 "500": {BR_R: 0.02, BR_X: 0.3, BR_B: 0}}
+for line_idx in range(transmission_limits.shape[0]):
+    divisor = (int(line_specs[line_idx]) * 1000) ** 2 / transmission_limits[line_idx, RATE_A]
+    for spec in [BR_R, BR_X, BR_B]:
+        transmission_limits[line_idx, spec] = \
+            specs_library[line_specs[line_idx]][spec] * line_km[line_idx] / divisor
 
 # Hardcoded demand profiles for each timestep for all the buses. (Number of rows
 # == number of timesteps; number of columns == number of buses.)
