@@ -487,6 +487,18 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'Evalua
 		if (evt && evt.currentTarget) {
 			$scope.tab = evt.currentTarget.dataset.tab;
 
+			if ($scope.tab == 'nodes') {
+				$scope.node = _.find($scope.nodes, function (n) { return n.node == 0; });
+
+				$timeout(function () {
+					var _node = $('.nodes').find('[data-index="0"]');
+					_node.addClass('active');
+					_node.siblings().removeClass('active');
+
+					renderNode($scope.node);
+				})
+			}
+
 			$(evt.currentTarget).addClass('active');
 			$(evt.currentTarget).siblings().removeClass('active');
 		}
