@@ -1,17 +1,16 @@
 <div class="pgs-page">
-    <div>Thank you for your submission.</div>
+    <div class="pgs-submission-header">Thank you for your submission. Your submission result can be found below:</div>
 
-    <!-- <div class="pgs-evaluation">
-        <div>Result: {{evaluation.pass}}</div>
-        <div>Optimal Cost: {{challenge.optimalCost}}</div>
-        <div>Environmental Footprint: {{evaluation.environmentalFootprint}}</div>
+    <div class="pgs-evaluation">
+        <div>Result: {{evaluation.passed}}</div>
+        <div>Real Cost: {{challenge.cost}}</div>
+        <div>Installation Cost: {{challenge.installation_cost}}</div>
+        <div>CO2 Footprint: {{evaluation.CO2}}</div>
 
-        <div>
+        <!-- <div>
             <div>Last Iteration</div>
             <div>Some visualizaition for nodes.</div>
             <div>Some visualizaition for links.</div>
-        </div>
-    </div> -->
-
-    {{evaluation}}
+        </div> -->
+    </div>
 </div>
