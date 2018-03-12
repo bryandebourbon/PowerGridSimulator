@@ -268,19 +268,3 @@ app.service('LoginService', function () {
 	this.register = function (args) { return register(args); }
 	this.login = function (args) { return login(args); }
 })
-
-app.service('SimulatorService', function () {
-	var init = function () {
-		// console.log('Simulator service initiated.');
-	}
-
-	this.init = function () { return init(); };
-})
-
-app.service('EvaluationService', function () {
-	var init = function (args) {
-		// console.log('Evaluation service initiated.');
-	}
-
-	this.init = function (args) { return init(args); }
-})

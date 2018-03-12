@@ -179,7 +179,7 @@ app.directive('simulatorDirective', function () {
 		controller: simulatorDirectiveController
 	}
 })
-var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'SimulatorService', function ($scope, $rootScope, $timeout, $SimulatorService) {
+var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
 	$scope.renderGrid = function () {
 		//https://bost.ocks.org/mike/map/
 		//https://medium.com/@mbostock/command-line-cartography-part-1-897aa8f8ca2c
