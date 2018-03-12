@@ -102,7 +102,7 @@ class PgsimTestCase(unittest.TestCase):
         placements = [{'node': 0, 'generators': {'G':1} }]
         rv = self.app.post('/submit/', data=json.dumps(placements),
                             content_type='application/json',
-                            headers={"team_name": 'ourteam', "challenge_id": 10})
+                            headers={"team_name": 'yourteam', "challenge_id": 10})
         status = json.loads(rv.data.decode('unicode_escape'))
         assert status["success"]
         assert not status["eval"]["passed"]
@@ -153,6 +153,11 @@ class PgsimTestCase(unittest.TestCase):
         print("getChallenge output:\n{}".format(get_challenge))
         assert get_challenge['saved_challenge'] == saved_challenge
 
+    def test_get_leaderboard(self):
+        placements = []
+        rv = self.app.get('/leaderboard/')
+        status = json.loads(rv.data.decode('unicode_escape'))
+        print(status)
     #def tearDown(self):
         #os.close(self.db_fd)
         #os.unlink(pgsim.pgsim_app.config['DATABASE'])

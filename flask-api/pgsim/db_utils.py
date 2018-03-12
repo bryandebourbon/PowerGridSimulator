@@ -1,7 +1,7 @@
 import sqlite3
 from flask import Blueprint, request, session, g, redirect, url_for, abort, \
-     render_template, flash, current_app
-import os, firebase_admin
+     render_template, flash, current_app, make_response
+import os, json, firebase_admin
 from firebase_admin import auth, credentials, db
 from datetime import datetime
 
@@ -22,7 +22,7 @@ def init_db_teams(authfile="pgsim/data/teams.txt"):
         for i in range(1, len(contents)):
             team_info = contents[i].split('\n')[0]
             # Will be added under teams, in node named by unique team_key.
-            TEAMS.push().set({'team_id': str(i), 'team_name': team_info})
+            TEAMS.push().set({'team_id': i, 'team_name': team_info})
 
 def get_team_id(team_name):
     team = TEAMS.order_by_child('team_name').equal_to(team_name).get()
@@ -56,6 +56,7 @@ def update_scores_entry(submission_id, new_sys_info, team_id, new_scores):
     new_scores_entry['challenge_id'] = new_sys_info['challenge_id']
     new_scores_entry['scores_best'] = new_scores
 
+    # child's parameter must be a non-empty string
     score = SCORES.child(str(team_id))
     if score:
         SCORES.child(str(team_id)).update(new_scores_entry)
@@ -63,7 +64,7 @@ def update_scores_entry(submission_id, new_sys_info, team_id, new_scores):
         SCORES.child(str(team_id)).set(new_scores_entry)
 
 def get_scores_status_entry(team_id):
-    score = SCORES.order_by_child('team_id').equal_to(str(team_id)).get()
+    score = SCORES.order_by_child('team_id').equal_to(team_id).get()
     if not score:
         return {
             'team_id': None,
@@ -105,7 +106,7 @@ def get_leaderboard():
             top_teams = top_teams[:3]
         # convert ids into names and put them into result.
         for team_id in top_teams:
-            team = TEAMS.order_by_child('team_id').equal_to(team_id).get()
+            team = TEAMS.order_by_child('team_id').equal_to(int(team_id)).get()
             team_name = list(team.values())[0]['team_name']
             result[cat][team_name] = passed_scores[team_id][cat]
     
