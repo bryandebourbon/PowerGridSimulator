@@ -135,11 +135,14 @@ def submit():
     no_gens = True
     for submitted_node in submitted_data:
         gen_placements[int(submitted_node["node"])] = submitted_node["generators"]
-        if submitted_node["generators"]: no_gens = False
+        if "generators" in submitted_node and \
+            (submitted_node["generators"].get("H", 0) > 0 or 
+                submitted_node["generators"].get("G", 0) > 0): 
+            no_gens = False
     if no_gens: 
         return make_response(json.dumps({
             'success': False, 
-            'message': 'Please specify at least one generator.'}))
+            'message': 'Please specify at least one hydro or gas generator for PyPower to process successfully.'}))
 
     # Get the team and challenge ID.
     team_name = request.headers["team_name"]
