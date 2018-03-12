@@ -163,7 +163,6 @@ app.service('LoginService', function () {
 											.then(function (data) {
 												var res = {
 													status: 'OK',
-													uid: guid(),
 													challenges: data
 												}
 

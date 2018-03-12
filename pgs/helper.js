@@ -1,23 +1,14 @@
-// Initialize Firebase
-var config = {
-    apiKey: 'AIzaSyBb2wL0Zu7sd5SSFArD_5tYvWiZsT7HFJ4',
-    authDomain: 'power-grid-simulator.firebaseapp.com',
-    databaseURL: 'https://power-grid-simulator.firebaseio.com',
-    projectId: 'power-grid-simulator',
-    storageBucket: 'power-grid-simulator.appspot.com',
-    messagingSenderId: '1052485562020'
-}
-firebase.initializeApp(config);
-
-var guid = function () {
-    var s4 = function () {
-        return Math.floor((1 + Math.random()) * 0x10000)
-            .toString(16)
-            .substring(1);
+var initFirebase = function () {
+    var config = {
+        apiKey: 'AIzaSyBb2wL0Zu7sd5SSFArD_5tYvWiZsT7HFJ4',
+        authDomain: 'power-grid-simulator.firebaseapp.com',
+        databaseURL: 'https://power-grid-simulator.firebaseio.com',
+        projectId: 'power-grid-simulator',
+        storageBucket: 'power-grid-simulator.appspot.com',
+        messagingSenderId: '1052485562020'
     }
 
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-        s4() + '-' + s4() + s4() + s4();
+    firebase.initializeApp(config);
 }
 
 var multiplexArray = function (data) {
@@ -48,6 +39,31 @@ var multiplexArray = function (data) {
     })
 
     return res;
+}
+var parsePolynomial = function (args) {
+    var type = args[0] == 2 ? 'polynomial' : 'piecewise';
+
+    var startUpCost = args[1];
+    var shutDownCost = args[2];
+
+    var degree = args[3];
+
+    var coefficients = args.slice(4).reverse();
+
+    var data = [];
+    if (type == 'polynomial') {
+        _.forEach(_.range(11), function (xi) {
+            var yi = 0;
+
+            _.forEach(coefficients, function (c, i) {
+                yi = yi + c * Math.pow(xi, i);
+            })
+
+            data.push({ key: xi, value: yi });
+        })
+    }
+
+    return data;
 }
 var drawLineChart = function (args) {
     // we have the option of drawing a line chart with 1 line or with 2 lines
@@ -96,32 +112,6 @@ var drawLineChart = function (args) {
     })
 }
 
-var parsePolynomial = function (args) {
-    var type = args[0] == 2 ? 'polynomial' : 'piecewise';
-
-    var startUpCost = args[1];
-    var shutDownCost = args[2];
-
-    var degree = args[3];
-
-    var coefficients = args.slice(4).reverse();
-
-    var data = [];
-    if (type == 'polynomial') {
-        _.forEach(_.range(11), function (xi) {
-            var yi = 0;
-
-            _.forEach(coefficients, function (c, i) {
-                yi = yi + c * Math.pow(xi, i);
-            })
-
-            data.push({ key: xi, value: yi });
-        })
-    }
-
-    return data;
-}
-
 var showWarning = function (message) {
     var _alert = $('.pgs-alert');
     var _alertMessage = _alert.find('.pgs-alert-content');
@@ -141,8 +131,6 @@ var hideWarning = function () {
     _alert.hide();
 }
 
-_.delay(function () { $('[data-toggle="tooltip"]').tooltip(); });
-
 var showSpinner = function () {
     $('#pgs-app').addClass('pgs-dim');
 
@@ -153,3 +141,5 @@ var hideSpinner = function () {
     
     $('.pgs-spinner').hide();
 }
+
+initFirebase();

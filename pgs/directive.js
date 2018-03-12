@@ -428,23 +428,9 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 
 	var populateGenerators = function () {
 		_.forEach($scope.challenge.generators, function (generator) {
-			switch (generator.type) {
-				case 'G':
-					generator.type = 'Gas';
-					break;
-				case 'H':
-					generator.type = 'Hydro';
-					break;
-				case 'N':
-					generator.type = 'Nuclear';
-					break;
-				case 'S':
-					generator.type = 'Solar';
-					break;
-				case 'W':
-					generator.type = 'Wind';
-					break;
-			}
+			var generatorType = _.find(generatorTypeMap, function (gt) { return gt.abbreviation == generator.type || gt.display == generator.type; });
+			
+			generator.type = generatorType.display;
 		})
 	}
 	var populateNodes = function () {
