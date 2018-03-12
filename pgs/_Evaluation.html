@@ -1,16 +1,25 @@
 <div class="pgs-page">
     <div class="pgs-submission-header">Thank you for your submission. Your submission result can be found below:</div>
 
-    <div class="pgs-evaluation">
+    <div class="pgs-evaluation-summary">
         <div>Result: {{evaluation.passed}}</div>
         <div>Real Cost: {{challenge.cost}}</div>
         <div>Installation Cost: {{challenge.installation_cost}}</div>
         <div>CO2 Footprint: {{evaluation.CO2}}</div>
 
-        <!-- <div>
-            <div>Last Iteration</div>
-            <div>Some visualizaition for nodes.</div>
-            <div>Some visualizaition for links.</div>
-        </div> -->
+        <div class="pgs-evaluation-detail">
+            <div>Below are the simulation results for nodes and lines.</div>
+            <ul class="nav nav-tabs nav-justified">
+                <li class="nav-link pgs-tab" ng-click="switchTab($event)" data-tab="nodes"><a>Nodes</a></li>
+                <li class="nav-link pgs-tab active" ng-click="switchTab($event)" data-tab="lines"><a>Lines</a></li>
+            </ul>
+        </div>
+            
+        <div class="pgs-tab-content" ng-if="tab=='nodes'">
+            Node Information
+        </div>
+        <div class="pgs-tab-content" ng-if="tab=='lines'">
+            Line Information.
+        </div>
     </div>
 </div>

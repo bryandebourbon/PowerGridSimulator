@@ -504,6 +504,17 @@ app.directive('evaluationDirective', function () {
 
 var evaluationDirectiveController = ['$scope', '$rootScope', 'EvaluationService', function ($scope, $rootScope, $EvaluationService) {
 	console.log($scope.evaluation);
+
+	$scope.tab = 'nodes';
+	
+	$scope.switchTab = function (evt) {
+		if (evt && evt.currentTarget) {
+			$scope.tab = evt.currentTarget.dataset.tab;
+
+			$(evt.currentTarget).addClass('active');
+			$(evt.currentTarget).siblings().removeClass('active');
+		}
+	}
 }]
 
 app.directive('tooltipIcon', function () {
