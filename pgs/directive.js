@@ -64,6 +64,10 @@ var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', 'Challe
 			$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: res.challenge }); });
 		}
 	}
+
+	$scope.goBack = function () {
+		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'login' }); });
+	}
 }]
 
 app.directive('challengeDirective', function () {
@@ -99,6 +103,10 @@ var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'Challen
 			}).catch(function (error) {
 				console.log(error)
 			})
+	}
+
+	$scope.goBack = function () {
+		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [$scope.challenge] }); });
 	}
 }]
 
@@ -330,28 +338,31 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 		})
 	}
 	var populateNodes = function () {
-		$scope.challenge.nodes = [];
+		// coming back from the evaluation page, no need to re-populate the challenge nodes list
+		if (!$scope.challenge.nodes) {
+			$scope.challenge.nodes = [];
 
-		_.forEach($scope.challenge.demands, function (d) {
-			var nodeInfo = _.find(nodeMap, function (n) { return n.index == d.node; });
-			var name;
+			_.forEach($scope.challenge.demands, function (d) {
+				var nodeInfo = _.find(nodeMap, function (n) { return n.index == d.node; });
+				var name;
 
-			if (nodeInfo) {
-				name = nodeInfo.name;
-			}
+				if (nodeInfo) {
+					name = nodeInfo.name;
+				}
 
-			var node = {
-				index: d.node,
-				name: name || 'Node ' + d.node,
-				demands: {
-					real: d.real,
-					reactive: d.reactive
-				},
-				generators: []
-			}
+				var node = {
+					index: d.node,
+					name: name || 'Node ' + d.node,
+					demands: {
+						real: d.real,
+						reactive: d.reactive
+					},
+					generators: []
+				}
 
-			$scope.challenge.nodes.push(node);
-		})
+				$scope.challenge.nodes.push(node);
+			})
+		}
 
 		$scope.node = _.find($scope.challenge.nodes, function (n) { return n.index == 0; });
 	}
@@ -361,8 +372,11 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 			var realDemands = n.demands.real;
 			var reactiveDemands = n.demands.reactive;
 
-			n.demands.real = multiplexArray(realDemands);
-			n.demands.reactive = multiplexArray(reactiveDemands);
+			var head = _.head(realDemands);
+			if (typeof head == 'number') {
+				n.demands.real = multiplexArray(realDemands);
+				n.demands.reactive = multiplexArray(reactiveDemands);
+			}
 		});
 	}
 	var visualizeNodeRealReactivePowerDemands = function () {
@@ -460,6 +474,7 @@ app.directive('evaluationDirective', function () {
 		restrict: 'EA',
 		templateUrl: './Partials/_Evaluation.html',
 		scope: {
+			challenge: '=?',
 			evaluation: '=?'
 		},
 		controller: evaluationDirectiveController
@@ -529,7 +544,11 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'Evalua
 	}
 
 	$scope.viewLeaderBoard = function () {
-		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'leaderboard', teamname: 'ourteam' }); });
+		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'leaderboard', evaluation: $scope.evaluation, teamname: 'ourteam' }); });
+	}
+
+	$scope.goBack = function () {
+		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: $scope.challenge }); });
 	}
 
 	var processNodes = function () {
@@ -571,11 +590,15 @@ app.directive('leaderBoardDirective', function () {
 		restrict: 'EA',
 		templateUrl: './Partials/_LeaderBoard.html',
 		scope: {
-			teamname: '='
+			challenge: '=?',
+			evaluation: '=?',
+			teamname: '=?'
 		},
 		controller: leaderBoardDirectiveController
 	}
 })
-var leaderBoardDirectiveController = ['$scope', function ($scope) {
-
+var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
+	$scope.goBack = function () {
+		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'evaluation', challenge: $scope.challenge, evaluation: $scope.evaluation }); });
+	}
 }]

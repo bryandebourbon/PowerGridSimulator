@@ -31,6 +31,12 @@ var multiplexArray = function (data) {
         })
     }
 
+    // check if data array already processed
+    var head = _.head(data);
+    if (typeof head == 'object') {
+        return;
+    }
+
     var res = [];
     _.forEach(data24h, function (v, i) {
         var info = {
