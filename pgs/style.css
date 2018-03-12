@@ -167,6 +167,9 @@
 	stroke-width: 1;
 	shape-rendering: crispEdges;
 }
+.pgs-navigation {
+    margin: 24px;
+}
 
 #simulator-svg {
 	width: 500px;
