@@ -467,7 +467,7 @@ app.directive('evaluationDirective', function () {
 })
 
 var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'EvaluationService', function ($scope, $rootScope, $timeout, $EvaluationService) {
-	console.log($scope.evaluation);
+	// console.log($scope.evaluation);
 
 	$scope.tab = 'nodes';
 
@@ -528,6 +528,10 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'Evalua
 		}
 	}
 
+	$scope.viewLeaderBoard = function () {
+		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'leaderboard', teamname: 'ourteam' }); });
+	}
+
 	var processNodes = function () {
 		$scope.nodes = $scope.evaluation.nodes;
 		$scope.node = _.find($scope.nodes, function (n) { return n.node == 0; });
@@ -573,5 +577,19 @@ app.directive('tooltipIcon', function () {
 	}
 })
 var tooltipIconController = ['$scope', function ($scope) {
+
+}]
+
+app.directive('leaderBoardDirective', function () {
+	return {
+		restrict: 'EA',
+		templateUrl: './_LeaderBoard.html',
+		scope: {
+			teamname: '='
+		},
+		controller: leaderBoardDirectiveController
+	}
+})
+var leaderBoardDirectiveController = ['$scope', function ($scope) {
 
 }]
