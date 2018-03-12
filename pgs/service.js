@@ -384,11 +384,9 @@ app.service('ChallengeService', function () {
 
 						resolve(res);
 					} else {
-						showWarning(data.message);
-
 						var res = {
 							status: 'ERROR',
-							reason: data.message
+							error: data.message
 						}
 
 						resolve(res);

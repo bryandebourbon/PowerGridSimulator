@@ -111,6 +111,8 @@ var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'Challen
 			.then(function (res) {
 				if (res && res.status == 'OK') {
 					$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'evaluation', evaluation: res.evaluation }); });
+				} else if (res && res.status == 'ERROR') {
+					showWarning(res.error);
 				}
 			}).catch(function (error) {
 				console.log(error)
