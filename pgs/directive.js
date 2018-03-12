@@ -566,20 +566,6 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'Evalua
 	processLines();
 }]
 
-app.directive('tooltipIcon', function () {
-	return {
-		restrict: 'EA',
-		templateUrl: './_TooltipIcon.html',
-		scope: {
-			icon: '='
-		},
-		controller: tooltipIconController
-	}
-})
-var tooltipIconController = ['$scope', function ($scope) {
-
-}]
-
 app.directive('leaderBoardDirective', function () {
 	return {
 		restrict: 'EA',
