@@ -158,7 +158,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 			[-81.6943359375, 43.004647127794435]
 		];
 
-		var generator_type = ["nuclear", "water", "coal", "solar", "wind"];
+		var generator_type = ["nuclear", "wind", "coal", "solar", "wind"];
 		var generator_color = ["green", "blue", "grey", "orange", "white"];
 		var generator_count = 0;
 		//  The projection is used to project geographical coordinates on the SVG
@@ -397,7 +397,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 					generator.type = 'Solar';
 					break;
 				case 'W':
-					generator.type = 'Water';
+					generator.type = 'Wind';
 					break;
 			}
 		})
@@ -546,7 +546,7 @@ app.directive('evaluationDirective', function () {
 	}
 })
 
-var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'EvaluationService', function ($scope, $rootScope, $timeout, $EvaluationService) {
+var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'EvaluationService', 'LeaderBoardService', function ($scope, $rootScope, $timeout, $EvaluationService, $LeaderBoardService) {
 	// console.log($scope.evaluation);
 
 	$scope.tab = 'nodes';
@@ -609,7 +609,14 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'Evalua
 	}
 
 	$scope.viewLeaderBoard = function () {
-		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'leaderboard', evaluation: $scope.evaluation, teamname: 'ourteam' }); });
+		$LeaderBoardService.retrieveLeaderBoard()
+			.then(function (res) {
+				if (res && res.status == 'OK') {
+					$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'leaderboard', challenge: $scope.challenge, evaluation: $scope.evaluation, leaderboard: res.leaderboard, teamname: 'team1' }); });
+				}
+			}).catch(function (error) {
+				console.log(error);
+			})
 	}
 
 	$scope.goBack = function () {
@@ -657,23 +664,71 @@ app.directive('leaderBoardDirective', function () {
 		scope: {
 			challenge: '=?',
 			evaluation: '=?',
+			leaderboard: '=?',
 			teamname: '=?'
 		},
 		controller: leaderBoardDirectiveController
 	}
 })
 var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', 'LeaderBoardService', function ($scope, $rootScope, $timeout, $LeaderBoardService) {
-	$LeaderBoardService.retrieveLeaderBoard()
-		.then(function (res) {
-			if (res && res.status == 'OK') {
-				console.log(res.leaderBoard);
-			}
-		}).catch(function (error) {
-			console.log(error);
-		})
+	$scope.tab = 'environmental-footprint';
 
+	$scope.switchTab = function (evt) {
+		if (evt && evt.currentTarget) {
+			$scope.tab = evt.currentTarget.dataset.tab;
+
+			$(evt.currentTarget).addClass('active');
+			$(evt.currentTarget).siblings().removeClass('active');
+		}
+	}
 
 	$scope.goBack = function () {
 		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'evaluation', challenge: $scope.challenge, evaluation: $scope.evaluation }); });
 	}
+
+	var processLeaders = function () {
+		_.forEach($scope.leaderboard, function (b, c) {
+			switch(c) {
+				case 'CO2':
+					$scope.environmentalFootprintBoard = [];
+
+					var i = 1;
+					_.forEach(b, function (v, k) {
+						var winner = { ranking: i, name: k, score: v };
+						$scope.environmentalFootprintBoard.push(winner);
+
+						i ++;
+					})
+
+					break;
+				case 'cost':
+					$scope.realCostBoard = [];
+
+					var i = 1;
+					_.forEach(b, function (v, k) {
+						var winner = { ranking: i, name: k, score: v };
+						$scope.realCostBoard.push(winner);
+
+						i++;						
+					})
+
+					break;
+				case 'installation_cost':
+					$scope.installationCostBoard = [];
+
+					var i = 1;
+					_.forEach(b, function (v, k) {
+						var winner = { ranking: i, name: k, score: v };
+						$scope.installationCostBoard.push(winner);
+					
+						i++;
+					})
+
+					break;
+					
+			}
+		})
+	}
+
+	processLeaders();
 }]

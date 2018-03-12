@@ -30,7 +30,7 @@
         <challenges-directive ng-if="state=='challenges'" challenges="challenges"></challenges-directive>
         <challenge-directive ng-if="state=='grid'" challenge="challenge"></challenge-directive>
         <evaluation-directive ng-if="state=='evaluation'" challenge="challenge" evaluation="evaluation"></evaluation-directive>
-        <leader-board-directive ng-if="state=='leaderboard'" challenge="challenge" evaluation="evaluation" teamname="teamname"></leader-board-directive>
+        <leader-board-directive ng-if="state=='leaderboard'" challenge="challenge" evaluation="evaluation" leaderboard="leaderboard" teamname="teamname"></leader-board-directive>
     </div>
 
     <div class="pgs-alert" hidden>

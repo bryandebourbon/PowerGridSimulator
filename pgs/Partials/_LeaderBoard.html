@@ -4,5 +4,71 @@
 </div>
 
 <div class="pgs-page col-xs-12">
-    This is the leader board.
+    <div class="pgs-submission-header">Top three teams for each of the three evaluation categories can be found below:</div>
+
+    <div class="pgs-leader-board">
+        <ul class="nav nav-tabs nav-justified">
+            <li class="active nav-link pgs-tab" ng-click="switchTab($event)" data-tab="environmental-footprint">
+                <a>Environmental Footprint</a>
+            </li>
+            <li class="nav-link pgs-tab" ng-click="switchTab($event)" data-tab="real-cost">
+                <a>Real Cost</a>
+            </li>
+            <li class="nav-link pgs-tab" ng-click="switchTab($event)" data-tab="installation-cost">
+                <a>Installation Cost</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="pgs-leaders">
+        <div ng-if="tab=='environmental-footprint'">
+            <table class="table table-hover pgs-table">
+                <thead>
+                    <th>Ranking</th>
+                    <th>Team Name</th>
+                    <th>Score</th>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="leader in environmentalFootprintBoard | orderBy : 'ranking'">
+                        <td class="pgs-td" style="width:20%">{{leader.ranking}}</td>
+                        <td class="pgs-td" style="width:40%">{{leader.name}}</td>
+                        <td class="pgs-td" style="width:40%">{{leader.score}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div ng-if="tab=='real-cost'">
+            <table class="table table-hover pgs-table">
+                <thead>
+                    <th>Ranking</th>
+                    <th>Team Name</th>
+                    <th>Score</th>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="leader in realCostBoard | orderBy : 'ranking'">
+                        <td class="pgs-td" style="width:20%">{{leader.ranking}}</td>
+                        <td class="pgs-td" style="width:40%">{{leader.name}}</td>
+                        <td class="pgs-td" style="width:40%">{{leader.score}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div ng-if="tab=='installation-cost'">
+            <table class="table table-hover pgs-table">
+                <thead>
+                    <th>Ranking</th>
+                    <th>Team Name</th>
+                    <th>Score</th>
+                </thead>
+                <tbody>
+                    <tr  ng-repeat="leader in installationCostBoard | orderBy : 'ranking'">
+                        <td class="pgs-td" style="width:20%">{{leader.ranking}}</td>
+                        <td class="pgs-td" style="width:40%">{{leader.name}}</td>
+                        <td class="pgs-td" style="width:40%">{{leader.score}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
 </div>

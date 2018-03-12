@@ -61,7 +61,7 @@ var drawLineChart = function (args) {
 
     var width = vis.attr('width');
     var height = vis.attr('height');
-    var margin = .15 * width;
+    var margin = .2 * width;
 
     var colors = ['black', 'red'];
 
