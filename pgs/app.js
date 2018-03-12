@@ -22,10 +22,13 @@ app.controller('PowerGridSimulatorController', function ($scope, LoginService, C
 				break;
 				
 		}
+
 		_.forEach(args, function (val, key) {
 			if (key != 'state') {
 				$scope[key] = val;
 			}
 		})
+
+		$scope.$apply();
 	})
 });

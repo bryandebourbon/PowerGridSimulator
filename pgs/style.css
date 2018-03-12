@@ -21,13 +21,36 @@
 .pgs-tab-content {
 	margin: 24px;
 }
+.pgs-table {
+    margin-top: 12px;
+}
 
 .pgs-inventory-profile {
 	margin-top: 48px;
 	height: 72px;
 }
-.pgs-submit-btn {
+.pgs-float-right-btn {
 	float: right;
+}
+.pgs-float-left-btn {
+    float: left;
+}
+.pgs-title {
+	font-size: large;
+	margin-top: 12px;
+	margin-bottom: 12px;
+}
+.pgs-subtitle {
+	font-size: larger;
+	margin-top: 6px;
+	margin-bottom: 6px;
+}
+#generator-info {
+	margin-top: 12px;
+}
+
+.modal-description {
+	margin-left: 16px;
 }
 
 /* overwritting bootstrap classes */
@@ -36,6 +59,126 @@
 }
 .navbar-brand {
 	height: 36px !IMPORTANT;
+}
+.nav-link {
+    margin-top: -8px;
+}
+
+.btn-group {
+	margin: 6px;
+}
+
+.pgs-alert {
+	color: #a94442;
+	background-color: #f2dede;
+	border-color: #ebccd1;
+	border-radius: 6px;
+	margin-top: 12px;
+	margin-left: calc(2.5%);
+	margin-right: calc(2.5%);
+	padding: 15px;
+	position: absolute;
+	top: 0;
+	width: 95%;
+	z-index: 1100;
+	text-align: center;
+}
+.pgs-secret-code {
+    font-style: italic;
+    font-weight: bolder;
+}
+.pgs-notice {
+    color: #a94442;
+    font-size: small;
+    margin-top: 24px;
+}
+.pgs-submission-header {
+    margin-bottom: 12px;
+}
+.pgs-evaluation-detail {
+    margin-top: 12px;
+}
+.pgs-annotations {
+    margin-left: 16px;
+    margin-top: 12px;
+    font-size: small;
+    font-style: italic;
+}
+.black {
+    color: black;
+}
+.red {
+    color: red;
+}
+
+.help-tip{
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    text-align: center;
+    background-color: #BCDBEA;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    line-height: 26px;
+    cursor: default;
+}
+
+.pgs-tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.pgs-spinner {
+    border: 8px solid #f3f3f3; /* light grey */
+    border-top: 8px solid #d5d5d5; /* grey */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 2s linear infinite;
+    position: absolute;
+    z-index: 3000;
+    left: calc(45%);
+    top: calc(45%);
+}
+.pgs-dim {
+    opacity: .5;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* CSS animation */
+
+@-webkit-keyframes fadeIn {
+    0% { 
+        opacity:0; 
+        transform: scale(0.6);
+    }
+
+    100% {
+        opacity:100%;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeIn {
+    0% { opacity:0; }
+    100% { opacity:100%; }
+}
+.pgs-axis path,
+.pgs-axis line {
+	fill: none;
+	stroke: gray;
+	stroke-width: 1;
+	shape-rendering: crispEdges;
+}
+.pgs-navigation {
+    margin: 24px;
 }
 
 #simulator-svg {

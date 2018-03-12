@@ -4,74 +4,42 @@ app.service('LoginService', function () {
 	}
 
 	var getChallenges = function (args) {
+		var headers = {"team_name": 'ourteam', "challenge_id": 10 };
+		
 		return new Promise(function (resolve, reject) {
-			var success = function (data) {
-				if (data) {
-					var challenge = data;
+			showSpinner();
 
-					// these are all fake data
-					// need to check with back end to see where all these information all
-					// also regarding the simulations that have been saved
-					challenge.id = 1;
-					challenge.name = 'Ontario Power Generation';
-					challenge.saved = 'False';
+			$.ajax({
+				url: 'http://127.0.0.1:5000/getChallenge/',
+				type: 'GET',
+				// (TODO Annie) the challenge ID and team ID are fake. Please present the real ones.
+				headers: headers,
+				success: function (data) {
+					if (data) {
+						hideSpinner();
 
-					var challenges = [challenge];
+						var challenge = JSON.parse(data);
 
-					return challenges
-				}
-			}
-
-			// $.ajax({
-			// 	url: 'http://127.0.0.1:5000/getChallenge?callback=success',
-			// 	type: 'GET',
-			// 	data: { user: user },
-			// 	// jsonpCallback: 'success',
-			// 	// dataType: 'JSONP',
-			// 	contentType: 'json',
-			// 	success: success,
-			// })
-
-			// this is just my hacky way of getting around same origin policy thing
-			// we will talk about actually making calls to backend without being hacky...
-			// BRYAN PLEASE HELP
-			var readTextFile = function (file) {
-				return new Promise(function (resolve, reject) {
-					var rawFile = new XMLHttpRequest();
-
-					rawFile.open('GET', file, false);
-					rawFile.onreadystatechange = function () {
-						if (rawFile.readyState == 4) {
-							if (rawFile.status == 200 || rawFile.status == 0) {
-								var allText = rawFile.responseText;
-
-								resolve(allText);
-							}
-						}
+						resolve([challenge]);
 					}
-
-					rawFile.send(null);
-				})
-			}
-
-			readTextFile('Challenge.txt')
-				.then(function (text) {
-					var data = JSON.parse(text);
-					var challenges = success(data);
-
-					resolve(challenges);
-				}).catch(function (error) {
-					reject(error);
-				})
+				},
+				error: function (data) {
+					console.log(data);
+				}
+			})
 		})
 	}
-	
+
 	var register = function (args) {
 		return new Promise(function (resolve, reject) {
 			var user = {
 				email: args.email || '',
 				password: args.password || '',
-				teamname: args.teamname || ''
+				teamname: args.teamname || '',
+
+				// (TODO Annie) these are dummy data
+				team_id: 1,
+				challenge_id: 10
 			}
 
 			var _authErrorContainer = $('#auth-error-container');
@@ -121,48 +89,98 @@ app.service('LoginService', function () {
 
 			// Sign in with email and pass.
 			firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-				.then(function(firebaseUser) {
-					firebaseUser.updateProfile ({
+				.then(function (firebaseUser) {
+					firebaseUser.updateProfile({
 						displayName: user.teamname
-					}).then(function() {
+					}).then(function () {
 						// Authenticate team.
 						var teamsRef = firebase.database().ref().child('teams');
-						teamsRef.orderByChild("team_name").equalTo(user.teamname).once("value",team => {
-							const teamData = team.val();
-							if (teamData) {
-								// Else enter code and check.
-								// TODO(Annie): show text box of "Please enter team secret code"
-								var inputCode = 'a';
-								teamKey = Object.keys(teamData)[0];
-								if (inputCode != teamKey) {
-									_authErrorMessage.show();
-									var errorMessage = 'Wrong team secret code.';
-									_authErrorMessage.text(errorMessage);
-								}
+						teamsRef.orderByChild('team_name').equalTo(user.teamname).once('value', team => {
+							const data = team.val();
+							if (data) {
+								// enter code and check.
+								var secretCode = _.keys(data)[0];
+
+								var _teamSecretCodeModal = $('#team-secret-code-modal');
+								var _distributeTeamSecretCode = $('#distribute-team-secret-code');
+								var _collectTeamSecretCode = $('#collect-team-secret-code');
+								var _secretCodeInput = $('#secret-code-input');
+
+								_distributeTeamSecretCode.hide();
+								_collectTeamSecretCode.show();
+
+								_secretCodeInput.val('');
+
+								$('#team-secret-code-modal').modal('show');
+
+								$('#submit-secret-code').on('click', function (evt) {
+									var inputCode = $('#secret-code-input').val();
+
+									if (inputCode == secretCode) {
+										$('#team-secret-code-modal').modal('hide');
+
+										getChallenges(user)
+											.then(function (data) {
+												var res = {
+													status: 'OK',
+													uid: guid(),
+													challenges: data
+												}
+
+												resolve(res);
+											}).catch(function (error) {
+												reject(error);
+											})
+									} else {
+										showWarning('Wrong team secret code, please re-enter.');
+									}
+								})
 							} else {
-								// team doesn't exist, push to teams/ db.
-								var teamKey = teamsRef.push().key;
-								teamsRef.orderByChild('team_id').limitToLast(1).once("value",lastTeam => {
+								// else if team doesn't exist, push to teams/ db.
+								var secretCode = teamsRef.push().key;
+								teamsRef.orderByChild('team_id').limitToLast(1).once('value', lastTeam => {
 									const lastTeamData = Object.values(lastTeam.val())[0];
 									var teamID = 1 + +lastTeamData.team_id;
 									var newTeam = {};
-									newTeam[teamKey] = {
+									newTeam[secretCode] = {
 										'team_id': teamID,
 										'team_name': user.teamname
 									};
 									teamsRef.update(newTeam);
 
-									// TODO(Annie): page redirects to challenges after creating, cannot show this code.
-									_teamCodeMessage.show();
-									var codeMessage = 'The secret code for your team is: ' + teamKey;
-									_teamCodeMessage.text(codeMessage);
+									var _teamSecretCodeModal = $('#team-secret-code-modal');
+									var _distributeTeamSecretCode = $('#distribute-team-secret-code');
+									var _collectTeamSecretCode = $('#collect-team-secret-code');
+									var _secretCode = $('.pgs-secret-code');
+									var _submitSecretCodeButton = $('#submit-secret-code');
+
+									_distributeTeamSecretCode.show();
+									_collectTeamSecretCode.hide();
+									_submitSecretCodeButton.hide();
+
+									_secretCode.text(secretCode);
+
+									$('#team-secret-code-modal').modal('show');
+
+									$('#team-secret-code-modal').on('hide.bs.modal', function (evt) {
+										getChallenges(user)
+											.then(function (data) {
+												var res = {
+													status: 'OK',
+													uid: guid(),
+													challenges: data
+												}
+
+												resolve(res);
+											}).catch(function (error) {
+												reject(error);
+											})
+									})
 								});
 							}
-							
-							getChallenges(user);
 						});
 
-					}, function(error) {
+					}, function (error) {
 						console.log('could not update your team');
 					});
 				}, function (error) {
@@ -172,40 +190,19 @@ app.service('LoginService', function () {
 
 					_authErrorMessage.text(error.message);
 				})
-
-			// console.log('User registered.');
-			// var challenges = [	{ guid: guid(), cid: 1, level: 1, name: 'Ontario - Constant Power', saved: true, description: 'This is the first testing power case challenge.' },
-			// 					{ guid: guid(), cid: 3, level: 2, name: 'Ontario - Simple Power', saved: false, description: 'This is the second testing power case challenge.' },
-			// 					{ guid: guid(), cid: 4, level: 3, name: 'Ontario - Reactive Power', saved: false, description: 'This is the third testing power case challenge.' }];
-			// var res = {
-			// 	status: 'OK',
-			// 	uid: guid(),
-			// 	challenges: challenges
-			// }
-
-			// return res;
-
-			getChallenges(user)
-				.then(function (data) {
-					var res = {
-						status: 'OK',
-						uid: guid(),
-						challenges: data
-					}
-
-					resolve(res);
-				}).catch(function (error) {
-					reject(error);
-				})
 		})
 	}
 
 	var login = function (args) {
-		return new Promise (function (resolve, reject) {
+		return new Promise(function (resolve, reject) {
 			var user = {
 				email: args.email || '',
 				password: args.password || '',
-				teamname: args.teamname || ''
+				teamname: args.teamname || '',
+
+				// (TODO Annie) these are dummy data
+				team_id: 1,
+				challenge_id: 10
 			}
 
 			var _authErrorContainer = $('#auth-error-container');
@@ -251,25 +248,13 @@ app.service('LoginService', function () {
 				return;
 			}
 
-			firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch(function(error) {
+			firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch(function (error) {
 				_authErrorContainer.show();
 				_firebaseAuthErrorHeader.show();
 				_authErrorMessage.show();
 
 				_authErrorMessage.text(error.message);
 			});
-
-			// console.log('Login successful.');
-			// var challenges = [	{ guid: guid(), cid: 1, level: 1, name: 'Ontario - Constant Power', saved: true, description: 'This is the first testing power case challenge.' },
-			// 					{ guid: guid(), cid: 3, level: 2, name: 'Ontario - Simple Power', saved: false, description: 'This is the second testing power case challenge.' },
-			// 					{ guid: guid(), cid: 4, level: 3, name: 'Ontario - Reactive Power', saved: false, description: 'This is the third testing power case challenge.' }];
-			// var res = {
-			// 	status: 'OK',
-			// 	uid: guid(),
-			// 	challenges: challenges
-			// }
-
-			// return res;
 
 			getChallenges(user)
 				.then(function (data) {
@@ -292,164 +277,28 @@ app.service('LoginService', function () {
 })
 
 app.service('ChallengesService', function () {
-	var _uid = null;
 	var _challenges = [];
 
 	var init = function (args) {
-		// console.log('Challenges service initiated.');
-
-		_uid = args.uid;
 		_challenges = args.challenges;
 	}
 
-	var previewChallenge = function (cid) {
-		// console.log('Preview challenge ' + cid);
-
-		var challenge = _.find(_challenges, function (c) { return c.cid == cid; });
+	var previewChallenge = function (id) {
+		var challenge = _.find(_challenges, function (c) { return c.id == id; });
 
 		if (challenge) {
-			alert(challenge.description);
+			var _previewModalTitle = $('.modal-title');
+			var _previewModalDescription = $('.modal-description');
+
+			_previewModalTitle.text(challenge.name);
+			_previewModalDescription.text(challenge.description || 'This is some description of this challenge');
 		}
 	}
 
-	var simulateChallenge = function (cid) {
-		// console.log('Simulate challenge ' + cid);
-
-		var challenge = _.find(_challenges, function (c) { return c.cid == cid; });
+	var simulateChallenge = function (id) {
+		var challenge = _.find(_challenges, function (c) { return c.id == id; });
 
 		if (challenge) {
-			var info = {
-				uid: _uid,
-				cid: cid
-			}
-
-			fakeAPI('getChallenge', info);
-
-			var fakeFactory = function () {
-				var fakeGenerator = function () {
-					var types = ['solar', 'hydro', 'nuclear'];
-					var capacities = [1, 2, 3, 4, 5];
-
-					var random1 = Math.floor(Math.random() * 100) % 3;
-					var random2 = Math.floor(Math.random() * 100) % 5;
-
-					var generator = {
-						guid: guid(),
-						type: types[random1],
-						capacity: capacities[random2]
-					}
-
-					return generator;
-				}
-				var fakeGenerators = function (n) {
-					var generators = [];
-
-					_.forEach(_.range(0, n), function (i) {
-						var generator = fakeGenerator();
-						generators.push(generator);
-					})
-
-					return generators;
-				}
-
-				var fakeDemand = function () {
-					var demand = [];
-
-					_.forEach(_.range(0, 24), function (i) {
-						var random = Math.floor(Math.random() * 100) % 25;
-						var hourlyDemand = {
-							hour: i,
-							demand: random
-						}
-
-						demand.push(hourlyDemand);
-					})
-
-					return demand;
-				}
-				var fakeNode = function (index) {
-					var demand = fakeDemand();
-					var generators = fakeGenerators(3);
-
-					var node = {
-						index: index,
-						name: 'Node ' + index,
-						demand: demand,
-						generators: generators
-					}
-
-					return node;
-				}
-				var fakeNodes = function (n) {
-					var nodes = [];
-
-					_.forEach(_.range(0, 10), function (i) {
-						var node = fakeNode(i);
-
-						nodes.push(node);
-					})
-
-					return nodes;
-				}
-
-				var fakeLink = function () {
-					var source = Math.floor(Math.random() * 100) % 10;
-					var target = Math.floor(Math.random() * 100) % 10;
-
-					while (source == target) {
-						target = Math.floor(Math.random() * 100) % 10;
-					}
-
-					var capacities = [2, 3, 4, 5, 6, 7];
-					var random = Math.floor(Math.random() * 100) % 6;
-					var capacity = capacities[random];
-
-					var link = {
-						source: source,
-						target: target,
-						capacity: capacity
-					}
-
-					return link;
-				}
-				var fakeLinks = function (n) {
-					var links = [];
-
-					_.forEach(_.range(0, n), function (i) {
-						var link = fakeLink();
-
-						links.push(link);
-					})
-
-					return links;
-				}
-
-				var functions = {
-					generator: function () { return fakeGenerator(); },
-					generators: function (n) { return fakeGenerators(n); },
-					demand: function () { return fakeDemand(); },
-					node: function (index) { return fakeNode(index); },
-					nodes: function (n) { return fakeNodes(n); },
-					link: function () { return fakeLink(); },
-					links: function (n) { return fakeLinks(n); }
-				}
-
-				return functions;
-			}
-			
-			var fake = fakeFactory();
-			var challenge = { 
-				guid: guid(), 
-				cid: 3, 
-				level: 2, 
-				name: 'Ontario - Simple Power', 
-				saved: false, 
-				description: 'This is the second testing power case challenge.',
-				inventory: fake.generators(14),
-				nodes: fake.nodes(10),
-				links: fake.links(15)
-			}
-
 			return {
 				status: 'OK',
 				challenge: challenge
@@ -458,87 +307,96 @@ app.service('ChallengesService', function () {
 	}
 
 	this.init = function (args) { return init(args); }
-	this.previewChallenge = function (cid) { return previewChallenge(cid); }
-	this.simulateChallenge = function (cid) { return simulateChallenge(cid); }
+	this.previewChallenge = function (id) { return previewChallenge(id); }
+	this.simulateChallenge = function (id) { return simulateChallenge(id); }
 })
 
 app.service('ChallengeService', function () {
 	var _challenge = null;
-	
-	var init = function (args) {
-		// console.log('Challenge service initiated.');
 
+	var init = function (args) {
 		_challenge = args.challenge;
 	}
 
 	var submitChallenge = function (challenge) {
-		var minifyChallenge = function (complexChallenge) {
-			var nodes = [];
+		return new Promise(function (resolve, reject) {
+			// var submission = JSON.stringify([	{ 'node': 0, 'generators': {} },
+			// 					{ 'node': 1, 'generators': { 'H': 1 } },
+			// 					{ 'node': 2, 'generators': { 'N': 1 } },
+			// 					{ 'node': 3, 'generators': { 'G': 1 } },
+			// 					{ 'node': 4, 'generators': { 'S': 1 } },
+			// 					{ 'node': 5, 'generators': { 'W': 1 } },
+			// 					{ 'node': 6, 'generators': { 'H': 1, 'N': 1 } },
+			// 					{ 'node': 7, 'generators': { 'G': 1, 'S': 1 } },
+			// 					{ 'node': 8, 'generators': { 'G': 1, 'S': 1, 'W': 1 } },
+			// 					{ 'node': 9, 'generators': { 'H': 1, 'N': 1, 'G': 1, 'S': 1, 'W': 1 } }]);
 
-			_.forEach(complexChallenge.nodes, function (n, i) { 
-				var node = {
-					index: n.index,
-					generators: n.generators
+			var minifiChallenge = function (challenge) {
+				var generatorTypeMap = [{ abbreviation: 'G', display: 'Gas' },
+				{ abbreviation: 'H', display: 'Hydro' },
+				{ abbreviation: 'N', display: 'Nuclear' },
+				{ abbreviation: 'S', display: 'Solar' },
+				{ abbreviation: 'W', display: 'Water' }];
+
+				var mChallenge = [];
+				_.forEach(challenge.nodes, function (n) {
+					var node = {
+						node: n.index,
+						generators: {}
+					};
+
+					_.forEach(n.generators, function (g) {
+						var generatorType = _.find(generatorTypeMap, function (gt) { return gt.display == g.type; });
+
+						if (generatorType) {
+							node.generators[generatorType.abbreviation] = g.count;
+						}
+					})
+
+					mChallenge.push(node);
+				})
+
+				return JSON.stringify(mChallenge);
+			}
+
+			var submission = minifiChallenge(challenge);
+			var headers = { team_name: 'ourteam', challenge_id: 10 };
+
+			showSpinner();
+
+			$.ajax({
+				url: 'http://127.0.0.1:5000/submit/',
+				type: 'POST',
+				headers: headers,
+				data: submission,
+				success: function (res) {
+					hideSpinner();
+
+					var data = JSON.parse(res);
+
+					if (data.success) {
+						var evaluation = data.eval;
+
+						var res = {
+							status: 'OK',
+							evaluation: evaluation
+						}
+
+						resolve(res);
+					} else {
+						var res = {
+							status: 'ERROR',
+							error: data.message
+						}
+
+						resolve(res);
+					}
+				},
+				error: function (data) {
+					console.log(data);
 				}
-
-				nodes.push(node);
 			})
-
-			var challenge = {
-				guid: complexChallenge.guid,
-				nodes: nodes
-			}
-
-			return challenge;
-		}
-
-		var minifiedChallenge = minifyChallenge(challenge);
-
-		var pass = true;
-		var optimalCost = 15;
-		var environmentalFootprint = 10;
-
-		var nodes = [];
-		var links = [];
-
-		_.forEach(_.range(0, 24), function (i) {
-			var node = {
-				index: i,
-				demand: 3,
-				value: 5
-			}
-
-			nodes.push(node);
-
-			var link = {
-				index: i,
-				capacity: 5,
-				value: 4
-			}
-
-			links.push(link);
 		})
-
-		var lastIteration = {
-			nodes: nodes,
-			links: links
-		}
-
-		fakeAPI('submit', minifiedChallenge);
-
-		var evaluation = {
-			pass: pass,
-			optimalCost: optimalCost,
-			lastIteration: lastIteration,
-			environmentalFootprint: environmentalFootprint
-		}
-
-		var res = {
-			status: 'OK',
-			evaluation: evaluation
-		}
-
-		return res;
 	}
 
 	this.init = function (args) { return init(args); }
@@ -566,5 +424,32 @@ app.service('LeaderBoardService', function () {
 		// console.log('Leader board service initiated.');
 	}
 
-	this.init = init;
+	var retrieveLeaderBoard = function () {
+		return new Promise(function (resolve, reject) {
+			$.ajax({
+				url: 'http://127.0.0.1:5000/leaderboard/',
+				type: 'GET',
+				success: function (res) {
+					hideSpinner();
+
+					var data = JSON.parse(res);
+
+					console.log(data);
+
+					var res = {
+						status: 'OK',
+						leaderBoard: data
+					}
+
+					resolve(res);
+				},
+				error: function (data) {
+					console.log(data);
+				}
+			})
+		})
+	}
+
+	this.init = function (args) { return init(args); }
+	this.retrieveLeaderBoard = function () { return retrieveLeaderBoard(); }
 })

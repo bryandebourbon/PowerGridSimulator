@@ -2,7 +2,6 @@
 This file contains functions that convert the results coming out of runpf() into
 readable/usable metrics.
 The main body of this code (printpf()) was ported from PYPOWER/pypower/printpf.py.
-The metrics came from https://github.com/rfairley/pcc-web/blob/master/flask-api/pcc/calc.py.
 """
 
 from sys import stdout
@@ -23,6 +22,8 @@ from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, \
 from pypower.isload import isload
 from pypower.run_userfcn import run_userfcn
 from pypower.ppoption import ppoption
+
+from math import radians, cos, sin
 
 # NOTE: All indices out of this function will be zero-based.
 def convert_to_metrics(baseMVA, bus=None, gen=None, branch=None, f=None, success=None,
@@ -145,16 +146,19 @@ def convert_to_metrics(baseMVA, bus=None, gen=None, branch=None, f=None, success
 
     # see how much power is given to each bus, and generated at each bus; 
     # output: node_count x 4
+    pf_metrics["gen"] = gen[:, PG]
     pf_metrics["buses"] = {}
     for bus_idx in range(nb):
+        mag = bus[bus_idx, VM]
+        angle = radians(bus[bus_idx, VA])
         pf_metrics["buses"][bus_idx] = {
-                "supplied": {"mag":bus[bus_idx, VM], "angle":bus[bus_idx, VA]}, 
+                "supplied": {"real": cos(angle) * mag, "reactive": sin(angle) * mag}, 
                 "generated": {"real": 0, "reactive": 0}
             }
     for gen_node in gen:
         bus_idx = int(gen_node[GEN_BUS]) - 1
-        pf_metrics["buses"][bus_idx]["generated"]["real"] = gen_node[PG]
-        pf_metrics["buses"][bus_idx]["generated"]["reactive"] = gen_node[QG]
+        pf_metrics["buses"][bus_idx]["generated"]["real"] += gen_node[PG]
+        pf_metrics["buses"][bus_idx]["generated"]["reactive"] += gen_node[QG]
 
     # see how much power is transmitted through each line
     pf_metrics["transmissions"] = {}

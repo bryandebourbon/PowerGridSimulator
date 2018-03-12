@@ -1,78 +1,41 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Power Grid Simulator</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="style.css">            
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
-        <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-        <script src="https://d3js.org/d3.v3.min.js"></script>
-        <script src="//d3js.org/topojson.v1.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase.js"></script>
 
-        <script src="./app.js"></script>
-        <script src="./service.js"></script>
-        <script src="./directive.js"></script>
-        
-        <script>
-            // Initialize Firebase
-            var config = {
-                apiKey: "AIzaSyBb2wL0Zu7sd5SSFArD_5tYvWiZsT7HFJ4",
-                authDomain: "power-grid-simulator.firebaseapp.com",
-                databaseURL: "https://power-grid-simulator.firebaseio.com",
-                projectId: "power-grid-simulator",
-                storageBucket: "power-grid-simulator.appspot.com",
-                messagingSenderId: "1052485562020"
-            };
-            firebase.initializeApp(config);
-          
-            var fakeAPI = function (name, parameters, resolve) {
-                // console.log('Making API call ' + name + ' with parameters ' + parameters);
+<head>
+    <meta charset="utf-8">
+    <title>Power Grid Simulator</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="//d3js.org/topojson.v1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase.js"></script>
 
-                // making AJAX function call
-                var url = 'https://reqres.in/api/users';
-                var type = 'GET';
-                var data = { page: 2 };
-                var success = function (data) {
-                    console.log(data);
-                }
-                var error = function (reason) {
-                    console.log(reason);
-                }
+    <script src="./constants.js"></script>
 
-                $.ajax({
-                    url: url,
-                    type: type,
-                    data: data,
-                    success: success,
-                    error: error
-                })
+    <script src="./app.js"></script>
+    <script src="./service.js"></script>
+    <script src="./directive.js"></script>
 
-                return true;
-            }
+    <script src="./helper.js"></script>
 
-            var guid = function () {
-                var s4 = function () {
-                    return Math.floor((1 + Math.random()) * 0x10000)
-                        .toString(16)
-                        .substring(1);
-                }
+</head>
 
-                return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-                    s4() + '-' + s4() + s4() + s4();
-            }
-        </script>
-    </head>
-    <body>
-        <div ng-app="PowerGridSimulator" ng-controller="PowerGridSimulatorController">
-            <login-directive ng-if="state=='login'"></login-directive>
-            <challenges-directive ng-if="state=='challenges'" challenges="challenges"></challenges-directive>
-            <challenge-directive ng-if="state=='grid'" challenge="challenge"></challenge-directive>
-            <evaluation-directive ng-if="state=='evaluation'" evaluation="evaluation"></challenge-directive>
-        </div>
-    </body>
+<body>
+    <div id="pgs-app" ng-app="PowerGridSimulator" ng-controller="PowerGridSimulatorController">
+        <login-directive ng-if="state=='login'"></login-directive>
+        <challenges-directive ng-if="state=='challenges'" challenges="challenges"></challenges-directive>
+        <challenge-directive ng-if="state=='grid'" challenge="challenge"></challenge-directive>
+        <evaluation-directive ng-if="state=='evaluation'" challenge="challenge" evaluation="evaluation"></evaluation-directive>
+        <leader-board-directive ng-if="state=='leaderboard'" challenge="challenge" evaluation="evaluation" teamname="teamname"></leader-board-directive>
+    </div>
+
+    <div class="pgs-alert" hidden>
+        <span class="pgs-alert-content"></span>
+    </div>
+
+    <div class="pgs-spinner" hidden></div>
 </html>

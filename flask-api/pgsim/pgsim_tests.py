@@ -9,8 +9,10 @@ import numpy as np
 
 from pypower import case14
 from pypower.api import runpf, runopf
+from math import radians, sin, cos
 
 import json
+
 
 class PypowerTestCase(unittest.TestCase):
     def test_runpf_case14(self):
@@ -37,11 +39,16 @@ class PypowerTestCase(unittest.TestCase):
                 [   1.03552995,  -16.03364453,    0.        ,    0.        ]
             ])
         assert pf_metrics["passed"]
-        np.testing.assert_array_almost_equal(pf_metrics["buses"], expected_bus_data)
-
-    def test_runopf(self):
-        # TODO: Find a test case for runopf (pending Kevin's input).
-        assert True
+        assert len(pf_metrics["buses"]) == 14
+        for i, node in pf_metrics["buses"].items():
+            np.testing.assert_almost_equal(node["generated"]["real"], 
+                expected_bus_data[i, 2])
+            np.testing.assert_almost_equal(node["generated"]["reactive"], 
+                expected_bus_data[i, 3])
+            np.testing.assert_almost_equal(node["supplied"]["real"], 
+                expected_bus_data[i, 0]*cos(radians(expected_bus_data[i, 1])))
+            np.testing.assert_almost_equal(node["supplied"]["reactive"], 
+                expected_bus_data[i, 0]*sin(radians(expected_bus_data[i, 1])))
 
 class PgsimutilsTestCase(unittest.TestCase):
     def setUp(self):
@@ -73,20 +80,42 @@ class PgsimTestCase(unittest.TestCase):
         #with pgsim.pgsim_app.app_context():
         #    pgsim.db_utils.init_db()
 
-    def test_get_challenge(self):
-        rv = self.app.get('/getChallenge/')
-        print("getChallenge output:\n{}".format(rv.data))
-
     def test_submit_empty(self):
         placements = []
-        self.assertRaises(AssertionError, self.app.post,'/submit/', data=json.dumps(placements),
-                       content_type='application/json', headers={"username": "ourteam"})
-
+        rv = self.app.post('/submit/', data=json.dumps(placements),
+                       content_type='application/json',
+                       headers={"team_name": 'ourteam', "challenge_id": 10})
+        status = json.loads(rv.data.decode('unicode_escape'))
+        assert not status["success"]
+        assert status["message"] == "Please specify at least one hydro or gas generator for PyPower to process successfully."
+        
     def test_submit_simple(self):
         placements = [{'node': 4, 'generators': {'H':1} }]
         rv = self.app.post('/submit/', data=json.dumps(placements),
-                       content_type='application/json', headers={"username": "ourteam"})
+                            content_type='application/json',
+                            headers={"team_name": 'ourteam', "challenge_id": 10})
+        status = json.loads(rv.data.decode('unicode_escape'))
+        assert status["success"]
+        assert not status["eval"]["passed"]
 
+    def test_submit_simple2(self):
+        placements = [{'node': 0, 'generators': {'G':1} }]
+        rv = self.app.post('/submit/', data=json.dumps(placements),
+                            content_type='application/json',
+                            headers={"team_name": 'yourteam', "challenge_id": 10})
+        status = json.loads(rv.data.decode('unicode_escape'))
+        assert status["success"]
+        assert not status["eval"]["passed"]
+
+    def test_submit_simple3(self):
+        placements = [{'node': 0, 'generators': {'N':1} }]
+        rv = self.app.post('/submit/', data=json.dumps(placements),
+                            content_type='application/json',
+                            headers={"team_name": 'ourteam', "challenge_id": 10})
+        status = json.loads(rv.data.decode('unicode_escape'))
+        assert not status["success"]
+        assert status["message"] == "Please specify at least one hydro or gas generator for PyPower to process successfully."
+        
     def test_submit(self):
         placements = [ {"node": 0, "generators": {} }, 
                     {"node": 1, "generators": {'H': 1}},
@@ -99,9 +128,36 @@ class PgsimTestCase(unittest.TestCase):
                     {"node": 8, "generators": {"G": 1, "S": 1, "W": 1}},
                     {"node": 9, "generators": {"H": 1, "N":1, "G":1, "S":1, "W":1}}]
         rv = self.app.post('/submit/', data=json.dumps(placements),
-                       content_type='application/json', headers={"username": "ourteam"})
+                            content_type='application/json',
+                            headers={"team_name": 'ourteam', "challenge_id": 10})
+        status = json.loads(rv.data.decode('unicode_escape'))
+        assert status["success"]
+        assert status["eval"]["passed"]
         print(rv.data)
 
+    # Note: Firebase is not completely realtime, so the following cases are assuming
+    #       two submissions are in the database. I have left two there untouched.
+    def test_get_challenge_simple(self):
+        saved_challenge = {'4': {'H':1}}
+        rv = self.app.get('/getChallenge/',
+                        headers={"team_name": 'ourteam', "challenge_id": 10})
+        get_challenge = json.loads(rv.data.decode('unicode_escape'))
+        # print("getChallenge output:\n{}".format(get_challenge))
+        assert get_challenge['saved_challenge'] == saved_challenge
+
+    def test_get_challenge_latest(self):
+        saved_challenge = {'4': {'H':1}}
+        rv = self.app.get('/getChallenge/',
+                        headers={"team_name": 'ourteam', "challenge_id": 10})
+        get_challenge = json.loads(rv.data.decode('unicode_escape'))
+        print("getChallenge output:\n{}".format(get_challenge))
+        assert get_challenge['saved_challenge'] == saved_challenge
+
+    def test_get_leaderboard(self):
+        placements = []
+        rv = self.app.get('/leaderboard/')
+        status = json.loads(rv.data.decode('unicode_escape'))
+        print(status)
     #def tearDown(self):
         #os.close(self.db_fd)
         #os.unlink(pgsim.pgsim_app.config['DATABASE'])

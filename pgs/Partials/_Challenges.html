@@ -1,0 +1,45 @@
+<div class="pgs-navigation">
+    <button class="btn btn-default pgs-float-left-btn" ng-click="goBack()">&larr; Go Back</button>
+    <div class="navbar-brand nav-link">Available Challenges</div>
+</div>
+
+<div class="pgs-page col-xs-12">
+    <table class="table table-hover pgs-table">
+        <thead>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Saved</th>
+            <th></th>
+        </thead>
+        <tbody>
+            <tr ng-repeat="challenge in challenges">
+                <td class="pgs-td">{{challenge.id}}</td>
+                <td class="pgs-td">{{challenge.name}}</td>
+                <td class="pgs-td">{{challenge.saved}}</td>
+                <td class="pgs-td">
+                    <button class="btn btn-default pgs-btn" ng-click="previewChallenge(challenge.id)" data-toggle="modal" data-target="#preview-modal">Preview</button>
+                    <button class="btn btn-default pgs-btn" ng-click="simulateChallenge(challenge.id)">Simulate</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="preview-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title col-xs-6"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-description"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
