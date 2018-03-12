@@ -71,7 +71,7 @@ class PgsimutilsTestCase(unittest.TestCase):
     def test_calc_score(self):
         eval_pg.calc_score(self.gen_placements)
 
-class PgsimTestCase(unittest.TestCase):
+class PgsimSubmitTestCase(unittest.TestCase):
 
     def setUp(self):
         pgsim.pgsim_app.testing = True
@@ -132,6 +132,12 @@ class PgsimTestCase(unittest.TestCase):
         assert status["eval"]["passed"]
         print(rv.data)
 
+class PgsimGetChallengeTestCase(unittest.TestCase):
+
+    def setUp(self):
+        pgsim.pgsim_app.testing = True
+        self.app = pgsim.pgsim_app.test_client()
+
     # Note: Firebase is not completely realtime, so the following cases are assuming
     #       two submissions are in the database. I have left two there untouched.
     def test_get_challenge_simple(self):
@@ -155,9 +161,7 @@ class PgsimTestCase(unittest.TestCase):
         rv = self.app.get('/leaderboard/')
         status = json.loads(rv.data.decode('unicode_escape'))
         print(status)
-    #def tearDown(self):
-        #os.close(self.db_fd)
-        #os.unlink(pgsim.pgsim_app.config['DATABASE'])
+
 
 if __name__ == '__main__':
     unittest.main()
