@@ -1,7 +1,7 @@
 app.directive('loginDirective', function () {
 	return {
 		restrict: 'EA',
-		templateUrl: './_Login.html',
+		templateUrl: './Partials/_Login.html',
 		scope: {
 			email: '@',
 			password: '@',
@@ -44,7 +44,7 @@ var loginDirectiveController = ['$scope', '$rootScope', 'LoginService', function
 app.directive('challengesDirective', function () {
 	return {
 		restrict: 'EA',
-		templateUrl: './_Challenges.html',
+		templateUrl: './Partials/_Challenges.html',
 		scope: {
 			challenges: '=?'
 		},
@@ -69,7 +69,7 @@ var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', 'Challe
 app.directive('challengeDirective', function () {
 	return {
 		restrict: 'EA',
-		templateUrl: './_Challenge.html',
+		templateUrl: './Partials/_Challenge.html',
 		scope: {
 			challenge: '=?'
 		},
@@ -105,7 +105,7 @@ var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'Challen
 app.directive('simulatorDirective', function () {
 	return {
 		restrict: 'EA',
-		templateUrl: './_Simulator.html',
+		templateUrl: './Partials/_Simulator.html',
 		scope: {
 			challenge: '=?'
 		},
@@ -458,7 +458,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 app.directive('evaluationDirective', function () {
 	return {
 		restrict: 'EA',
-		templateUrl: './_Evaluation.html',
+		templateUrl: './Partials/_Evaluation.html',
 		scope: {
 			evaluation: '=?'
 		},
@@ -569,7 +569,7 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'Evalua
 app.directive('leaderBoardDirective', function () {
 	return {
 		restrict: 'EA',
-		templateUrl: './_LeaderBoard.html',
+		templateUrl: './Partials/_LeaderBoard.html',
 		scope: {
 			teamname: '='
 		},
