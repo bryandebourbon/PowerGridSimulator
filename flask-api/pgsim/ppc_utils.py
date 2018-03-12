@@ -69,7 +69,6 @@ gen_baseline = np.array(
 
 # Hardcoded generator parameters for each generator type over a time series.
 # Cost is in thousands, power is in 100MW, CO2 is in tonnes.
-# TODO: Read these over longer time series.
 # TODO: Consider making the capacity location-dependent; e.g. not all 
 # locations can support a lot of hydro generation.
 # TODO: Consider making the cost time-dependent; e.g. cheaper to generator at night.

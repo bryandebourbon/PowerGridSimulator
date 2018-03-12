@@ -13,8 +13,6 @@ from pypower.idx_gen import GEN_BUS, PG, QG, QMAX, QMIN, GEN_STATUS, \
 from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, \
     TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST
 
-# TODO: Return more info back up for the students to see; e.g. transmission line
-# usage, demand for each node, environmental impact (pending Kevin's imput), etc.
 def calc_score(gen_placements):
     gens, fixed_gens, gen_caps, gen_costs = ppc_utils.build_gen_matrices(gen_placements)
     bus_data = ppc_utils.build_bus_data(gen_placements)
