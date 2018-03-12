@@ -21,6 +21,9 @@
 .pgs-tab-content {
 	margin: 24px;
 }
+.pgs-table {
+    margin-top: 12px;
+}
 
 .pgs-inventory-profile {
 	margin-top: 48px;
@@ -28,6 +31,9 @@
 }
 .pgs-float-right-btn {
 	float: right;
+}
+.pgs-float-left-btn {
+    float: left;
 }
 .pgs-title {
 	font-size: large;
@@ -54,6 +60,10 @@
 .navbar-brand {
 	height: 36px !IMPORTANT;
 }
+.nav-link {
+    margin-top: -8px;
+}
+
 .btn-group {
 	margin: 6px;
 }
