@@ -81,6 +81,8 @@ def get_best_scores(current_best, new_scores):
     return current_best
 
 def get_leaderboard():
+    # Leaderboard functions to display top 3 teams in different categories.
+
     result, passed_teams = {}, {}
     passed_teams = SCORES.order_by_child('scores_best/passed').equal_to(True).get()
     passed_scores = {}
@@ -139,30 +141,41 @@ def get_saved_challenge(challenge_id, team_id):
 
     return result
 
+def delete_users():
+    '''
+    Delete 1000 users at a time to clear authentication db. Use with caution.
+    '''
+    # user = auth.get_user('0bg5BGvKcrOoFxANumiDhZ4O6ey2')
+    page = auth.list_users()
+    while page:
+        for user in page.users:
+            auth.delete_user(user.uid)
+        # Get next batch of users.
+        page = page.get_next_page()
+
 # Endpoints of database related frontend call.
 def register_routes(current_app):
     
     @current_app.route('/leaderboard/', methods=['GET'])
     def show_leaderboard():
-    """
-    Leaderboard functions to display top 3 teams in different categories.
-    Returns a dictionary in the follwing format, teams in names:
-        {
-          cat1: {
-            team1: val1, # best team
-            team2: val2, # second team
-            team3: val3  # third team
-          },
-          cat2: {
-            team1: val1,
-            team2: val2,
-            team3: val3
-          }
-        }
-    """
+        """
+        Returns a dictionary in the follwing format, teams in names:
+            {
+              cat1: {
+                team1: val1, # best team
+                team2: val2, # second team
+                team3: val3  # third team
+              },
+              cat2: {
+                team1: val1,
+                team2: val2,
+                team3: val3
+              }
+            }
+        """
         leaderboard = get_leaderboard()
         return make_response(json.dumps(leaderboard))
-        
+
     '''
     @current_app.route('/add', methods=['POST'])
     def add_entry():
@@ -201,3 +214,4 @@ def register_routes(current_app):
     # print(get_scores_status_entry(10))
     # print(get_leaderboard())
     # print(get_saved_challenge('10', '1'))
+    # delete_users()
