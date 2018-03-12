@@ -8,3 +8,9 @@ var nodeMap = [{ index: 0, name: 'Northwest' },
                 { index: 7, name: 'Southwest' },
                 { index: 8, name: 'Niagara' },
                 { index: 9, name: 'West' }];
+
+var generatorTypeMap = [{ abbreviation: 'G', display: 'Gas' },
+                        { abbreviation: 'H', display: 'Hydro' },
+                        { abbreviation: 'N', display: 'Nuclear' },
+                        { abbreviation: 'S', display: 'Solar' },
+                        { abbreviation: 'W', display: 'Wind' }];

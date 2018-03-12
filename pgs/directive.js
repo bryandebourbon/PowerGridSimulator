@@ -11,7 +11,7 @@ app.directive('loginDirective', function () {
 	}
 })
 
-var loginDirectiveController = ['$scope', '$rootScope', 'LoginService', function ($scope, $rootScope, $LoginService) {
+var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function ($scope, $rootScope, $DataService) {
 	$scope.email = '';
 	$scope.password = '';
 	$scope.teamname = '';
@@ -19,24 +19,221 @@ var loginDirectiveController = ['$scope', '$rootScope', 'LoginService', function
 	// uid refers to user id (effectively team id)
 	// we later retrieve a list of challenges visible to a uid
 	$scope.register = function () {
-		$LoginService.register({ email: $scope.email, password: $scope.password, teamname: $scope.teamname })
-			.then(function (res) {
-				if (res && res.status == 'OK') {
-					$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', uid: res.uid, challenges: res.challenges });
-				}
-			}).catch(function (error) {
-				console.log(error);
+		var user = { email: $scope.email, password: $scope.password, teamname: $scope.teamname };
+
+		var _authErrorContainer = $('#auth-error-container');
+		var _invalidInputHeader = $('#invalid-input-header');
+		var _firebaseAuthErrorHeader = $('#firebase-auth-error-header');
+		var _authErrorMessage = $('#auth-error-message');
+		var _teamCodeMessage = $('#team-code-message');
+
+		_authErrorMessage.text('');
+
+		_authErrorContainer.hide();
+		_invalidInputHeader.hide();
+		_firebaseAuthErrorHeader.hide();
+		_authErrorMessage.hide();
+		_teamCodeMessage.hide();
+
+		if (user.email && user.email.length < 1) {
+			_authErrorContainer.show();
+			_invalidInputHeader.show();
+			_authErrorMessage.show();
+
+			var errorMessage = 'Email field should not be empty.';
+			_authErrorMessage.text(errorMessage);
+
+			return;
+		}
+		if (user.password && user.password.length < 5) {
+			_authErrorContainer.show();
+			_invalidInputHeader.show();
+			_authErrorMessage.show();
+
+			var errorMessage = 'Password field should be at least 6 characters.';
+			_authErrorMessage.text(errorMessage);
+
+			return;
+		}
+		if (user.teamname && user.teamname.length < 1) {
+			_authErrorContainer.show();
+			_invalidInputHeader.show();
+			_authErrorMessage.show();
+
+			var errorMessage = 'Teamname field should not be empty.';
+			_authErrorMessage.text(errorMessage);
+
+			return;
+		}
+
+		// Sign in with email and pass.
+		firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+			.then(function (firebaseUser) {
+				firebaseUser.updateProfile({
+					displayName: user.teamname
+				}).then(function () {
+					// Authenticate team.
+					var teamsRef = firebase.database().ref().child('teams');
+					teamsRef.orderByChild('team_name').equalTo(user.teamname).once('value', team => {
+						const data = team.val();
+						if (data) {
+							// enter code and check.
+							var secretCode = _.keys(data)[0];
+
+							var _teamSecretCodeModal = $('#team-secret-code-modal');
+							var _distributeTeamSecretCode = $('#distribute-team-secret-code');
+							var _collectTeamSecretCode = $('#collect-team-secret-code');
+							var _secretCodeInput = $('#secret-code-input');
+
+							_distributeTeamSecretCode.hide();
+							_collectTeamSecretCode.show();
+
+							_secretCodeInput.val('');
+
+							$('#team-secret-code-modal').modal('show');
+
+							$('#submit-secret-code').on('click', function (evt) {
+								var inputCode = $('#secret-code-input').val();
+
+								if (inputCode == secretCode) {
+									$('#team-secret-code-modal').modal('hide');
+
+									showSpinner();
+									
+									$DataService.getChallenge({ teamname: user.teamname, challengeID: 10 })
+										.then(function (data) {
+											hideSpinner();
+
+											$.cookie('teamname', $scope.teamname);
+											$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
+										}).catch(function (error) {
+											console.log(error);
+										})
+								} else {
+									showWarning('Wrong team secret code, please re-enter.');
+								}
+							})
+						} else {
+							// else if team doesn't exist, push to teams/ db.
+							var secretCode = teamsRef.push().key;
+							teamsRef.orderByChild('team_id').limitToLast(1).once('value', lastTeam => {
+								const lastTeamData = Object.values(lastTeam.val())[0];
+								var teamID = 1 + +lastTeamData.team_id;
+								var newTeam = {};
+								newTeam[secretCode] = {
+									'team_id': teamID,
+									'team_name': user.teamname
+								};
+								teamsRef.update(newTeam);
+
+								var _teamSecretCodeModal = $('#team-secret-code-modal');
+								var _distributeTeamSecretCode = $('#distribute-team-secret-code');
+								var _collectTeamSecretCode = $('#collect-team-secret-code');
+								var _secretCode = $('.pgs-secret-code');
+								var _submitSecretCodeButton = $('#submit-secret-code');
+
+								_distributeTeamSecretCode.show();
+								_collectTeamSecretCode.hide();
+								_submitSecretCodeButton.hide();
+
+								_secretCode.text(secretCode);
+
+								$('#team-secret-code-modal').modal('show');
+
+								$('#team-secret-code-modal').on('hide.bs.modal', function (evt) {
+									showSpinner();
+
+									$DataService.getChallenge({ teamname: user.teamname, challengeID: 10 })
+										.then(function (data) {
+											hideSpinner();
+
+											$.cookie('teamname', $scope.teamname);
+											$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
+										}).catch(function (error) {
+											console.log(error);
+										})
+								})
+							});
+						}
+					});
+
+				}, function (error) {
+					console.log('could not update your team');
+				});
+			}, function (error) {
+				_authErrorContainer.show();
+				_firebaseAuthErrorHeader.show();
+				_authErrorMessage.show();
+
+				_authErrorMessage.text(error.message);
 			})
 	}
 
 	$scope.login = function () {
-		$LoginService.login({ email: $scope.email, password: $scope.password, teamname: $scope.teamname })
-			.then(function (res) {
-				if (res && res.status == 'OK') {
-					$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', uid: res.uid, challenges: res.challenges });
-				}
+		var user = { email: $scope.email, password: $scope.password || '', teamname: $scope.teamname || '' };
+
+		var _authErrorContainer = $('#auth-error-container');
+		var _invalidInputHeader = $('#invalid-input-header');
+		var _firebaseAuthErrorHeader = $('#firebase-auth-error-header');
+		var _authErrorMessage = $('#auth-error-message');
+
+		_authErrorMessage.text('');
+
+		_authErrorContainer.hide();
+		_invalidInputHeader.hide();
+		_firebaseAuthErrorHeader.hide();
+		_authErrorMessage.hide();
+
+		if (user.email && user.email.length < 1) {
+			_authErrorContainer.show();
+			_invalidInputHeader.show();
+			_authErrorMessage.show();
+
+			var errorMessage = 'Email field should not be empty.';
+			_authErrorMessage.text(errorMessage);
+
+			return;
+		}
+		if (user.password && user.password.length < 1) {
+			_authErrorContainer.show();
+			_invalidInputHeader.show();
+			_authErrorMessage.show();
+
+			var errorMessage = 'Password field should not be empty.';
+			_authErrorMessage.text(errorMessage);
+
+			return;
+		}
+		if (user.teamname && user.teamname.length < 1) {
+			_authErrorContainer.show();
+			_invalidInputHeader.show();
+			_authErrorMessage.show();
+
+			var errorMessage = 'Teamname field should not be empty.';
+			_authErrorMessage.text(errorMessage);
+
+			return;
+		}
+
+		firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch(function (error) {
+			_authErrorContainer.show();
+			_firebaseAuthErrorHeader.show();
+			_authErrorMessage.show();
+
+			_authErrorMessage.text(error.message);
+
+			return;
+		});
+
+		showSpinner();
+
+		$DataService.getChallenge({ teamname: user.teamname, challengeID: 10 })
+			.then(function (data) {
+				hideSpinner();
+				
+				$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
 			}).catch(function (error) {
-				console.log(error);
+				reject(error);
 			})
 	}
 }]
@@ -52,7 +249,7 @@ app.directive('challengesDirective', function () {
 	}
 })
 
-var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', 'ChallengesService', function ($scope, $rootScope, $timeout, $ChallengesService) {
+var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
 	var processChallenges = function () {
 		_.forEach($scope.challenges, function (c) {
 			if (_.size(c.saved_challenge) == 0) {
@@ -64,14 +261,21 @@ var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', 'Challe
 	}
 
 	$scope.previewChallenge = function (id) {
-		$ChallengesService.previewChallenge(id);
+		var challenge = _.find($scope.challenges, function (c) { return c.id == id; });
+
+		if (challenge) {
+			var _previewModalTitle = $('.modal-title');
+			var _previewModalDescription = $('.modal-description');
+
+			_previewModalTitle.text(challenge.name);
+			_previewModalDescription.text(challenge.description);
+		}
 	}
-
 	$scope.simulateChallenge = function (id) {
-		var res = $ChallengesService.simulateChallenge(id);
+		var challenge = _.find($scope.challenges, function (c) { return c.id == id; });
 
-		if (res && res.status == 'OK') {
-			$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: res.challenge }); });
+		if (challenge) {
+			$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: challenge }); });
 		}
 	}
 
@@ -93,7 +297,7 @@ app.directive('challengeDirective', function () {
 	}
 })
 
-var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'ChallengeService', function ($scope, $rootScope, $timeout, $ChallengeService) {
+var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataService', function ($scope, $rootScope, $timeout, $DataService) {
 	$scope.tab = 'simulation';
 
 	$scope.switchTab = function (evt) {
@@ -106,16 +310,19 @@ var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'Challen
 	}
 
 	$scope.submitChallenge = function () {
-		var challenge = $scope.challenge;
-		$ChallengeService.submitChallenge(challenge)
-			.then(function (res) {
-				if (res && res.status == 'OK') {
-					$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'evaluation', evaluation: res.evaluation }); });
-				} else if (res && res.status == 'ERROR') {
-					showWarning(res.error);
+		showSpinner();
+
+		$DataService.submitChallenge({ challenge: $scope.challenge, teamname: $.cookie('teamname'), challengeID: 10 })
+			.then(function (data) {
+				hideSpinner();
+
+				if (data.success) {
+					$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'evaluation', evaluation: data.eval }); });
+				} else {
+					showWarning(data.message);
 				}
 			}).catch(function (error) {
-				console.log(error)
+				console.log(error);
 			})
 	}
 
@@ -134,7 +341,7 @@ app.directive('simulatorDirective', function () {
 		controller: simulatorDirectiveController
 	}
 })
-var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'SimulatorService', function ($scope, $rootScope, $timeout, $SimulatorService) {
+var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
 	$scope.renderGrid = function () {
 		//https://bost.ocks.org/mike/map/
 		//https://medium.com/@mbostock/command-line-cartography-part-1-897aa8f8ca2c
@@ -158,7 +365,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 			[-81.6943359375, 43.004647127794435]
 		];
 
-		var generator_type = ["nuclear", "water", "coal", "solar", "wind"];
+		var generator_type = ["nuclear", "wind", "coal", "solar", "wind"];
 		var generator_color = ["green", "blue", "grey", "orange", "white"];
 		var generator_count = 0;
 		//  The projection is used to project geographical coordinates on the SVG
@@ -383,23 +590,9 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 
 	var populateGenerators = function () {
 		_.forEach($scope.challenge.generators, function (generator) {
-			switch (generator.type) {
-				case 'G':
-					generator.type = 'Gas';
-					break;
-				case 'H':
-					generator.type = 'Hydro';
-					break;
-				case 'N':
-					generator.type = 'Nuclear';
-					break;
-				case 'S':
-					generator.type = 'Solar';
-					break;
-				case 'W':
-					generator.type = 'Water';
-					break;
-			}
+			var generatorType = _.find(generatorTypeMap, function (gt) { return gt.abbreviation == generator.type || gt.display == generator.type; });
+			
+			generator.type = generatorType.display;
 		})
 	}
 	var populateNodes = function () {
@@ -546,9 +739,7 @@ app.directive('evaluationDirective', function () {
 	}
 })
 
-var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'EvaluationService', function ($scope, $rootScope, $timeout, $EvaluationService) {
-	// console.log($scope.evaluation);
-
+var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataService', function ($scope, $rootScope, $timeout, $DataService) {
 	$scope.tab = 'nodes';
 
 	$scope.switchTab = function (evt) {
@@ -609,7 +800,16 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'Evalua
 	}
 
 	$scope.viewLeaderBoard = function () {
-		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'leaderboard', evaluation: $scope.evaluation, teamname: 'ourteam' }); });
+		showSpinner();
+
+		$DataService.getLeaderBoard()
+			.then(function (data) {
+				hideSpinner();
+
+				$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'leaderboard', challenge: $scope.challenge, evaluation: $scope.evaluation, leaderboard: data, teamname: $.cookie('teamname') || '' }); });
+			}).catch(function (error) {
+				console.log(error);
+			})
 	}
 
 	$scope.goBack = function () {
@@ -648,6 +848,34 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'Evalua
 
 	processNodes();
 	processLines();
+
+	var retrieveLeaderBoard = function () {
+		return new Promise(function (resolve, reject) {
+			showSpinner();
+
+			$.ajax({
+				url: 'http://127.0.0.1:5000/leaderboard/',
+				type: 'GET',
+				success: function (res) {
+					hideSpinner();
+
+					var data = JSON.parse(res);
+
+					console.log(data);
+
+					var res = {
+						status: 'OK',
+						leaderboard: data
+					}
+
+					resolve(res);
+				},
+				error: function (data) {
+					console.log(data);
+				}
+			})
+		})
+	}
 }]
 
 app.directive('leaderBoardDirective', function () {
@@ -657,23 +885,71 @@ app.directive('leaderBoardDirective', function () {
 		scope: {
 			challenge: '=?',
 			evaluation: '=?',
+			leaderboard: '=?',
 			teamname: '=?'
 		},
 		controller: leaderBoardDirectiveController
 	}
 })
-var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', 'LeaderBoardService', function ($scope, $rootScope, $timeout, $LeaderBoardService) {
-	$LeaderBoardService.retrieveLeaderBoard()
-		.then(function (res) {
-			if (res && res.status == 'OK') {
-				console.log(res.leaderBoard);
-			}
-		}).catch(function (error) {
-			console.log(error);
-		})
+var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
+	$scope.tab = 'environmental-footprint';
 
+	$scope.switchTab = function (evt) {
+		if (evt && evt.currentTarget) {
+			$scope.tab = evt.currentTarget.dataset.tab;
+
+			$(evt.currentTarget).addClass('active');
+			$(evt.currentTarget).siblings().removeClass('active');
+		}
+	}
 
 	$scope.goBack = function () {
 		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'evaluation', challenge: $scope.challenge, evaluation: $scope.evaluation }); });
 	}
+
+	var processLeaders = function () {
+		_.forEach($scope.leaderboard, function (b, c) {
+			switch(c) {
+				case 'CO2':
+					$scope.environmentalFootprintBoard = [];
+
+					var i = 1;
+					_.forEach(b, function (v, k) {
+						var winner = { ranking: i, name: k, score: v };
+						$scope.environmentalFootprintBoard.push(winner);
+
+						i ++;
+					})
+
+					break;
+				case 'cost':
+					$scope.realCostBoard = [];
+
+					var i = 1;
+					_.forEach(b, function (v, k) {
+						var winner = { ranking: i, name: k, score: v };
+						$scope.realCostBoard.push(winner);
+
+						i++;						
+					})
+
+					break;
+				case 'installation_cost':
+					$scope.installationCostBoard = [];
+
+					var i = 1;
+					_.forEach(b, function (v, k) {
+						var winner = { ranking: i, name: k, score: v };
+						$scope.installationCostBoard.push(winner);
+					
+						i++;
+					})
+
+					break;
+					
+			}
+		})
+	}
+
+	processLeaders();
 }]

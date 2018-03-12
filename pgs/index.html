@@ -14,6 +14,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase.js"></script>
 
+    <script src="./jquery.cookie.js"></script>
+
     <script src="./constants.js"></script>
 
     <script src="./app.js"></script>
@@ -30,7 +32,7 @@
         <challenges-directive ng-if="state=='challenges'" challenges="challenges"></challenges-directive>
         <challenge-directive ng-if="state=='grid'" challenge="challenge"></challenge-directive>
         <evaluation-directive ng-if="state=='evaluation'" challenge="challenge" evaluation="evaluation"></evaluation-directive>
-        <leader-board-directive ng-if="state=='leaderboard'" challenge="challenge" evaluation="evaluation" teamname="teamname"></leader-board-directive>
+        <leader-board-directive ng-if="state=='leaderboard'" challenge="challenge" evaluation="evaluation" leaderboard="leaderboard" teamname="teamname"></leader-board-directive>
     </div>
 
     <div class="pgs-alert" hidden>
