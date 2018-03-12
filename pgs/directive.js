@@ -22,6 +22,8 @@ var loginDirectiveController = ['$scope', '$rootScope', 'LoginService', function
 		$LoginService.register({ email: $scope.email, password: $scope.password, teamname: $scope.teamname })
 			.then(function (res) {
 				if (res && res.status == 'OK') {
+					$.cookie('teamname', $scope.teamname);
+
 					$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', uid: res.uid, challenges: res.challenges });
 				}
 			}).catch(function (error) {
@@ -612,7 +614,7 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'Evalua
 		$LeaderBoardService.retrieveLeaderBoard()
 			.then(function (res) {
 				if (res && res.status == 'OK') {
-					$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'leaderboard', challenge: $scope.challenge, evaluation: $scope.evaluation, leaderboard: res.leaderboard, teamname: 'team1' }); });
+					$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'leaderboard', challenge: $scope.challenge, evaluation: $scope.evaluation, leaderboard: res.leaderboard, teamname: $.cookie('teamname') || '' }); });
 				}
 			}).catch(function (error) {
 				console.log(error);

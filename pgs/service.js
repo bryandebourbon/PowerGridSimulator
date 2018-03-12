@@ -4,7 +4,7 @@ app.service('LoginService', function () {
 	}
 
 	var getChallenges = function (args) {
-		var headers = { team_name: 'team1', challenge_id: 10 };
+		var headers = { team_name: $.cookie('teamname') || '', challenge_id: 10 };
 		
 		return new Promise(function (resolve, reject) {
 			showSpinner();
@@ -246,13 +246,14 @@ app.service('LoginService', function () {
 				_authErrorMessage.show();
 
 				_authErrorMessage.text(error.message);
+
+				return;
 			});
 
 			getChallenges(user)
 				.then(function (data) {
 					var res = {
 						status: 'OK',
-						uid: guid(),
 						challenges: data
 					}
 
@@ -352,7 +353,7 @@ app.service('ChallengeService', function () {
 			}
 
 			var submission = minifiChallenge(challenge);
-			var headers = { team_name: 'team1', challenge_id: 10 };
+			var headers = { team_name: $.cookie('teamname') || '', challenge_id: 10 };
 
 			showSpinner();
 
