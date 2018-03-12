@@ -591,9 +591,7 @@ app.directive('evaluationDirective', function () {
 	}
 })
 
-var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'EvaluationService', 'LeaderBoardService', function ($scope, $rootScope, $timeout, $EvaluationService, $LeaderBoardService) {
-	// console.log($scope.evaluation);
-
+var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'EvaluationService', function ($scope, $rootScope, $timeout, $EvaluationService) {
 	$scope.tab = 'nodes';
 
 	$scope.switchTab = function (evt) {
@@ -654,14 +652,22 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'Evalua
 	}
 
 	$scope.viewLeaderBoard = function () {
-		$LeaderBoardService.retrieveLeaderBoard()
-			.then(function (res) {
-				if (res && res.status == 'OK') {
-					$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'leaderboard', challenge: $scope.challenge, evaluation: $scope.evaluation, leaderboard: res.leaderboard, teamname: $.cookie('teamname') || '' }); });
-				}
-			}).catch(function (error) {
-				console.log(error);
-			})
+		showSpinner();
+
+		$.ajax({
+			url: 'http://127.0.0.1:5000/leaderboard/',
+			type: 'GET',
+			success: function (res) {
+				hideSpinner();
+
+				var data = JSON.parse(res);
+
+				$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'leaderboard', challenge: $scope.challenge, evaluation: $scope.evaluation, leaderboard: data, teamname: $.cookie('teamname') || '' }); });
+			},
+			error: function (data) {
+				console.log(data);
+			}
+		})
 	}
 
 	$scope.goBack = function () {
@@ -700,6 +706,34 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'Evalua
 
 	processNodes();
 	processLines();
+
+	var retrieveLeaderBoard = function () {
+		return new Promise(function (resolve, reject) {
+			showSpinner();
+
+			$.ajax({
+				url: 'http://127.0.0.1:5000/leaderboard/',
+				type: 'GET',
+				success: function (res) {
+					hideSpinner();
+
+					var data = JSON.parse(res);
+
+					console.log(data);
+
+					var res = {
+						status: 'OK',
+						leaderboard: data
+					}
+
+					resolve(res);
+				},
+				error: function (data) {
+					console.log(data);
+				}
+			})
+		})
+	}
 }]
 
 app.directive('leaderBoardDirective', function () {
@@ -715,7 +749,7 @@ app.directive('leaderBoardDirective', function () {
 		controller: leaderBoardDirectiveController
 	}
 })
-var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', 'LeaderBoardService', function ($scope, $rootScope, $timeout, $LeaderBoardService) {
+var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
 	$scope.tab = 'environmental-footprint';
 
 	$scope.switchTab = function (evt) {
