@@ -418,6 +418,8 @@ app.service('LeaderBoardService', function () {
 
 	var retrieveLeaderBoard = function () {
 		return new Promise(function (resolve, reject) {
+			showSpinner();
+			
 			$.ajax({
 				url: 'http://127.0.0.1:5000/leaderboard/',
 				type: 'GET',
