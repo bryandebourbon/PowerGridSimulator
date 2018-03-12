@@ -100,6 +100,9 @@ def get_challenge():
          "demands": demands,
          "lines": lines}))
 
+    pr.disable()
+    s = io.StringIO()
+    sortby = 'cumulative'
     ps = pstats.Stats(pr, stream=s)
     if ps.total_tt > 1.0:
         ps.sort_stats(sortby).print_stats(20)
