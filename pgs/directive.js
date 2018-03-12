@@ -53,6 +53,16 @@ app.directive('challengesDirective', function () {
 })
 
 var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', 'ChallengesService', function ($scope, $rootScope, $timeout, $ChallengesService) {
+	var processChallenges = function () {
+		_.forEach($scope.challenges, function (c) {
+			if (_.size(c.saved_challenge) == 0) {
+				c.saved = 'False';
+			} else {
+				c.saved = 'True';
+			}
+		})
+	}
+
 	$scope.previewChallenge = function (id) {
 		$ChallengesService.previewChallenge(id);
 	}
@@ -68,6 +78,8 @@ var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', 'Challe
 	$scope.goBack = function () {
 		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'login' }); });
 	}
+
+	processChallenges();
 }]
 
 app.directive('challengeDirective', function () {
@@ -597,7 +609,17 @@ app.directive('leaderBoardDirective', function () {
 		controller: leaderBoardDirectiveController
 	}
 })
-var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
+var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', 'LeaderBoardService', function ($scope, $rootScope, $timeout, $LeaderBoardService) {
+	$LeaderBoardService.retrieveLeaderBoard()
+		.then(function (res) {
+			if (res && res.status == 'OK') {
+				console.log(res.leaderBoard);
+			}
+		}).catch(function (error) {
+			console.log(error);
+		})
+
+
 	$scope.goBack = function () {
 		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'evaluation', challenge: $scope.challenge, evaluation: $scope.evaluation }); });
 	}

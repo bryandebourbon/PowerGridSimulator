@@ -414,5 +414,32 @@ app.service('LeaderBoardService', function () {
 		// console.log('Leader board service initiated.');
 	}
 
-	this.init = init;
+	var retrieveLeaderBoard = function () {
+		return new Promise(function (resolve, reject) {
+			$.ajax({
+				url: 'http://127.0.0.1:5000/leaderboard/',
+				type: 'GET',
+				success: function (res) {
+					hideSpinner();
+
+					var data = JSON.parse(res);
+
+					console.log(data);
+
+					var res = {
+						status: 'OK',
+						leaderBoard: data
+					}
+
+					resolve(res);
+				},
+				error: function (data) {
+					console.log(data);
+				}
+			})
+		})
+	}
+
+	this.init = function (args) { return init(args); }
+	this.retrieveLeaderBoard = function () { return retrieveLeaderBoard(); }
 })
