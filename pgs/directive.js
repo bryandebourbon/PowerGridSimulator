@@ -162,28 +162,31 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 			.attr("width", width)
 			.attr("height", height);
 		var gBackground = map.append("g"); // appended first
+		
 		var gPathPoints = map.append("g");
 		var gDataPoints = map.append("g");
 
-		gDataPoints.selectAll(".point")
-			.data(points)
-			.enter().append("circle")
-			.attr("r", 8)
-			.attr("fill", "red")
-			.attr("transform", function (d) { return "translate(" + projection(d) + ")"; })
-			.on("click", function () {
+		var gPowerZones = map.append("g");
+
+		// gDataPoints.selectAll(".point")
+		// 	.data(points)
+		// 	.enter().append("circle")
+		// 	.attr("r", 8)
+		// 	.attr("fill", "red")
+		// 	.attr("transform", function (d) { return "translate(" + projection(d) + ")"; })
+		// 	.on("click", function () {
 
 
 
 
-			})
-			.on("dblclick", function () {
-				last = d3.select(this).style('fill', generator_color[generator_count])
-				this.generator_type = generator_type[generator_count]
-				generator_count = (generator_count + 1) % 5
+		// 	})
+		// 	.on("dblclick", function () {
+		// 		last = d3.select(this).style('fill', generator_color[generator_count])
+		// 		this.generator_type = generator_type[generator_count]
+		// 		generator_count = (generator_count + 1) % 5
 
-			})
-			;
+		// 	})
+		// 	;
 
 		var line = d3.svg.line()
 			.interpolate("cardinal-closed")
@@ -235,57 +238,57 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 		// 	.attr('class', 'journey')
 		// 	.attr("fill", "red")
 		// 	;
-		var linepath = gPathPoints.selectAll(".line")
-			.data(power_lines).enter().append("path")
-			.attr("d", line)
-			.attr('class', 'journey')
-			.attr("fill", "red")
-			;
-		console.log(linepath)
+		// var linepath = gPathPoints.selectAll(".line")
+		// 	.data(power_lines).enter().append("path")
+		// 	.attr("d", line)
+		// 	.attr('class', 'journey')
+		// 	.attr("fill", "red")
+		// 	;
+		// console.log(linepath)
 
-		var circle = gPathPoints.append("circle")
-			.attr("r", 4)
-			.attr("fill", "green")
-			.attr("transform", "translate(" + projection(points[0]) + ")");
+		// var circle = gPathPoints.append("circle")
+		// 	.attr("r", 4)
+		// 	.attr("fill", "green")
+		// 	.attr("transform", "translate(" + projection(points[0]) + ")");
 
-		var circle2 = gPathPoints.append("circle")
-			.attr("r", 2)
-			.attr("fill", "green")
-			.attr("transform", "translate(" + projection(points[0]) + ")");
+		// var circle2 = gPathPoints.append("circle")
+		// 	.attr("r", 2)
+		// 	.attr("fill", "green")
+		// 	.attr("transform", "translate(" + projection(points[0]) + ")");
 
-		transition();
-		function transition() {
-			circle.transition()
-				.duration(5000)
-				.attrTween("transform", translateAlong(linepath.node()))
-				.each("end", transition);
-		}
-		transition2();
-		function transition2() {
-			circle2.transition()
-				.duration(3000)
-				.attrTween("transform", translateAlong2(linepath.node()))
-				.each("end", transition2);
-		}
+		// transition();
+		// function transition() {
+		// 	circle.transition()
+		// 		.duration(5000)
+		// 		.attrTween("transform", translateAlong(linepath.node()))
+		// 		.each("end", transition);
+		// }
+		// transition2();
+		// function transition2() {
+		// 	circle2.transition()
+		// 		.duration(3000)
+		// 		.attrTween("transform", translateAlong2(linepath.node()))
+		// 		.each("end", transition2);
+		// }
 
-		function translateAlong(path) {
-			var l = path.getTotalLength();
-			return function (d, i, a) {
-				return function (t) {
-					var p = path.getPointAtLength(t * l);
-					return "translate(" + (p.x + 5) + "," + p.y + ")";
-				};
-			};
-		}
-		function translateAlong2(path) {
-			var l = path.getTotalLength();
-			return function (d, i, a) {
-				return function (t) {
-					var p = path.getPointAtLength(t * l);
-					return "translate(" + (p.x - 5) + "," + p.y + ")";
-				};
-			};
-		}
+		// function translateAlong(path) {
+		// 	var l = path.getTotalLength();
+		// 	return function (d, i, a) {
+		// 		return function (t) {
+		// 			var p = path.getPointAtLength(t * l);
+		// 			return "translate(" + (p.x + 5) + "," + p.y + ")";
+		// 		};
+		// 	};
+		// }
+		// function translateAlong2(path) {
+		// 	var l = path.getTotalLength();
+		// 	return function (d, i, a) {
+		// 		return function (t) {
+		// 			var p = path.getPointAtLength(t * l);
+		// 			return "translate(" + (p.x - 5) + "," + p.y + ")";
+		// 		};
+		// 	};
+		// }
 
 		//  Load state information to create individual state paths
 		d3.json("ontario.geo.json", function (error, ont) {
@@ -300,10 +303,58 @@ var simulatorDirectiveController = ['$scope', '$rootScope', 'SimulatorService', 
 				.attr("class", "state");
 
 		});
+		
+	// 	filenames = ["Bruce.geo.topojson",
+	// 				 "East.geo.topojson",
+	// 				 "Essa.geo.topojson",
+	// 				 "Niagara.geo.topojson",
+	// 				 "Northeast.geo.topojson",
+	// 				 "Northwest.geo.topojson",
+	// 				 "Ottawa.geo.topojson",
+	// 				 "Southwest.geo.topojson",
+	// 				 "Toronto.geo.topojson",
+	// 				 "West.geo.topojson",
+	// 				]
+	// 		//	for (i=0; i<filenames.length; i++){
+		
+
+	// 	var tester = function (i) {
+	// 		pwr_colors = ["green", "yellow", "red", "purple", "blue", "orange", "pink", "red", "purple", "blue"]
 
 
+	// 	filename = filenames[i]
+	
+	// 	//  Load state information to create individual state paths
+	// 	d3.json(filename, function (error, pwr) {
+	// 		if (error) throw error;
+	// 		map.append("g").selectAll("path")
+	// 			.attr("width", width)
+	// 			.attr("height", height)
+
+	// 			.data(topojson.feature(pwr, pwr.objects.boarderlines).features)
+	// 			.enter().append("path")
+	// 			.attr("d", path)
+	// 			.attr("class", "pwrRegions")
+	// 			.style("fill", pwr_colors[i])
+	// 			.style("opacity", "0.5"); 
 
 
+	// 	});
+	// }
+
+	// tester(5);
+	// 	tester(0);
+	// 	tester(1);
+	// 	tester(2);
+	// 	tester(3);
+	// 	tester(4);
+	// 	tester(5);
+	// 	tester(9);
+	// 	tester(7);
+	// 	tester(8);
+	
+
+	// }
 
 
 

@@ -1,4 +1,4 @@
-import sqlite3
+
 from flask import Blueprint, request, session, g, redirect, url_for, abort, \
      render_template, flash, current_app
 import firebase_admin
