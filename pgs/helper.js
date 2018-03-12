@@ -55,15 +55,15 @@ var drawLineChart = function (args) {
 
     var width = vis.attr('width');
     var height = vis.attr('height');
-    var margin = 20;
+    var margin = .15 * width;
 
     var colors = ['black', 'red'];
 
     var x = d3.scale.linear().range([margin, width - margin]).domain([0, d3.max(args.data[0], function (d) { return d.key; })]);
-    var y = d3.scale.linear().range([height - margin, margin]).domain([0, d3.max(args.data[0], function (d) { return d.value; })]);
+    var y = d3.scale.linear().range([height - margin, margin]).domain([d3.min(args.data[0], function (d) { return d.value; }) < 0 ? d3.min(args.data[0], function (d) { return d.value; }) : 0, d3.max(args.data[0], function (d) { return d.value; }) > 0 ? d3.max(args.data[0], function (d) { return d.value; }) : 0]);
 
     var xAxis = d3.svg.axis().scale(x).ticks(4);
-    var yAxis = d3.svg.axis().scale(y).orient('left').ticks(0);
+    var yAxis = d3.svg.axis().scale(y).orient('left').ticks(1);
 
     vis.append('svg:g')
         .attr('class', 'x pgs-axis')
