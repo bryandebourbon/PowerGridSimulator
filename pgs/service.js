@@ -269,41 +269,6 @@ app.service('LoginService', function () {
 	this.login = function (args) { return login(args); }
 })
 
-app.service('ChallengesService', function () {
-	var _challenges = [];
-
-	var init = function (args) {
-		_challenges = args.challenges;
-	}
-
-	var previewChallenge = function (id) {
-		var challenge = _.find(_challenges, function (c) { return c.id == id; });
-
-		if (challenge) {
-			var _previewModalTitle = $('.modal-title');
-			var _previewModalDescription = $('.modal-description');
-
-			_previewModalTitle.text(challenge.name);
-			_previewModalDescription.text(challenge.description || 'This is some description of this challenge');
-		}
-	}
-
-	var simulateChallenge = function (id) {
-		var challenge = _.find(_challenges, function (c) { return c.id == id; });
-
-		if (challenge) {
-			return {
-				status: 'OK',
-				challenge: challenge
-			}
-		}
-	}
-
-	this.init = function (args) { return init(args); }
-	this.previewChallenge = function (id) { return previewChallenge(id); }
-	this.simulateChallenge = function (id) { return simulateChallenge(id); }
-})
-
 app.service('ChallengeService', function () {
 	var _challenge = null;
 

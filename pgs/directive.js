@@ -54,7 +54,7 @@ app.directive('challengesDirective', function () {
 	}
 })
 
-var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', 'ChallengesService', function ($scope, $rootScope, $timeout, $ChallengesService) {
+var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
 	var processChallenges = function () {
 		_.forEach($scope.challenges, function (c) {
 			if (_.size(c.saved_challenge) == 0) {
@@ -66,14 +66,21 @@ var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', 'Challe
 	}
 
 	$scope.previewChallenge = function (id) {
-		$ChallengesService.previewChallenge(id);
+		var challenge = _.find($scope.challenges, function (c) { return c.id == id; });
+
+		if (challenge) {
+			var _previewModalTitle = $('.modal-title');
+			var _previewModalDescription = $('.modal-description');
+
+			_previewModalTitle.text(challenge.name);
+			_previewModalDescription.text(challenge.description);
+		}
 	}
-
 	$scope.simulateChallenge = function (id) {
-		var res = $ChallengesService.simulateChallenge(id);
+		var challenge = _.find($scope.challenges, function (c) { return c.id == id; });
 
-		if (res && res.status == 'OK') {
-			$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: res.challenge }); });
+		if (challenge) {
+			$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: challenge }); });
 		}
 	}
 
