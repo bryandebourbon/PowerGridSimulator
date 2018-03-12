@@ -20,6 +20,29 @@ var guid = function () {
         s4() + '-' + s4() + s4() + s4();
 }
 
+var multiplexArray = function (data) {
+    var data24h = data.length != 24 ? [] : data;
+
+    if (data.length == 6) {
+        _.forEach(data, function (v) {
+            _.forEach([1, 2, 3, 4], function (i) {
+                data24h.push(v);
+            })
+        })
+    }
+
+    var res = [];
+    _.forEach(data24h, function (v, i) {
+        var info = {
+            key: i,
+            value: v
+        }
+
+        res.push(info);
+    })
+
+    return res;
+}
 var drawLineChart = function (args) {
     // we have the option of drawing a line chart with 1 line or with 2 lines
     // args.container: container id for the chart svg
@@ -34,6 +57,8 @@ var drawLineChart = function (args) {
     var width = vis.attr('width');
     var height = vis.attr('height');
     var margin = 20;
+
+    var colors = ['black', 'red'];
 
     var x = d3.scale.linear().range([margin, width - margin]).domain([0, d3.max(args.data[0], function (d) { return d.key; })]);
     var y = d3.scale.linear().range([height - margin, margin]).domain([0, d3.max(args.data[0], function (d) { return d.value; })]);
@@ -56,12 +81,14 @@ var drawLineChart = function (args) {
         .y(function (d) { return y(d.value); })
         .interpolate('basis');
 
-    vis.append('svg:path')
-        .attr('class', 'pgs-path')
-        .attr('d', line(args.data[0]))
-        .attr('stroke', 'green')
-        .attr('stroke-width', 2)
-        .attr('fill', 'none');
+    _.forEach(args.data, function (d, i) {
+        vis.append('svg:path')
+            .attr('class', 'pgs-path')
+            .attr('d', line(args.data[i]))
+            .attr('stroke', colors[i])
+            .attr('stroke-width', 2)
+            .attr('fill', 'none');
+    })
 }
 
 var parsePolynomial = function (args) {

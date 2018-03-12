@@ -58,11 +58,6 @@
 	margin: 6px;
 }
 
-.pgs-path {
-	stroke: steelblue;
-	stroke-width: 2px;
-	fill: none;
-}
 .pgs-alert {
 	color: #a94442;
 	background-color: #f2dede;
@@ -92,6 +87,18 @@
 }
 .pgs-evaluation-detail {
     margin-top: 12px;
+}
+.pgs-annotations {
+    margin-left: 16px;
+    margin-top: 12px;
+    font-size: small;
+    font-style: italic;
+}
+.black {
+    color: black;
+}
+.red {
+    color: red;
 }
 
 .help-tip{

@@ -309,41 +309,17 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 	}
 
 	// demands, generators, lines
-	var nodeMap = [	{ index: 0, name: 'Northwest' },
-					{ index: 1, name: 'Northeast' },
-					{ index: 2, name: 'Ottawa' },
-					{ index: 3, name: 'East' },
-					{ index: 4, name: 'Toronto' },
-					{ index: 5, name: 'Essa' },
-					{ index: 6, name: 'Bruce' },
-					{ index: 7, name: 'Southwest' },
-					{ index: 8, name: 'Niagara' },
-					{ index: 9, name: 'West' }];
-	
-	var processSingleRealReactivePowerArray = function (data) {
-		var data24h = data.length != 24 ? [] : data;
+	var nodeMap = [{ index: 0, name: 'Northwest' },
+	{ index: 1, name: 'Northeast' },
+	{ index: 2, name: 'Ottawa' },
+	{ index: 3, name: 'East' },
+	{ index: 4, name: 'Toronto' },
+	{ index: 5, name: 'Essa' },
+	{ index: 6, name: 'Bruce' },
+	{ index: 7, name: 'Southwest' },
+	{ index: 8, name: 'Niagara' },
+	{ index: 9, name: 'West' }];
 
-		if (data.length == 6) {
-			_.forEach(data, function (v) {
-				_.forEach([1, 2, 3, 4], function (i) {
-					data24h.push(v);
-				})
-			})
-		}
-
-		var res = [];
-		_.forEach(data24h, function (v, i) {
-			var info = {
-				key: i,
-				value: v
-			}
-
-			res.push(info);
-		})
-
-		return res;
-	}
-	
 	var populateGenerators = function () {
 		_.forEach($scope.challenge.generators, function (generator) {
 			switch (generator.type) {
@@ -397,8 +373,8 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 			var realDemands = n.demands.real;
 			var reactiveDemands = n.demands.reactive;
 
-			n.demands.real = processSingleRealReactivePowerArray(realDemands);
-			n.demands.reactive = processSingleRealReactivePowerArray(reactiveDemands);
+			n.demands.real = multiplexArray(realDemands);
+			n.demands.reactive = multiplexArray(reactiveDemands);
 		});
 	}
 	var visualizeNodeRealReactivePowerDemands = function () {
@@ -427,13 +403,13 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 			if (k == 'real_capacity') {
 				var _svg = _valueContainer.find('svg');
 
-				v = processSingleRealReactivePowerArray(v);
+				v = multiplexArray(v);
 
 				drawLineChart({ container: '#generator-profile-real-capacity', series: 1, data: [v] });
 			} else if (k == 'reactive_capacity') {
 				var _svg = _valueContainer.find('svg');
 
-				v = processSingleRealReactivePowerArray(v);
+				v = multiplexArray(v);
 
 				drawLineChart({ container: '#generator-profile-reactive-capacity', series: 1, data: [v] });
 			} else if (k == 'real_cost') {
@@ -443,7 +419,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 
 				drawLineChart({ container: '#generator-profile-real-cost', series: 1, data: [v] });
 			} else if (k == 'per_node_limit') {
-				_valueContainer.text(v);		
+				_valueContainer.text(v);
 			} else {
 				_valueContainer.text(v);
 			}
@@ -464,19 +440,19 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', 'Simulat
 		}
 
 		if (targetBin) {
-			targetBin.count ++;
+			targetBin.count++;
 		} else {
 			$scope.node.generators.push(_.merge(_.cloneDeep(generator), { count: 1 }));
 		}
 
-		generator.count --;
+		generator.count--;
 	}
 	$scope.removeGenerator = function (generator) {
 		var targetBin = _.find($scope.challenge.generators, function (g) { return g.type == generator.type; });
-		targetBin.count ++;
+		targetBin.count++;
 
 		if (generator.count > 1) {
-			generator.count --;
+			generator.count--;
 		} else {
 			_.remove($scope.node.generators, function (g) { return g.type == generator.type; });
 		}
@@ -502,11 +478,11 @@ app.directive('evaluationDirective', function () {
 	}
 })
 
-var evaluationDirectiveController = ['$scope', '$rootScope', 'EvaluationService', function ($scope, $rootScope, $EvaluationService) {
+var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'EvaluationService', function ($scope, $rootScope, $timeout, $EvaluationService) {
 	console.log($scope.evaluation);
 
 	$scope.tab = 'nodes';
-	
+
 	$scope.switchTab = function (evt) {
 		if (evt && evt.currentTarget) {
 			$scope.tab = evt.currentTarget.dataset.tab;
@@ -515,6 +491,37 @@ var evaluationDirectiveController = ['$scope', '$rootScope', 'EvaluationService'
 			$(evt.currentTarget).siblings().removeClass('active');
 		}
 	}
+
+	$scope.switchNode = function (evt) {
+		if (evt && evt.currentTarget) {
+			var index = evt.currentTarget.dataset.index;
+
+			$scope.node = _.find($scope.nodes, function (n) { return n.node == index; });
+
+			$timeout(function () { renderNode($scope.node); });
+
+			$(evt.currentTarget).addClass('active');
+			$(evt.currentTarget).siblings().removeClass('active');
+		}
+	}
+
+	var processNodes = function () {
+		$scope.nodes = $scope.evaluation.nodes;
+		$scope.node = _.find($scope.nodes, function (n) { return n.node == 0; });
+
+		$timeout(function () { renderNode($scope.node); });
+	}
+	var renderNode = function (node) {
+		var generatedRealPower = multiplexArray(node.generated.real);
+		var generatedReactivePower = multiplexArray(node.generated.reactive);
+		var suppliedRealPower = multiplexArray(node.supplied.real);
+		var suppliedReactivePower = multiplexArray(node.supplied.reactive);
+
+		drawLineChart({ container: '#node-evaluation-real-power-svg', series: 2, data: [generatedRealPower, suppliedRealPower] });
+		drawLineChart({ container: '#node-evaluation-reactive-power-svg', series: 2, data: [generatedReactivePower, suppliedReactivePower] });
+	}
+
+	processNodes();
 }]
 
 app.directive('tooltipIcon', function () {
