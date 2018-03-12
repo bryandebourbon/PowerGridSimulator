@@ -102,7 +102,7 @@ app.directive('challengeDirective', function () {
 	}
 })
 
-var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'ChallengeService', function ($scope, $rootScope, $timeout, $ChallengeService) {
+var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
 	$scope.tab = 'simulation';
 
 	$scope.switchTab = function (evt) {
@@ -115,17 +115,53 @@ var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'Challen
 	}
 
 	$scope.submitChallenge = function () {
-		var challenge = $scope.challenge;
-		$ChallengeService.submitChallenge(challenge)
-			.then(function (res) {
-				if (res && res.status == 'OK') {
-					$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'evaluation', evaluation: res.evaluation }); });
-				} else if (res && res.status == 'ERROR') {
-					showWarning(res.error);
-				}
-			}).catch(function (error) {
-				console.log(error)
+		showSpinner();
+		
+		var minifiChallenge = function (challenge) {
+			var mChallenge = [];
+			_.forEach(challenge.nodes, function (n) {
+				var node = {
+					node: n.index,
+					generators: {}
+				};
+
+				_.forEach(n.generators, function (g) {
+					var generatorType = _.find(generatorTypeMap, function (gt) { return gt.display == g.type; });
+
+					if (generatorType) {
+						node.generators[generatorType.abbreviation] = g.count;
+					}
+				})
+
+				mChallenge.push(node);
 			})
+
+			return JSON.stringify(mChallenge);
+		}
+
+		var submission = minifiChallenge($scope.challenge);
+		var headers = { team_name: $.cookie('teamname') || '', challenge_id: 10 };
+
+		$.ajax({
+			url: 'http://127.0.0.1:5000/submit/',
+			type: 'POST',
+			headers: headers,
+			data: submission,
+			success: function (res) {
+				hideSpinner();
+
+				var data = JSON.parse(res);
+
+				if (data.success) {
+					$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'evaluation', evaluation: data.eval }); });
+				} else {
+					showWarning(data.message);
+				}
+			},
+			error: function (data) {
+				console.log(data);
+			}
+		})
 	}
 
 	$scope.goBack = function () {
