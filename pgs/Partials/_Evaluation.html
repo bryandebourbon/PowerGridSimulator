@@ -1,0 +1,95 @@
+<div class="pgs-page">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <span class="pgs-submission-header">Thank you for your submission. Your submission result can be found below:</span>
+        <button class="btn btn-default pgs-float-right-btn" ng-click="viewLeaderBoard()">Leader Board</button>
+    </nav>
+
+    <div class="pgs-evaluation-summary">
+        <div>Result: {{evaluation.passed}}</div>
+        <div>Real Cost: {{challenge.cost}}</div>
+        <div>Installation Cost: {{challenge.installation_cost}}</div>
+        <div>CO2 Footprint: {{evaluation.CO2}}</div>
+
+        <div class="pgs-evaluation-detail">
+            <div>Below are the simulation results for nodes and lines.</div>
+            <ul class="nav nav-tabs nav-justified">
+                <li class="active nav-link pgs-tab" ng-click="switchTab($event)" data-tab="nodes">
+                    <a>Nodes</a>
+                </li>
+                <li class="nav-link pgs-tab" ng-click="switchTab($event)" data-tab="lines">
+                    <a>Lines</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="pgs-tab-content nodes" ng-if="tab=='nodes'">
+            <div class="btn-group-vertical col-xs-4">
+                <button type="button" class="btn btn-default active" data-index="0" ng-click="switchNode($event)">Northwest</button>
+                <button type="button" class="btn btn-default" data-index="1" ng-click="switchNode($event)">Northeast</button>
+                <button type="button" class="btn btn-default" data-index="2" ng-click="switchNode($event)">Ottawa</button>
+                <button type="button" class="btn btn-default" data-index="3" ng-click="switchNode($event)">East</button>
+                <button type="button" class="btn btn-default" data-index="4" ng-click="switchNode($event)">Toronto</button>
+                <button type="button" class="btn btn-default" data-index="5" ng-click="switchNode($event)">Essa</button>
+                <button type="button" class="btn btn-default" data-index="6" ng-click="switchNode($event)">Bruce</button>
+                <button type="button" class="btn btn-default" data-index="7" ng-click="switchNode($event)">Southwest</button>
+                <button type="button" class="btn btn-default" data-index="8" ng-click="switchNode($event)">Niagara</button>
+                <button type="button" class="btn btn-default" data-index="9" ng-click="switchNode($event)">West</button>
+            </div>
+
+            <div class="col-xs-8">
+                <div class="col-xs-6" style="margin-bottom:24px">
+                    <div>Real Power</div>
+                    <svg id="node-evaluation-real-power-svg" width="300" height="150"></svg>
+                </div>
+                <div class="col-xs-6" style="margin-bottom:24px">
+                    <div>Reactive Power</div>
+                    <svg id="node-evaluation-reactive-power-svg" width="300" height="150"></svg>
+                </div>
+
+                <div class="pgs-annotations">
+                    <span>(*) </span>
+                    <span class="black" style="margin-right:30px">Generated Power __________</span>
+                    <span class="red" style="margin-right:30px">Supplied Power __________</span>
+                </div>
+                <div class="pgs-annotations">
+                    <span>(*) </span>
+                    <span>Results may deviate from theoretical equilibrium for they are calculated based on power simulator after
+                        10 iterations. Please be advised when using the results.</span>
+                </div>
+            </div>
+        </div>
+        <div class="pgs-tab-content lines" ng-if="tab=='lines'">
+            <div class="btn-group-vertical col-xs-4">
+                <button type="button" class="btn btn-default active" data-from="0" data-to="1" ng-click="switchLine($event)">Northwest - Northeast</button>
+                <button type="button" class="btn btn-default" data-from="1" data-to="5" ng-click="switchLine($event)">Northeast - Essa</button>
+                <button type="button" class="btn btn-default" data-from="1" data-to="7" ng-click="switchLine($event)">Northeast - Southwest</button>
+                <button type="button" class="btn btn-default" data-from="2" data-to="3" ng-click="switchLine($event)">Ottawa - East</button>
+                <button type="button" class="btn btn-default" data-from="3" data-to="4" ng-click="switchLine($event)">East - Toronto</button>
+                <button type="button" class="btn btn-default" data-from="3" data-to="5" ng-click="switchLine($event)">East - Essa</button>
+                <button type="button" class="btn btn-default" data-from="4" data-to="5" ng-click="switchLine($event)">Toronto - Essa</button>
+                <button type="button" class="btn btn-default" data-from="4" data-to="7" ng-click="switchLine($event)">Toronto - Southwest</button>
+                <button type="button" class="btn btn-default" data-from="5" data-to="7" ng-click="switchLine($event)">Essa - Southwest</button>
+                <button type="button" class="btn btn-default" data-from="6" data-to="7" ng-click="switchLine($event)">Bruce - Southwest</button>
+                <button type="button" class="btn btn-default" data-from="7" data-to="8" ng-click="switchLine($event)">Southwest - Niagara</button>
+                <button type="button" class="btn btn-default" data-from="7" data-to="9" ng-click="switchLine($event)">Southwest - West</button>
+            </div>
+
+            <div class="col-xs-8">
+                <div class="col-xs-6" style="margin-bottom:24px">
+                    <div>Real Power</div>
+                    <svg id="line-evaluation-real-power-svg" width="300" height="150"></svg>
+                </div>
+                <div class="col-xs-6" style="margin-bottom:24px">
+                    <div>Reactive Power</div>
+                    <svg id="line-evaluation-reactive-power-svg" width="300" height="150"></svg>
+                </div>
+
+                <div class="pgs-annotations">
+                    <span>(*) </span>
+                    <span>Results may deviate from theoretical equilibrium for they are calculated based on power simulator after
+                        10 iterations. Please be advised when using the results.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -85,14 +85,37 @@ class PgsimTestCase(unittest.TestCase):
         rv = self.app.post('/submit/', data=json.dumps(placements),
                        content_type='application/json',
                        headers={"team_name": 'ourteam', "challenge_id": 10})
-        print(rv.data)
+        status = json.loads(rv.data.decode('unicode_escape'))
+        assert not status["success"]
+        assert status["message"] == "Please specify at least one hydro or gas generator for PyPower to process successfully."
         
     def test_submit_simple(self):
         placements = [{'node': 4, 'generators': {'H':1} }]
         rv = self.app.post('/submit/', data=json.dumps(placements),
                             content_type='application/json',
                             headers={"team_name": 'ourteam', "challenge_id": 10})
+        status = json.loads(rv.data.decode('unicode_escape'))
+        assert status["success"]
+        assert not status["eval"]["passed"]
 
+    def test_submit_simple2(self):
+        placements = [{'node': 0, 'generators': {'G':1} }]
+        rv = self.app.post('/submit/', data=json.dumps(placements),
+                            content_type='application/json',
+                            headers={"team_name": 'ourteam', "challenge_id": 10})
+        status = json.loads(rv.data.decode('unicode_escape'))
+        assert status["success"]
+        assert not status["eval"]["passed"]
+
+    def test_submit_simple3(self):
+        placements = [{'node': 0, 'generators': {'N':1} }]
+        rv = self.app.post('/submit/', data=json.dumps(placements),
+                            content_type='application/json',
+                            headers={"team_name": 'ourteam', "challenge_id": 10})
+        status = json.loads(rv.data.decode('unicode_escape'))
+        assert not status["success"]
+        assert status["message"] == "Please specify at least one hydro or gas generator for PyPower to process successfully."
+        
     def test_submit(self):
         placements = [ {"node": 0, "generators": {} }, 
                     {"node": 1, "generators": {'H': 1}},
@@ -107,6 +130,9 @@ class PgsimTestCase(unittest.TestCase):
         rv = self.app.post('/submit/', data=json.dumps(placements),
                             content_type='application/json',
                             headers={"team_name": 'ourteam', "challenge_id": 10})
+        status = json.loads(rv.data.decode('unicode_escape'))
+        assert status["success"]
+        assert status["eval"]["passed"]
         print(rv.data)
 
     # Note: Firebase is not completely realtime, so the following cases are assuming

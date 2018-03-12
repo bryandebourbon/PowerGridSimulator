@@ -1,33 +1,41 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Power Grid Simulator</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="style.css">            
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
-        <script src="https://d3js.org/d3.v3.min.js"></script>
-        <script src="//d3js.org/topojson.v1.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase.js"></script>
 
-        <script src="./app.js"></script>
-        <script src="./service.js"></script>
-        <script src="./directive.js"></script>
+<head>
+    <meta charset="utf-8">
+    <title>Power Grid Simulator</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="//d3js.org/topojson.v1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase.js"></script>
 
-        <script src="./helper.js"></script>
-    </head>
-    <body>
-        <div ng-app="PowerGridSimulator" ng-controller="PowerGridSimulatorController">
-            <login-directive ng-if="state=='login'"></login-directive>
-            <challenges-directive ng-if="state=='challenges'" challenges="challenges"></challenges-directive>
-            <challenge-directive ng-if="state=='grid'" challenge="challenge"></challenge-directive>
-            <evaluation-directive ng-if="state=='evaluation'" evaluation="evaluation"></challenge-directive>
-        </div>
+    <script src="./constants.js"></script>
 
-        <div class="pgs-alert" hidden>
-            <span class="pgs-alert-content"></span>
-        </div>
+    <script src="./app.js"></script>
+    <script src="./service.js"></script>
+    <script src="./directive.js"></script>
+
+    <script src="./helper.js"></script>
+
+</head>
+
+<body>
+    <div id="pgs-app" ng-app="PowerGridSimulator" ng-controller="PowerGridSimulatorController">
+        <login-directive ng-if="state=='login'"></login-directive>
+        <challenges-directive ng-if="state=='challenges'" challenges="challenges"></challenges-directive>
+        <challenge-directive ng-if="state=='grid'" challenge="challenge"></challenge-directive>
+        <evaluation-directive ng-if="state=='evaluation'" evaluation="evaluation"></evaluation-directive>
+        <leader-board-directive ng-if="state=='leaderboard'" teamname="teamname"></leader-board-directive>
+    </div>
+
+    <div class="pgs-alert" hidden>
+        <span class="pgs-alert-content"></span>
+    </div>
+
+    <div class="pgs-spinner" hidden></div>
 </html>

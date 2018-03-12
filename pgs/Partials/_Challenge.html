@@ -1,11 +1,11 @@
 <div class="pgs-page">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand nav-link">{{challenge.name}}</a>
-        <button class="btn btn-default pgs-submit-btn" ng-click="submitChallenge()">Submit</button>
+        <span class="navbar-brand nav-link">{{challenge.name}}</span>
+        <button class="btn btn-default pgs-float-right-btn" ng-click="submitChallenge()">Submit</button>
     </nav>    
     <ul class="nav nav-tabs nav-justified">
         <li class="nav-link pgs-tab" ng-click="switchTab($event)" data-tab="statement"><a>Challenge Statement</a></li>
-        <li class="nav-link pgs-tab active" ng-click="switchTab($event)" data-tab="simulation"><a class="nav-link">Challenge Simulation</a></li>
+        <li class="nav-link pgs-tab active" ng-click="switchTab($event)" data-tab="simulation"><a>Challenge Simulation</a></li>
     </ul>
 
     <div class="pgs-tab-content" ng-if="tab=='statement'">

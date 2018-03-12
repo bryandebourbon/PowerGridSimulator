@@ -20,10 +20,32 @@ var guid = function () {
         s4() + '-' + s4() + s4() + s4();
 }
 
+var multiplexArray = function (data) {
+    var data24h = data.length != 24 ? [] : data;
+
+    if (data.length == 6) {
+        _.forEach(data, function (v) {
+            _.forEach([1, 2, 3, 4], function (i) {
+                data24h.push(v);
+            })
+        })
+    }
+
+    var res = [];
+    _.forEach(data24h, function (v, i) {
+        var info = {
+            key: i,
+            value: v
+        }
+
+        res.push(info);
+    })
+
+    return res;
+}
 var drawLineChart = function (args) {
     // we have the option of drawing a line chart with 1 line or with 2 lines
     // args.container: container id for the chart svg
-    // args.series: number of lines we want to draw in our chart
     // args.data: [[data1](, [data2], [data3], ...)]
 
     var _vis = $(args.container);
@@ -33,13 +55,15 @@ var drawLineChart = function (args) {
 
     var width = vis.attr('width');
     var height = vis.attr('height');
-    var margin = 20;
+    var margin = .15 * width;
+
+    var colors = ['black', 'red'];
 
     var x = d3.scale.linear().range([margin, width - margin]).domain([0, d3.max(args.data[0], function (d) { return d.key; })]);
-    var y = d3.scale.linear().range([height - margin, margin]).domain([0, d3.max(args.data[0], function (d) { return d.value; })]);
+    var y = d3.scale.linear().range([height - margin, margin]).domain([d3.min(args.data[0], function (d) { return d.value; }) < 0 ? d3.min(args.data[0], function (d) { return d.value; }) : 0, d3.max(args.data[0], function (d) { return d.value; }) > 0 ? d3.max(args.data[0], function (d) { return d.value; }) : 0]);
 
     var xAxis = d3.svg.axis().scale(x).ticks(4);
-    var yAxis = d3.svg.axis().scale(y).orient('left').ticks(0);
+    var yAxis = d3.svg.axis().scale(y).orient('left').ticks(1);
 
     vis.append('svg:g')
         .attr('class', 'x pgs-axis')
@@ -56,12 +80,14 @@ var drawLineChart = function (args) {
         .y(function (d) { return y(d.value); })
         .interpolate('basis');
 
-    vis.append('svg:path')
-        .attr('class', 'pgs-path')
-        .attr('d', line(args.data[0]))
-        .attr('stroke', 'green')
-        .attr('stroke-width', 2)
-        .attr('fill', 'none');
+    _.forEach(args.data, function (d, i) {
+        vis.append('svg:path')
+            .attr('class', 'pgs-path')
+            .attr('d', line(args.data[i]))
+            .attr('stroke', colors[i])
+            .attr('stroke-width', 2)
+            .attr('fill', 'none');
+    })
 }
 
 var parsePolynomial = function (args) {
@@ -110,3 +136,14 @@ var hideWarning = function () {
 }
 
 _.delay(function () { $('[data-toggle="tooltip"]').tooltip(); });
+
+var showSpinner = function () {
+    $('#pgs-app').addClass('pgs-dim');
+
+    $('.pgs-spinner').show();
+}
+var hideSpinner = function () {
+    $('#pgs-app').removeClass('pgs-dim');
+    
+    $('.pgs-spinner').hide();
+}

@@ -32,7 +32,6 @@ CORS(pgsim_app)
 # Load default config and override config from an environment variable
 # TODO: can define env var FLASKR_SETTINGS that points to a config file to be loaded
 pgsim_app.config.update(dict(
-    DATABASE=os.path.join(pgsim_app.root_path, 'flaskr.db'), # TODO: is this needed??
     SECRET_KEY='development key', # to keep the client-side sessions secure
     USERNAME='admin',
     PASSWORD='default'
@@ -104,11 +103,12 @@ def get_challenge():
     pr.disable()
     s = io.StringIO()
     sortby = 'cumulative'
-    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-    ps.print_stats()
-    print(s.getvalue(), file=open(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "get_challenge_profile.txt"), 
-        "a"))
+    ps = pstats.Stats(pr, stream=s)
+    if ps.total_tt > 1.0:
+        ps.sort_stats(sortby).print_stats(20)
+        print(s.getvalue(), file=open(
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), "get_challenge_profile.txt"), 
+            "a"))
 
     return challenge
 
@@ -135,11 +135,14 @@ def submit():
     no_gens = True
     for submitted_node in submitted_data:
         gen_placements[int(submitted_node["node"])] = submitted_node["generators"]
-        if submitted_node["generators"]: no_gens = False
+        if "generators" in submitted_node and \
+            (submitted_node["generators"].get("H", 0) > 0 or 
+                submitted_node["generators"].get("G", 0) > 0): 
+            no_gens = False
     if no_gens: 
         return make_response(json.dumps({
             'success': False, 
-            'message': 'Please specify at least one generator.'}))
+            'message': 'Please specify at least one hydro or gas generator for PyPower to process successfully.'}))
 
     # Get the team and challenge ID.
     team_name = request.headers["team_name"]

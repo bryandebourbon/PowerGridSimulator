@@ -26,7 +26,7 @@
 	margin-top: 48px;
 	height: 72px;
 }
-.pgs-submit-btn {
+.pgs-float-right-btn {
 	float: right;
 }
 .pgs-title {
@@ -58,11 +58,6 @@
 	margin: 6px;
 }
 
-.pgs-path {
-	stroke: steelblue;
-	stroke-width: 2px;
-	fill: none;
-}
 .pgs-alert {
 	color: #a94442;
 	background-color: #f2dede;
@@ -87,6 +82,24 @@
     font-size: small;
     margin-top: 24px;
 }
+.pgs-submission-header {
+    margin-bottom: 12px;
+}
+.pgs-evaluation-detail {
+    margin-top: 12px;
+}
+.pgs-annotations {
+    margin-left: 16px;
+    margin-top: 12px;
+    font-size: small;
+    font-style: italic;
+}
+.black {
+    color: black;
+}
+.red {
+    color: red;
+}
 
 .help-tip{
     position: absolute;
@@ -102,54 +115,31 @@
     cursor: default;
 }
 
-.pgs-tooltip:before{
-    content:'?';
-    font-weight: bold;
-    color:#fff;
+.pgs-tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
 }
 
-.pgs-tooltip:hover p{
-    display:block;
-    transform-origin: 100% 0%;
-
-    -webkit-animation: fadeIn 0.3s ease-in-out;
-    animation: fadeIn 0.3s ease-in-out;
-
-}
-
-.pgs-tooltip p{    /* The tooltip */
-    display: none;
-    text-align: left;
-    background-color: #1E2021;
-    padding: 20px;
-    width: 300px;
+.pgs-spinner {
+    border: 8px solid #f3f3f3; /* light grey */
+    border-top: 8px solid #d5d5d5; /* grey */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 2s linear infinite;
     position: absolute;
-    border-radius: 3px;
-    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
-    right: -4px;
-    color: #FFF;
-    font-size: 13px;
-    line-height: 1.4;
+    z-index: 3000;
+    left: calc(45%);
+    top: calc(45%);
+}
+.pgs-dim {
+    opacity: .5;
 }
 
-.pgs-tooltip p:before{ /* The pointer of the tooltip */
-    position: absolute;
-    content: '';
-    width:0;
-    height: 0;
-    border:6px solid transparent;
-    border-bottom-color:#1E2021;
-    right:10px;
-    top:-12px;
-}
-
-.pgs-tooltip p:after{ /* Prevents the tooltip from being hidden */
-    width:100%;
-    height:40px;
-    content:'';
-    position: absolute;
-    top:-40px;
-    left:0;
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* CSS animation */
