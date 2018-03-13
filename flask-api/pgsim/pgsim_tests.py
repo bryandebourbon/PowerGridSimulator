@@ -132,6 +132,25 @@ class PgsimSubmitTestCase(unittest.TestCase):
         assert status["eval"]["passed"]
         print(rv.data)
 
+    def test_submit_ontario(self):
+        placements = [ {"node": 0, "generators": {"H": 1, "S": 2} }, 
+                       {"node": 1, "generators": {"H": 1, "W": 1}},
+                       {"node": 2, "generators": {"N": 2}},
+                       {"node": 3, "generators": {"H": 1, "W": 1}},
+                       {"node": 4, "generators": {"G": 2}},
+                       {"node": 5, "generators": {"H": 1, "W": 1}},
+                       {"node": 6, "generators": {"N": 3}},
+                       {"node": 7, "generators": {"G": 1, "W": 1}},
+                       {"node": 8, "generators": {"H": 2}},
+                       {"node": 9, "generators": {"G": 1, "W": 1}}]
+        rv = self.app.post('/submit/', data=json.dumps(placements),
+                            content_type='application/json',
+                            headers={"team_name": 'ourteam', "challenge_id": 10})
+        status = json.loads(rv.data.decode('unicode_escape'))
+        assert status["success"]
+        assert status["eval"]["passed"]
+        print(rv.data)
+
 class PgsimGetChallengeTestCase(unittest.TestCase):
 
     def setUp(self):
