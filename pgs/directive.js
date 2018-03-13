@@ -16,52 +16,21 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 	$scope.password = '';
 	$scope.teamname = '';
 
-	// uid refers to user id (effectively team id)
-	// we later retrieve a list of challenges visible to a uid
 	$scope.register = function () {
 		var user = { email: $scope.email, password: $scope.password, teamname: $scope.teamname };
 
-		var _authErrorContainer = $('#auth-error-container');
-		var _invalidInputHeader = $('#invalid-input-header');
-		var _firebaseAuthErrorHeader = $('#firebase-auth-error-header');
-		var _authErrorMessage = $('#auth-error-message');
-		var _teamCodeMessage = $('#team-code-message');
-
-		_authErrorMessage.text('');
-
-		_authErrorContainer.hide();
-		_invalidInputHeader.hide();
-		_firebaseAuthErrorHeader.hide();
-		_authErrorMessage.hide();
-		_teamCodeMessage.hide();
-
 		if (user.email && user.email.length < 1) {
-			_authErrorContainer.show();
-			_invalidInputHeader.show();
-			_authErrorMessage.show();
-
-			var errorMessage = 'Email field should not be empty.';
-			_authErrorMessage.text(errorMessage);
+			showWarning('Email field cannot be empty.');
 
 			return;
 		}
 		if (user.password && user.password.length < 5) {
-			_authErrorContainer.show();
-			_invalidInputHeader.show();
-			_authErrorMessage.show();
-
-			var errorMessage = 'Password field should be at least 6 characters.';
-			_authErrorMessage.text(errorMessage);
+			showWarning('Password field should be at least 6 characters.');
 
 			return;
 		}
 		if (user.teamname && user.teamname.length < 1) {
-			_authErrorContainer.show();
-			_invalidInputHeader.show();
-			_authErrorMessage.show();
-
-			var errorMessage = 'Teamname field should not be empty.';
-			_authErrorMessage.text(errorMessage);
+			showWarning('Team Name field should not be empty.');
 
 			return;
 		}
@@ -75,7 +44,8 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 					// Authenticate team.
 					var teamsRef = firebase.database().ref().child('teams');
 					teamsRef.orderByChild('team_name').equalTo(user.teamname).once('value', team => {
-						const data = team.val();
+						var data = team.val();
+
 						if (data) {
 							// enter code and check.
 							var secretCode = _.keys(data)[0];
@@ -662,6 +632,20 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 			})
 		}		
 	}
+	var populateLines = function () {
+		_.forEach($scope.challenge.lines, function (l) {
+			var fromRegion = _.find(nodeMap, function (n) { return n.index == l.from; }) ? _.find(nodeMap, function (n) { return n.index == l.from; }).name : '';
+			var toRegion = _.find(nodeMap, function (n) { return n.index == l.to; }) ? _.find(nodeMap, function (n) { return n.index == l.to; }).name : '';
+			var name = fromRegion + ' - ' + toRegion;
+
+			l.fromRegion = fromRegion;
+			l.toRegion = toRegion;
+			l.name = name;
+		})
+
+		// $scope.line = _.find($scope.challenge.lines, function (l) { return l.from == 0 && l.to == 1; });
+		$scope.line = _.find($scope.challenge.lines, function (l) { return l.from == 1 && l.to == 2; });
+	}
 
 	var processNodeRealReactiveDemands = function () {
 		_.forEach($scope.challenge.nodes || [], function (n) {
@@ -756,11 +740,23 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		}
 	}
 
+	$scope.$watch('target', function (newVal, oldVal) {
+		if (newVal == 'node') {
+			$timeout(function () { $('.pgs-add-button').attr('disabled', false); });
+		} else if (newVal == 'line') {
+			$timeout(function () { $('.pgs-add-button').attr('disabled', true); });
+		}
+	})
+
 	populateGenerators();
 	populateNodes();
+	populateLines();
 
 	processNodeRealReactiveDemands();
 	visualizeNodeRealReactivePowerDemands();
+
+	// $scope.target = 'node';
+	$scope.target = 'line';
 
 	$timeout(function () { $scope.$apply(); });
 }]
