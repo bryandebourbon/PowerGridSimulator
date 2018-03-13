@@ -607,8 +607,8 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 			l.name = name;
 		})
 
-		// $scope.line = _.find($scope.challenge.lines, function (l) { return l.from == 0 && l.to == 1; });
-		$scope.line = _.find($scope.challenge.lines, function (l) { return l.from == 1 && l.to == 2; });
+		$scope.line = _.find($scope.challenge.lines, function (l) { return l.from == 0 && l.to == 1; });
+		// $scope.line = _.find($scope.challenge.lines, function (l) { return l.from == 1 && l.to == 2; });
 	}
 
 	var processNodeRealReactiveDemands = function () {
@@ -631,8 +631,8 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		var realDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.real) ? $scope.node.demands.real : ZERO_VALUE;
 		var reactiveDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.reactive) ? $scope.node.demands.reactive : ZERO_VALUE;
 
-		drawLineChart({ container: realDemandsContainer, series: 1, data: [realDemandsData] });
-		drawLineChart({ container: reactiveDemandsContainer, series: 1, data: [reactiveDemandsData] });
+		drawLineChart({ container: realDemandsContainer, data: [realDemandsData] });
+		drawLineChart({ container: reactiveDemandsContainer, data: [reactiveDemandsData] });
 	}
 
 	$scope.viewGeneratorInfo = function (generator) {
@@ -640,7 +640,6 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		var _generatorProfileDescription = $('#generator-profile-modal .modal-description');
 
 		_generatorProfileTitle.text(generator.type);
-		// _generatorProfileDescription.children().remove();
 
 		_.forEach(generator, function (v, k) {
 			var _entry = $('div[data-key="' + k + '"]');
@@ -651,19 +650,19 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 
 				v = multiplexArray(v);
 
-				drawLineChart({ container: '#generator-profile-real-capacity', series: 1, data: [v] });
+				drawLineChart({ container: '#generator-profile-real-capacity', data: [v] });
 			} else if (k == 'reactive_capacity') {
 				var _svg = _valueContainer.find('svg');
 
 				v = multiplexArray(v);
 
-				drawLineChart({ container: '#generator-profile-reactive-capacity', series: 1, data: [v] });
+				drawLineChart({ container: '#generator-profile-reactive-capacity', data: [v] });
 			} else if (k == 'real_cost') {
 				var _svg = _valueContainer.find('svg');
 
 				v = parsePolynomial(v);
 
-				drawLineChart({ container: '#generator-profile-real-cost', series: 1, data: [v] });
+				drawLineChart({ container: '#generator-profile-real-cost', data: [v] });
 			} else if (k == 'per_node_limit') {
 				_valueContainer.text(v);
 			} else {
@@ -719,8 +718,8 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 	processNodeRealReactiveDemands();
 	visualizeNodeRealReactivePowerDemands();
 
-	// $scope.target = 'node';
-	$scope.target = 'line';
+	$scope.target = 'node';
+	// $scope.target = 'line';
 
 	$timeout(function () { $scope.$apply(); });
 }]
