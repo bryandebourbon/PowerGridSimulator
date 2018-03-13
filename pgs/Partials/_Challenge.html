@@ -10,11 +10,11 @@
         <li class="nav-link pgs-tab active" ng-click="switchTab($event)" data-tab="simulation"><a>Challenge Simulation</a></li>
     </ul>
 
-    <div class="pgs-tab-content" ng-if="tab=='statement'">
+    <div class="pgs-tab-content" ng-show="tab=='statement'">
         {{challenge.description}}
     </div>
 
-    <div class="pgs-tab-content" ng-if="tab=='simulation'">
+    <div class="pgs-tab-content" ng-show="tab=='simulation'">
         <simulator-directive challenge="challenge"></simulator-directive>
     </div>
 </div>
