@@ -10,7 +10,6 @@ app.directive('loginDirective', function () {
 		controller: loginDirectiveController
 	}
 })
-
 var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function ($scope, $rootScope, $DataService) {
 	$scope.email = '';
 	$scope.password = '';
@@ -35,83 +34,38 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 			return;
 		}
 
-		// Sign in with email and pass.
-		firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-			.then(function (firebaseUser) {
-				firebaseUser.updateProfile({
-					displayName: user.teamname
-				}).then(function () {
-					// Authenticate team.
-					var teamsRef = firebase.database().ref().child('teams');
-					teamsRef.orderByChild('team_name').equalTo(user.teamname).once('value', team => {
-						var data = team.val();
+		var teams = firebase.database().ref().child('teams');
+		teams.orderByChild('team_name').equalTo(user.teamname).once('value', function (team) {
+			var data = team.val();
 
-						if (data) {
-							// enter code and check.
-							var secretCode = _.keys(data)[0];
+			if (data) {
+				var secretCode = _.keys(data)[0];
 
-							var _teamSecretCodeModal = $('#team-secret-code-modal');
-							var _distributeTeamSecretCode = $('#distribute-team-secret-code');
-							var _collectTeamSecretCode = $('#collect-team-secret-code');
-							var _secretCodeInput = $('#secret-code-input');
+				var _teamSecretCodeModal = $('#team-secret-code-modal');
+				var _distributeTeamSecretCode = $('#distribute-team-secret-code');
+				var _collectTeamSecretCode = $('#collect-team-secret-code');
+				var _secretCodeInput = $('#secret-code-input');
 
-							_distributeTeamSecretCode.hide();
-							_collectTeamSecretCode.show();
+				_distributeTeamSecretCode.hide();
+				_collectTeamSecretCode.show();
 
-							_secretCodeInput.val('');
+				_secretCodeInput.val('');
 
-							$('#team-secret-code-modal').modal('show');
+				$('#team-secret-code-modal').modal('show');
 
-							$('#submit-secret-code').on('click', function (evt) {
-								var inputCode = $('#secret-code-input').val();
+				$('#submit-secret-code').on('click', function (evt) {
+					var inputCode = $('#secret-code-input').val();
 
-								if (inputCode == secretCode) {
-									$('#team-secret-code-modal').modal('hide');
+					if (inputCode == secretCode) {
+						$('#team-secret-code-modal').modal('hide');
 
-									showSpinner();
-									
-									$DataService.getChallenge({ teamname: user.teamname, challengeID: 10 })
-										.then(function (data) {
-											hideSpinner();
+						showSpinner();
 
-											$.cookie('teamname', $scope.teamname);
-											$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
-										}).catch(function (error) {
-											console.log(error);
-										})
-								} else {
-									showWarning('Wrong team secret code, please re-enter.');
-								}
-							})
-						} else {
-							// else if team doesn't exist, push to teams/ db.
-							var secretCode = teamsRef.push().key;
-							teamsRef.orderByChild('team_id').limitToLast(1).once('value', lastTeam => {
-								const lastTeamData = Object.values(lastTeam.val())[0];
-								var teamID = 1 + +lastTeamData.team_id;
-								var newTeam = {};
-								newTeam[secretCode] = {
-									'team_id': teamID,
-									'team_name': user.teamname
-								};
-								teamsRef.update(newTeam);
-
-								var _teamSecretCodeModal = $('#team-secret-code-modal');
-								var _distributeTeamSecretCode = $('#distribute-team-secret-code');
-								var _collectTeamSecretCode = $('#collect-team-secret-code');
-								var _secretCode = $('.pgs-secret-code');
-								var _submitSecretCodeButton = $('#submit-secret-code');
-
-								_distributeTeamSecretCode.show();
-								_collectTeamSecretCode.hide();
-								_submitSecretCodeButton.hide();
-
-								_secretCode.text(secretCode);
-
-								$('#team-secret-code-modal').modal('show');
-
-								$('#team-secret-code-modal').on('hide.bs.modal', function (evt) {
-									showSpinner();
+						firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+							.then(function (firebaseUser) {
+								firebaseUser.updateProfile({
+									displayName: user.teamname
+								}).then(function () {
 
 									$DataService.getChallenge({ teamname: user.teamname, challengeID: 10 })
 										.then(function (data) {
@@ -120,77 +74,105 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 											$.cookie('teamname', $scope.teamname);
 											$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
 										}).catch(function (error) {
-											console.log(error);
+											hideSpinner();
+
+											showWarning(error);
 										})
+								}).catch(function (error) {
+									hideSpinner();
+
+									showWarning(error.message);
 								})
-							});
-						}
-					});
+							}).catch(function (error) {
+								hideSpinner();
 
-				}, function (error) {
-					console.log('could not update your team');
-				});
-			}, function (error) {
-				_authErrorContainer.show();
-				_firebaseAuthErrorHeader.show();
-				_authErrorMessage.show();
+								showWarning(error.message);
+							})
+					} else {
+						showWarning('Wrong team secret code, please re-enter.');
+					}
+				})
+			} else {
+				var secretCode = teams.push().key;
 
-				_authErrorMessage.text(error.message);
-			})
+				var _teamSecretCodeModal = $('#team-secret-code-modal');
+				var _distributeTeamSecretCode = $('#distribute-team-secret-code');
+				var _collectTeamSecretCode = $('#collect-team-secret-code');
+				var _secretCode = $('.pgs-secret-code');
+				var _submitSecretCodeButton = $('#submit-secret-code');
+
+				_distributeTeamSecretCode.show();
+				_collectTeamSecretCode.hide();
+				_submitSecretCodeButton.hide();
+
+				_secretCode.text(secretCode);
+
+				$('#team-secret-code-modal').modal('show');
+
+				$('#team-secret-code-modal').on('hide.bs.modal', function (evt) {
+					showSpinner();
+
+					firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+						.then(function (firebaseUser) {
+							firebaseUser.updateProfile({
+								displayName: user.teamname
+							}).then(function () {
+								teams.orderByChild('team_id').limitToLast(1).once('value', function (teamData) {
+									var teamID = _.head(_.values(teamData.val())).team_id + 1;
+
+									var newTeam = {};
+									newTeam[secretCode] = { team_id: teamID, team_name: user.teamname };
+
+									teams.update(newTeam);
+
+									$DataService.getChallenge({ teamname: user.teamname, challengeID: 10 })
+										.then(function (data) {
+											hideSpinner();
+
+											$.cookie('teamname', $scope.teamname);
+											$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
+										}).catch(function (error) {
+											hideSpinner();
+
+											showWarning(error);
+										})
+								}).catch(function (error) {
+									hideSpinner();
+
+									showWarning(error);
+								})
+							})
+						}).catch(function (error) {
+							hideSpinner();
+
+							showWarning(error.message);
+						})
+				})
+			}
+		})
 	}
 
 	$scope.login = function () {
 		var user = { email: $scope.email, password: $scope.password || '', teamname: $scope.teamname || '' };
 
-		var _authErrorContainer = $('#auth-error-container');
-		var _invalidInputHeader = $('#invalid-input-header');
-		var _firebaseAuthErrorHeader = $('#firebase-auth-error-header');
-		var _authErrorMessage = $('#auth-error-message');
-
-		_authErrorMessage.text('');
-
-		_authErrorContainer.hide();
-		_invalidInputHeader.hide();
-		_firebaseAuthErrorHeader.hide();
-		_authErrorMessage.hide();
-
 		if (user.email && user.email.length < 1) {
-			_authErrorContainer.show();
-			_invalidInputHeader.show();
-			_authErrorMessage.show();
-
-			var errorMessage = 'Email field should not be empty.';
-			_authErrorMessage.text(errorMessage);
+			showWarning('Email field should not be empty.');
 
 			return;
 		}
 		if (user.password && user.password.length < 1) {
-			_authErrorContainer.show();
-			_invalidInputHeader.show();
-			_authErrorMessage.show();
-
-			var errorMessage = 'Password field should not be empty.';
-			_authErrorMessage.text(errorMessage);
+			showWarning('Password field should not be empty.');
 
 			return;
 		}
 		if (user.teamname && user.teamname.length < 1) {
-			_authErrorContainer.show();
-			_invalidInputHeader.show();
-			_authErrorMessage.show();
-
-			var errorMessage = 'Teamname field should not be empty.';
-			_authErrorMessage.text(errorMessage);
+			showWarning('Team Name field should not be empty.');
 
 			return;
 		}
 
 		firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch(function (error) {
-			_authErrorContainer.show();
-			_firebaseAuthErrorHeader.show();
-			_authErrorMessage.show();
-
-			_authErrorMessage.text(error.message);
+			showWarning(error);
 
 			return;
 		});
@@ -204,7 +186,9 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 				$.cookie('teamname', $scope.teamname);
 				$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
 			}).catch(function (error) {
-				reject(error);
+				hideSpinner();
+
+				showWarning(error);
 			})
 	}
 }]
@@ -219,15 +203,10 @@ app.directive('challengesDirective', function () {
 		controller: challengesDirectiveController
 	}
 })
-
 var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
 	var processChallenges = function () {
 		_.forEach($scope.challenges, function (c) {
-			if (_.size(c.saved_challenge) == 0) {
-				c.saved = 'False';
-			} else {
-				c.saved = 'True';
-			}
+			c.saved = _.size(c.saved_challenge) == 0 ? 'False' : 'True';
 		})
 	}
 
@@ -267,7 +246,6 @@ app.directive('challengeDirective', function () {
 		controller: challengeDirectiveController
 	}
 })
-
 var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataService', function ($scope, $rootScope, $timeout, $DataService) {
 	$scope.tab = 'simulation';
 
@@ -643,8 +621,8 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 			l.name = name;
 		})
 
-		// $scope.line = _.find($scope.challenge.lines, function (l) { return l.from == 0 && l.to == 1; });
-		$scope.line = _.find($scope.challenge.lines, function (l) { return l.from == 1 && l.to == 2; });
+		$scope.line = _.find($scope.challenge.lines, function (l) { return l.from == 0 && l.to == 1; });
+		// $scope.line = _.find($scope.challenge.lines, function (l) { return l.from == 1 && l.to == 2; });
 	}
 
 	var processNodeRealReactiveDemands = function () {
@@ -667,8 +645,8 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		var realDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.real) ? $scope.node.demands.real : ZERO_VALUE;
 		var reactiveDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.reactive) ? $scope.node.demands.reactive : ZERO_VALUE;
 
-		drawLineChart({ container: realDemandsContainer, series: 1, data: [realDemandsData] });
-		drawLineChart({ container: reactiveDemandsContainer, series: 1, data: [reactiveDemandsData] });
+		drawLineChart({ container: realDemandsContainer, data: [realDemandsData] });
+		drawLineChart({ container: reactiveDemandsContainer, data: [reactiveDemandsData] });
 	}
 
 	$scope.viewGeneratorInfo = function (generator) {
@@ -676,7 +654,6 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		var _generatorProfileDescription = $('#generator-profile-modal .modal-description');
 
 		_generatorProfileTitle.text(generator.type);
-		// _generatorProfileDescription.children().remove();
 
 		_.forEach(generator, function (v, k) {
 			var _entry = $('div[data-key="' + k + '"]');
@@ -687,19 +664,19 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 
 				v = multiplexArray(v);
 
-				drawLineChart({ container: '#generator-profile-real-capacity', series: 1, data: [v] });
+				drawLineChart({ container: '#generator-profile-real-capacity', data: [v] });
 			} else if (k == 'reactive_capacity') {
 				var _svg = _valueContainer.find('svg');
 
 				v = multiplexArray(v);
 
-				drawLineChart({ container: '#generator-profile-reactive-capacity', series: 1, data: [v] });
+				drawLineChart({ container: '#generator-profile-reactive-capacity', data: [v] });
 			} else if (k == 'real_cost') {
 				var _svg = _valueContainer.find('svg');
 
 				v = parsePolynomial(v);
 
-				drawLineChart({ container: '#generator-profile-real-cost', series: 1, data: [v] });
+				drawLineChart({ container: '#generator-profile-real-cost', data: [v] });
 			} else if (k == 'per_node_limit') {
 				_valueContainer.text(v);
 			} else {
@@ -755,8 +732,8 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 	processNodeRealReactiveDemands();
 	visualizeNodeRealReactivePowerDemands();
 
-	// $scope.target = 'node';
-	$scope.target = 'line';
+	$scope.target = 'node';
+	// $scope.target = 'line';
 
 	$timeout(function () { $scope.$apply(); });
 }]
@@ -772,7 +749,6 @@ app.directive('evaluationDirective', function () {
 		controller: evaluationDirectiveController
 	}
 })
-
 var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataService', function ($scope, $rootScope, $timeout, $DataService) {
 	$scope.tab = 'nodes';
 
