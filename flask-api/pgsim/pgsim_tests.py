@@ -45,10 +45,38 @@ class PypowerTestCase(unittest.TestCase):
                 expected_bus_data[i, 2])
             np.testing.assert_almost_equal(node["generated"]["reactive"], 
                 expected_bus_data[i, 3])
-            np.testing.assert_almost_equal(node["supplied"]["real"], 
-                expected_bus_data[i, 0]*cos(radians(expected_bus_data[i, 1])))
-            np.testing.assert_almost_equal(node["supplied"]["reactive"], 
-                expected_bus_data[i, 0]*sin(radians(expected_bus_data[i, 1])))
+    
+    def test_runopf_simple(self):
+        ppc = {
+                "version":  '2', 
+                "baseMVA":  100.0,
+                "bus":      np.array([
+                    [1,  3,  10,    0,   0, 0,  1, 0,    0,    0, 1, 1.0, 0.94],
+                    [2,  2,  5,    0,   0, 0,  1, 0,    0,    0, 1, 1.0, 0.94]]),
+                "gen":      np.array([[ 2,  0,  0, 15, -15, 1.045, 100, 1, 20,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]),
+                "branch":   np.array([[1,   2, 0.01938, 0.05917, 0.0528, 9900, 0, 0, 0,     0, 1, -360, 360]]),
+                "gencost":  np.array([[2, 0, 0, 2, 50, 0]])
+            }
+        pf_results = runopf(ppc)
+        pf_metrics = read_pfresults.convert_to_metrics(pf_results)
+        print(pf_metrics)
+
+    def test_runopf_simple2(self):
+        ppc = {
+                "version":  '2', 
+                "baseMVA":  100.0,
+                "bus":      np.array([
+                    [1,  3,  10,    0,   0, 0,  1, 0,    0,    0, 1, 1.06, 0.94],
+                    [2,  2,  5,     0,   0, 0,  1, 0,    0,    0, 1, 1.06, 0.94],
+                    [3,  2,  20,     0,   0, 0,  1, 0,    0,    0, 1, 1.06, 0.94]]),
+                "gen":      np.array([[ 2,  0,  0, 30, -30, 1.045, 100, 1, 40,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]),
+                "branch":   np.array([[1,   2, 0.01938, 0.05917, 0.0528, 9900, 0, 0, 0,     0, 1, -360, 360],
+                                      [2,   3, 0.01938, 0.05917, 0.0528, 9900, 0, 0, 0,     0, 1, -360, 360]]),
+                "gencost":  np.array([[2, 0, 0, 2, 50, 50]])
+            }
+        pf_results = runopf(ppc)
+        pf_metrics = read_pfresults.convert_to_metrics(pf_results)
+        print(pf_metrics)
 
 class PgsimutilsTestCase(unittest.TestCase):
     def setUp(self):

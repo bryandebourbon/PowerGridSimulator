@@ -152,13 +152,15 @@ def convert_to_metrics(baseMVA, bus=None, gen=None, branch=None, f=None, success
         mag = bus[bus_idx, VM]
         angle = radians(bus[bus_idx, VA])
         pf_metrics["buses"][bus_idx] = {
-                "supplied": {"real": cos(angle) * mag, "reactive": sin(angle) * mag}, 
+                "supplied": {"real": 0, "reactive": 0}, 
                 "generated": {"real": 0, "reactive": 0}
             }
     for gen_node in gen:
         bus_idx = int(gen_node[GEN_BUS]) - 1
         pf_metrics["buses"][bus_idx]["generated"]["real"] += gen_node[PG]
         pf_metrics["buses"][bus_idx]["generated"]["reactive"] += gen_node[QG]
+        pf_metrics["buses"][bus_idx]["supplied"]["real"] += gen_node[PG]
+        pf_metrics["buses"][bus_idx]["supplied"]["reactive"] += gen_node[QG]
 
     # see how much power is transmitted through each line
     pf_metrics["transmissions"] = {}
@@ -166,6 +168,13 @@ def convert_to_metrics(baseMVA, bus=None, gen=None, branch=None, f=None, success
         pf_metrics["transmissions"][(int(branch[i, F_BUS]) - 1, int(branch[i, T_BUS]) - 1)] = \
                 {'real_power':       branch[i, PF],
                  'reactive_power':   branch[i, QF]}
+
+    for line, line_trans in pf_metrics["transmissions"].items():
+        from_idx, to_idx = line
+        pf_metrics["buses"][from_idx]["supplied"]["real"] -= line_trans["real_power"]
+        pf_metrics["buses"][from_idx]["supplied"]["reactive"] -= line_trans["reactive_power"]
+        pf_metrics["buses"][to_idx]["supplied"]["real"] += line_trans["real_power"]
+        pf_metrics["buses"][to_idx]["supplied"]["reactive"] += line_trans["reactive_power"]
 
     ## parameters
     ties = find(bus[e2i[branch[:, F_BUS].astype(int)], BUS_AREA] !=
