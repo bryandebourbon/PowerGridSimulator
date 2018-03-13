@@ -10,7 +10,6 @@ app.directive('loginDirective', function () {
 		controller: loginDirectiveController
 	}
 })
-
 var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function ($scope, $rootScope, $DataService) {
 	$scope.email = '';
 	$scope.password = '';
@@ -157,6 +156,7 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 		}
 
 		firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch(function (error) {
+			showWarning(error);
 
 			return;
 		});
@@ -170,7 +170,9 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 				$.cookie('teamname', $scope.teamname);
 				$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
 			}).catch(function (error) {
-				reject(error);
+				hideSpinner();
+
+				showWarning(error);
 			})
 	}
 }]
@@ -185,15 +187,10 @@ app.directive('challengesDirective', function () {
 		controller: challengesDirectiveController
 	}
 })
-
 var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
 	var processChallenges = function () {
 		_.forEach($scope.challenges, function (c) {
-			if (_.size(c.saved_challenge) == 0) {
-				c.saved = 'False';
-			} else {
-				c.saved = 'True';
-			}
+			c.saved = _.size(c.saved_challenge) == 0 ? 'False' : 'True';
 		})
 	}
 
@@ -233,7 +230,6 @@ app.directive('challengeDirective', function () {
 		controller: challengeDirectiveController
 	}
 })
-
 var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataService', function ($scope, $rootScope, $timeout, $DataService) {
 	$scope.tab = 'simulation';
 
@@ -737,7 +733,6 @@ app.directive('evaluationDirective', function () {
 		controller: evaluationDirectiveController
 	}
 })
-
 var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataService', function ($scope, $rootScope, $timeout, $DataService) {
 	$scope.tab = 'nodes';
 
