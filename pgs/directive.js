@@ -61,16 +61,32 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 
 						showSpinner();
 
-						$DataService.getChallenge({ teamname: user.teamname, challengeID: 10 })
-							.then(function (data) {
-								hideSpinner();
+						firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+							.then(function (firebaseUser) {
+								firebaseUser.updateProfile({
+									displayName: user.teamname
+								}).then(function () {
 
-								$.cookie('teamname', $scope.teamname);
-								$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
+									$DataService.getChallenge({ teamname: user.teamname, challengeID: 10 })
+										.then(function (data) {
+											hideSpinner();
+
+											$.cookie('teamname', $scope.teamname);
+											$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
+										}).catch(function (error) {
+											hideSpinner();
+
+											showWarning(error);
+										})
+								}).catch(function (error) {
+									hideSpinner();
+
+									showWarning(error.message);
+								})
 							}).catch(function (error) {
 								hideSpinner();
 
-								showWarning(error);
+								showWarning(error.message);
 							})
 					} else {
 						showWarning('Wrong team secret code, please re-enter.');
