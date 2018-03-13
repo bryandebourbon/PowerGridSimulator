@@ -35,83 +35,80 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 			return;
 		}
 
-		// Sign in with email and pass.
-		firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-			.then(function (firebaseUser) {
-				firebaseUser.updateProfile({
-					displayName: user.teamname
-				}).then(function () {
-					// Authenticate team.
-					var teamsRef = firebase.database().ref().child('teams');
-					teamsRef.orderByChild('team_name').equalTo(user.teamname).once('value', team => {
-						var data = team.val();
+		var teams = firebase.database().ref().child('teams');
+		teams.orderByChild('team_name').equalTo(user.teamname).once('value', function (team) {
+			var data = team.val();
 
-						if (data) {
-							// enter code and check.
-							var secretCode = _.keys(data)[0];
+			if (data) {
+				var secretCode = _.keys(data)[0];
 
-							// var _teamSecretCodeModal = $('#team-secret-code-modal');
-							// var _distributeTeamSecretCode = $('#distribute-team-secret-code');
-							// var _collectTeamSecretCode = $('#collect-team-secret-code');
-							// var _secretCodeInput = $('#secret-code-input');
+				var _teamSecretCodeModal = $('#team-secret-code-modal');
+				var _distributeTeamSecretCode = $('#distribute-team-secret-code');
+				var _collectTeamSecretCode = $('#collect-team-secret-code');
+				var _secretCodeInput = $('#secret-code-input');
 
-							// _distributeTeamSecretCode.hide();
-							// _collectTeamSecretCode.show();
+				_distributeTeamSecretCode.hide();
+				_collectTeamSecretCode.show();
 
-							// _secretCodeInput.val('');
+				_secretCodeInput.val('');
 
-							// $('#team-secret-code-modal').modal('show');
+				$('#team-secret-code-modal').modal('show');
 
-							// $('#submit-secret-code').on('click', function (evt) {
-								var inputCode = $('#secret-code-input').val();
+				$('#submit-secret-code').on('click', function (evt) {
+					var inputCode = $('#secret-code-input').val();
 
-								if (inputCode == secretCode) {
-									$('#team-secret-code-modal').modal('hide');
+					if (inputCode == secretCode) {
+						$('#team-secret-code-modal').modal('hide');
 
-									showSpinner();
-									
-									$DataService.getChallenge({ teamname: user.teamname, challengeID: 10 })
-										.then(function (data) {
-											hideSpinner();
+						showSpinner();
 
-											$.cookie('teamname', $scope.teamname);
-											$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
-										}).catch(function (error) {
-											console.log(error);
-										})
-								} else {
-									showWarning('Wrong team secret code, please re-enter.');
-								}
-							// })
-						} else {
-							// else if team doesn't exist, push to teams/ db.
-							var secretCode = teamsRef.push().key;
-							teamsRef.orderByChild('team_id').limitToLast(1).once('value', lastTeam => {
-								const lastTeamData = Object.values(lastTeam.val())[0];
-								var teamID = 1 + +lastTeamData.team_id;
-								var newTeam = {};
-								newTeam[secretCode] = {
-									'team_id': teamID,
-									'team_name': user.teamname
-								};
-								teamsRef.update(newTeam);
+						$DataService.getChallenge({ teamname: user.teamname, challengeID: 10 })
+							.then(function (data) {
+								hideSpinner();
 
-								// var _teamSecretCodeModal = $('#team-secret-code-modal');
-								// var _distributeTeamSecretCode = $('#distribute-team-secret-code');
-								// var _collectTeamSecretCode = $('#collect-team-secret-code');
-								// var _secretCode = $('.pgs-secret-code');
-								// var _submitSecretCodeButton = $('#submit-secret-code');
+								$.cookie('teamname', $scope.teamname);
+								$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
+							}).catch(function (error) {
+								hideSpinner();
 
-								// _distributeTeamSecretCode.show();
-								// _collectTeamSecretCode.hide();
-								// _submitSecretCodeButton.hide();
+								showWarning(error);
+							})
+					} else {
+						showWarning('Wrong team secret code, please re-enter.');
+					}
+				})
+			} else {
+				var secretCode = teams.push().key;
 
-								// _secretCode.text(secretCode);
+				var _teamSecretCodeModal = $('#team-secret-code-modal');
+				var _distributeTeamSecretCode = $('#distribute-team-secret-code');
+				var _collectTeamSecretCode = $('#collect-team-secret-code');
+				var _secretCode = $('.pgs-secret-code');
+				var _submitSecretCodeButton = $('#submit-secret-code');
 
-								// $('#team-secret-code-modal').modal('show');
+				_distributeTeamSecretCode.show();
+				_collectTeamSecretCode.hide();
+				_submitSecretCodeButton.hide();
 
-								// $('#team-secret-code-modal').on('hide.bs.modal', function (evt) {
-									showSpinner();
+				_secretCode.text(secretCode);
+
+				$('#team-secret-code-modal').modal('show');
+
+				$('#team-secret-code-modal').on('hide.bs.modal', function (evt) {
+					showSpinner();
+
+					firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+						.then(function (firebaseUser) {
+							firebaseUser.updateProfile({
+								displayName: user.teamname
+							}).then(function () {
+								teams.orderByChild('team_id').limitToLast(1).once('value', function (teamData) {
+									var teamID = _.head(_.values(teamData.val())).team_id + 1;
+
+									var newTeam = {};
+									newTeam[secretCode] = { team_id: teamID, team_name: user.teamname };
+
+									teams.update(newTeam);
 
 									$DataService.getChallenge({ teamname: user.teamname, challengeID: 10 })
 										.then(function (data) {
@@ -120,19 +117,24 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 											$.cookie('teamname', $scope.teamname);
 											$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
 										}).catch(function (error) {
-											console.log(error);
-										})
-								// })
-							});
-						}
-					});
+											hideSpinner();
 
-				}, function (error) {
-					showWarning('Cannot update your team. Please try again later.');
-				});
-			}, function (error) {
-				showWarning(error.message);
-			})
+											showWarning(error);
+										})
+								}).catch(function (error) {
+									hideSpinner();
+
+									showWarning(error);
+								})
+							})
+						}).catch(function (error) {
+							hideSpinner();
+
+							showWarning(error.message);
+						})
+				})
+			}
+		})
 	}
 
 	$scope.login = function () {
