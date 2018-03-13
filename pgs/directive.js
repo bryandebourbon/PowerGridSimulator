@@ -231,6 +231,7 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 			.then(function (data) {
 				hideSpinner();
 				
+				$.cookie('teamname', $scope.teamname);
 				$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
 			}).catch(function (error) {
 				reject(error);
@@ -327,7 +328,18 @@ var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSer
 	}
 
 	$scope.goBack = function () {
-		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [$scope.challenge] }); });
+		showSpinner();
+
+		$DataService.getChallenge({ teamname: $.cookie('teamname'), challengeID: 10 })
+			.then(function (data) {
+				hideSpinner();
+
+				$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
+			}).catch(function (error) {
+				console.log(error);
+			})
+
+		// $timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [$scope.challenge] }); });
 	}
 }]
 
@@ -623,6 +635,32 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		}
 
 		$scope.node = _.find($scope.challenge.nodes, function (n) { return n.index == 0; });
+
+		if (_.size($scope.challenge.saved_challenge) != 0) {
+			_.forEach($scope.challenge.saved_challenge, function (generators, i) {
+				var node = _.find($scope.challenge.nodes, function (n) { return n.index == i; });
+				
+				_.forEach(generators, function (count, typeAbbriviation) {
+					var generatorType = _.find(generatorTypeMap, function (g) { return g.abbreviation == typeAbbriviation; });
+					if (generatorType) {
+						var type = generatorType.display;
+					}
+
+					var generator = _.find(node.generators, function (g) { return g.type == type || ''; });
+
+					if (generator) {
+						generator.count ++;
+					} else {
+						node.generators.push({ type: type, count: 1 });
+					}
+
+					var inventoryGenerator = _.find($scope.challenge.generators, function (g) { return g.type == type; });
+					if (inventoryGenerator) {
+						inventoryGenerator.count --;
+					}
+				})
+			})
+		}		
 	}
 
 	var processNodeRealReactiveDemands = function () {
@@ -813,7 +851,18 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 	}
 
 	$scope.goBack = function () {
-		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: $scope.challenge }); });
+		showSpinner();
+
+		$DataService.getChallenge({ teamname: $.cookie('teamname'), challengeID: 10 })
+			.then(function (data) {
+				hideSpinner();
+
+				$rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: data });
+			}).catch(function (error) {
+				console.log(error);
+			})
+
+		// $timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: $scope.challenge }); });
 	}
 
 	var processNodes = function () {
