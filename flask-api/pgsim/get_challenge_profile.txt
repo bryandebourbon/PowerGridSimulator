@@ -288,3 +288,32 @@
 
 
 
+         20452 function calls (20274 primitive calls) in 1.673 seconds
+
+   Ordered by: cumulative time
+   List reduced from 911 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        2    0.000    0.000    1.672    0.836 /anaconda3/lib/python3.6/site-packages/firebase_admin/db.py:505(get)
+        2    0.000    0.000    1.672    0.836 /anaconda3/lib/python3.6/site-packages/firebase_admin/_http_client.py:92(body)
+        2    0.000    0.000    1.672    0.836 /anaconda3/lib/python3.6/site-packages/firebase_admin/db.py:746(request)
+        2    0.000    0.000    1.672    0.836 /anaconda3/lib/python3.6/site-packages/firebase_admin/_http_client.py:64(request)
+        2    0.000    0.000    1.671    0.836 /anaconda3/lib/python3.6/site-packages/google/auth/transport/requests.py:181(request)
+        3    0.000    0.000    1.667    0.556 /anaconda3/lib/python3.6/site-packages/requests/sessions.py:441(request)
+        3    0.000    0.000    1.553    0.518 /anaconda3/lib/python3.6/site-packages/requests/sessions.py:589(send)
+        3    0.000    0.000    1.541    0.514 /anaconda3/lib/python3.6/site-packages/requests/adapters.py:388(send)
+        3    0.000    0.000    1.538    0.513 /anaconda3/lib/python3.6/site-packages/urllib3/connectionpool.py:447(urlopen)
+        3    0.000    0.000    1.536    0.512 /anaconda3/lib/python3.6/site-packages/urllib3/connectionpool.py:322(_make_request)
+        1    0.000    0.000    0.978    0.978 /Users/jane/Documents/Academics/capstone/PowerGridSimulator/flask-api/pgsim/db_utils.py:27(get_team_id)
+       53    0.000    0.000    0.904    0.017 {method 'readline' of '_io.BufferedReader' objects}
+        5    0.000    0.000    0.904    0.181 /anaconda3/lib/python3.6/socket.py:572(readinto)
+        5    0.000    0.000    0.904    0.181 /anaconda3/lib/python3.6/site-packages/urllib3/contrib/pyopenssl.py:278(recv_into)
+        5    0.000    0.000    0.904    0.181 /anaconda3/lib/python3.6/site-packages/OpenSSL/SSL.py:1598(recv_into)
+        5    0.904    0.181    0.904    0.181 {built-in method _openssl.SSL_read}
+        3    0.000    0.000    0.898    0.299 /anaconda3/lib/python3.6/http/client.py:1287(getresponse)
+        3    0.000    0.000    0.898    0.299 /anaconda3/lib/python3.6/http/client.py:290(begin)
+        3    0.000    0.000    0.894    0.298 /anaconda3/lib/python3.6/http/client.py:257(_read_status)
+        1    0.000    0.000    0.694    0.694 /Users/jane/Documents/Academics/capstone/PowerGridSimulator/flask-api/pgsim/db_utils.py:118(get_saved_challenge)
+
+
+

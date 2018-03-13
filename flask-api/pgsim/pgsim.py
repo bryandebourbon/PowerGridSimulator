@@ -88,7 +88,7 @@ def get_challenge():
                 "reactive": ppc_utils.reactive_demand_profiles[:,node].tolist()} 
                 for node in range(ppc_utils.real_demand_profiles.shape[1])]
 
-    lines = [{"from": int(line[F_BUS]), "to": int(line[T_BUS]), "capacity": float(line[RATE_A])} 
+    lines = [{"from": int(line[F_BUS]) - 1, "to": int(line[T_BUS]) - 1, "capacity": float(line[RATE_A])} 
                 for line in ppc_utils.transmission_limits]
 
     challenge = make_response(json.dumps(
