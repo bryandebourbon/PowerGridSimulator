@@ -50,19 +50,19 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 							// enter code and check.
 							var secretCode = _.keys(data)[0];
 
-							var _teamSecretCodeModal = $('#team-secret-code-modal');
-							var _distributeTeamSecretCode = $('#distribute-team-secret-code');
-							var _collectTeamSecretCode = $('#collect-team-secret-code');
-							var _secretCodeInput = $('#secret-code-input');
+							// var _teamSecretCodeModal = $('#team-secret-code-modal');
+							// var _distributeTeamSecretCode = $('#distribute-team-secret-code');
+							// var _collectTeamSecretCode = $('#collect-team-secret-code');
+							// var _secretCodeInput = $('#secret-code-input');
 
-							_distributeTeamSecretCode.hide();
-							_collectTeamSecretCode.show();
+							// _distributeTeamSecretCode.hide();
+							// _collectTeamSecretCode.show();
 
-							_secretCodeInput.val('');
+							// _secretCodeInput.val('');
 
-							$('#team-secret-code-modal').modal('show');
+							// $('#team-secret-code-modal').modal('show');
 
-							$('#submit-secret-code').on('click', function (evt) {
+							// $('#submit-secret-code').on('click', function (evt) {
 								var inputCode = $('#secret-code-input').val();
 
 								if (inputCode == secretCode) {
@@ -82,7 +82,7 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 								} else {
 									showWarning('Wrong team secret code, please re-enter.');
 								}
-							})
+							// })
 						} else {
 							// else if team doesn't exist, push to teams/ db.
 							var secretCode = teamsRef.push().key;
@@ -96,21 +96,21 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 								};
 								teamsRef.update(newTeam);
 
-								var _teamSecretCodeModal = $('#team-secret-code-modal');
-								var _distributeTeamSecretCode = $('#distribute-team-secret-code');
-								var _collectTeamSecretCode = $('#collect-team-secret-code');
-								var _secretCode = $('.pgs-secret-code');
-								var _submitSecretCodeButton = $('#submit-secret-code');
+								// var _teamSecretCodeModal = $('#team-secret-code-modal');
+								// var _distributeTeamSecretCode = $('#distribute-team-secret-code');
+								// var _collectTeamSecretCode = $('#collect-team-secret-code');
+								// var _secretCode = $('.pgs-secret-code');
+								// var _submitSecretCodeButton = $('#submit-secret-code');
 
-								_distributeTeamSecretCode.show();
-								_collectTeamSecretCode.hide();
-								_submitSecretCodeButton.hide();
+								// _distributeTeamSecretCode.show();
+								// _collectTeamSecretCode.hide();
+								// _submitSecretCodeButton.hide();
 
-								_secretCode.text(secretCode);
+								// _secretCode.text(secretCode);
 
-								$('#team-secret-code-modal').modal('show');
+								// $('#team-secret-code-modal').modal('show');
 
-								$('#team-secret-code-modal').on('hide.bs.modal', function (evt) {
+								// $('#team-secret-code-modal').on('hide.bs.modal', function (evt) {
 									showSpinner();
 
 									$DataService.getChallenge({ teamname: user.teamname, challengeID: 10 })
@@ -122,75 +122,39 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 										}).catch(function (error) {
 											console.log(error);
 										})
-								})
+								// })
 							});
 						}
 					});
 
 				}, function (error) {
-					console.log('could not update your team');
+					showWarning('Cannot update your team. Please try again later.');
 				});
 			}, function (error) {
-				_authErrorContainer.show();
-				_firebaseAuthErrorHeader.show();
-				_authErrorMessage.show();
-
-				_authErrorMessage.text(error.message);
+				showWarning(error.message);
 			})
 	}
 
 	$scope.login = function () {
 		var user = { email: $scope.email, password: $scope.password || '', teamname: $scope.teamname || '' };
 
-		var _authErrorContainer = $('#auth-error-container');
-		var _invalidInputHeader = $('#invalid-input-header');
-		var _firebaseAuthErrorHeader = $('#firebase-auth-error-header');
-		var _authErrorMessage = $('#auth-error-message');
-
-		_authErrorMessage.text('');
-
-		_authErrorContainer.hide();
-		_invalidInputHeader.hide();
-		_firebaseAuthErrorHeader.hide();
-		_authErrorMessage.hide();
-
 		if (user.email && user.email.length < 1) {
-			_authErrorContainer.show();
-			_invalidInputHeader.show();
-			_authErrorMessage.show();
-
-			var errorMessage = 'Email field should not be empty.';
-			_authErrorMessage.text(errorMessage);
+			showWarning('Email field should not be empty.');
 
 			return;
 		}
 		if (user.password && user.password.length < 1) {
-			_authErrorContainer.show();
-			_invalidInputHeader.show();
-			_authErrorMessage.show();
-
-			var errorMessage = 'Password field should not be empty.';
-			_authErrorMessage.text(errorMessage);
+			showWarning('Password field should not be empty.');
 
 			return;
 		}
 		if (user.teamname && user.teamname.length < 1) {
-			_authErrorContainer.show();
-			_invalidInputHeader.show();
-			_authErrorMessage.show();
-
-			var errorMessage = 'Teamname field should not be empty.';
-			_authErrorMessage.text(errorMessage);
+			showWarning('Team Name field should not be empty.');
 
 			return;
 		}
 
 		firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch(function (error) {
-			_authErrorContainer.show();
-			_firebaseAuthErrorHeader.show();
-			_authErrorMessage.show();
-
-			_authErrorMessage.text(error.message);
 
 			return;
 		});
