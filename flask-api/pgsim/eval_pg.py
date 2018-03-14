@@ -3,8 +3,8 @@ from pypower.api import runopf
 import copy
 import numpy as np
 
-import pgsim.ppc_utils as ppc_utils, pgsim.read_pfresults as read_pfresults, pgsim.ppc_ontario_data as ppc_ontario_data
-#import ppc_utils, read_pfresults, ppc_ontario_data
+import pgsim.ppc_utils as ppc_utils, pgsim.read_pfresults as read_pfresults, pgsim.ppc_ontario_data as ppc_ontario_data, pgsim.ppc_northern_ontario_data as ppc_northern_ontario_data
+#import ppc_utils, read_pfresults, ppc_ontario_data, ppc_northern_ontario_data
 
 from pypower.idx_bus import BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, \
     VM, VA, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN, REF
@@ -61,6 +61,7 @@ def calc_score(gen_placements, data_module):
         # Update the overall metrics with runopf() results.
         overall_pass = overall_pass and pf_metrics["passed"]
         total_loss += pf_metrics["loss"] # Increment the loss
+        total_cost += pf_metrics["cost"] # Increment the cost
         for line, power in pf_metrics["transmissions"].items():
             for power_type, power_val in power.items():
                 # Append the transmission values of this timestep.

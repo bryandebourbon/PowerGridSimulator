@@ -117,6 +117,38 @@ class PgsimSubmitTestCase(unittest.TestCase):
         assert not status["success"]
         assert status["message"] == "Please specify at least one hydro or gas generator for PyPower to process successfully."
         
+    def test_submit_11_simple(self):
+        placements = [{'node': 0, 'generators': {'G':2} }]
+        rv = self.app.post('/submit/', data=json.dumps(placements),
+                            content_type='application/json',
+                            headers={"team_name": 'ourteam', "challenge_id": 11})
+        status = json.loads(rv.data.decode('unicode_escape'))
+        print(status)
+        assert status["success"]
+        assert status["eval"]["passed"]
+
+    def test_submit_11_simple2(self):
+        placements = [{'node': 0, 'generators': {'H':1} },
+                        {'node': 1, 'generators': {'H':1} }]
+        rv = self.app.post('/submit/', data=json.dumps(placements),
+                            content_type='application/json',
+                            headers={"team_name": 'ourteam', "challenge_id": 11})
+        status = json.loads(rv.data.decode('unicode_escape'))
+        print(status)
+        assert status["success"]
+        assert status["eval"]["passed"]
+
+    def test_submit_11_simple2(self):
+        placements = [{'node': 0, 'generators': {'G':1} },
+                        {'node': 1, 'generators': {'H':1} }]
+        rv = self.app.post('/submit/', data=json.dumps(placements),
+                            content_type='application/json',
+                            headers={"team_name": 'ourteam', "challenge_id": 11})
+        status = json.loads(rv.data.decode('unicode_escape'))
+        print(status)
+        assert status["success"]
+        assert status["eval"]["passed"]
+
     def test_submit_simple(self):
         placements = [{'node': 4, 'generators': {'H':1} }]
         rv = self.app.post('/submit/', data=json.dumps(placements),

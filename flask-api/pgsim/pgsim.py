@@ -12,8 +12,8 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 # this fixes the CORS issue, apparently flask has a library for that
 from flask_cors import CORS 
 
-import pgsim.ppc_utils as ppc_utils, pgsim.db_utils as db_utils, pgsim.eval_pg as eval_pg, pgsim.ppc_ontario_data as ppc_ontario_data
-#import ppc_utils, db_utils, eval_pg, ppc_ontario_data
+import pgsim.ppc_utils as ppc_utils, pgsim.db_utils as db_utils, pgsim.eval_pg as eval_pg, pgsim.ppc_ontario_data as ppc_ontario_data, pgsim.ppc_northern_ontario_data as ppc_northern_ontario_data
+#import ppc_utils, db_utils, eval_pg, ppc_ontario_data, ppc_northern_ontario_data
 
 from datetime import datetime, timedelta
 import pprint
@@ -76,7 +76,7 @@ def get_challenge():
     saved_challenge = db_utils.get_saved_challenge(challenge_id, team_id)
 
     data_module = ppc_ontario_data
-    if int(challenge_id) == 11: data_module = None
+    if int(challenge_id) == 11: data_module = ppc_northern_ontario_data
 
     gens = []
     for gen_type, gen_params in data_module.gen_types.items():
@@ -200,7 +200,7 @@ def do_submit_routine(gen_placements, team_id, challenge_id):
     # Pass the design into PyPower and other evaluation metric to calculate 
     # generations, transmissions, cost, CO2 emissions, etc. 
     data_module = ppc_ontario_data
-    if int(challenge_id) == 11: data_module = None
+    if int(challenge_id) == 11: data_module = ppc_northern_ontario_data
     new_scores = eval_pg.calc_score(gen_placements, data_module)
 
     # Update the stored metrics of this team.
