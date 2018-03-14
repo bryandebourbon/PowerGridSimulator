@@ -70,7 +70,7 @@ gen_types = {
             "installation_cost": 2400000,
             "unit_CO2": 49.9, 
             "count": 10,
-            "per_node_limit": {node:10 for node in range(10)}},
+            "per_node_limit": {node:10 for node in range(node_count)}},
     "H":   {"real_capacity": np.full((timestep_count), 12.0), 
             "reactive_capacity": np.zeros(timestep_count),
             "real_cost": np.array([2, 0., 0., 2, 4.3, 0]),
@@ -84,21 +84,21 @@ gen_types = {
             "installation_cost": 10000000,
             "unit_CO2": 2.9, 
             "count": 10,
-            "per_node_limit": {node:10 for node in range(10)}}, 
+            "per_node_limit": {node:10 for node in range(node_count)}}, 
     "S":   {"real_capacity": np.zeros((timestep_count)), 
             "reactive_capacity": np.zeros(timestep_count),
             "real_cost": np.array([2, 0., 0., 2, 50.4, 0]),
             "installation_cost": 444000,
             "unit_CO2": 8.5, 
             "count": 10,
-            "per_node_limit": {node:5 for node in range(10)}},
+            "per_node_limit": {node:5 for node in range(node_count)}},
     "W":   {"real_capacity": np.zeros((timestep_count)), 
             "reactive_capacity": np.zeros(timestep_count),
             "real_cost": np.array([2, 0., 0., 2, 10.6, 0]),
             "installation_cost": 1600000,
             "unit_CO2": 2.6, 
             "count": 10,
-            "per_node_limit": {node:10 for node in range(10)}}
+            "per_node_limit": {node:10 for node in range(node_count)}}
 }
 
 solar_wind_file = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 
@@ -109,8 +109,8 @@ solar_wind = np.array([
         timestep_start, timestep_start + timestep_count)])
 solar_wind_file.close()
 solar_wind = solar_wind.astype(int) / 100
-gen_types["S"]["real_capacity"] = solar_wind[:, 0]
-gen_types["W"]["real_capacity"] = solar_wind[:, 1]
+gen_types["S"]["real_capacity"] = solar_wind[:, 0] / 2
+gen_types["W"]["real_capacity"] = solar_wind[:, 1] / 4
 
 for _, gen_profile in gen_types.items():
     assert (timestep_count == gen_profile["real_capacity"].shape[0]), "Demand profiles and generation profiles must specify the same number of timesteps"
