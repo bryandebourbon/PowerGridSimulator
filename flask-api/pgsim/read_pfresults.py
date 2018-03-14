@@ -23,7 +23,7 @@ from pypower.isload import isload
 from pypower.run_userfcn import run_userfcn
 from pypower.ppoption import ppoption
 
-from math import radians, cos, sin
+from math import radians, cos, sin, pow
 
 # NOTE: All indices out of this function will be zero-based.
 def convert_to_metrics(baseMVA, bus=None, gen=None, branch=None, f=None, success=None,
@@ -147,6 +147,10 @@ def convert_to_metrics(baseMVA, bus=None, gen=None, branch=None, f=None, success
     # see how much power is given to each bus, and generated at each bus; 
     # output: node_count x 4
     pf_metrics["gen"] = gen[:, PG]
+    pf_metrics["cost"] = 0
+    for gen_idx in range(ng):
+        pf_metrics["cost"] += calculate_real_cost(pf_metrics["gen"][gen_idx], results["gencost"][gen_idx])
+
     pf_metrics["buses"] = {}
     for bus_idx in range(nb):
         mag = bus[bus_idx, VM]
@@ -205,4 +209,16 @@ def convert_to_metrics(baseMVA, bus=None, gen=None, branch=None, f=None, success
     pf_metrics["loss"] = sum(real(loss)) 
     return pf_metrics
 
+def calculate_real_cost(gen_output, real_cost):
+    assert real_cost[0] == 2, "This function only supports polynomial cost functions"
+    assert real_cost[1] == 0 and real_cost[2] == 0, "This function only supports 0 startup and shutdown costs"
 
+    degree = int(real_cost[3])
+    assert len(real_cost) == 4 + degree, "The cost matrices must have exactly the number of polynomial coefficients required"
+    
+    total_cost = 0 
+    for i in range(degree):
+        cur_coeff = real_cost[len(real_cost) - i - 1]
+        total_cost += pow(gen_output, i) * cur_coeff
+    return total_cost
+ 

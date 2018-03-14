@@ -122,21 +122,6 @@ gen_types["W"]["real_capacity"] = solar_wind[:, 1]
 for _, gen_profile in gen_types.items():
     assert (timestep_count == gen_profile["real_capacity"].shape[0]), "Demand profiles and generation profiles must specify the same number of timesteps"
 
-def calculate_poly_cost(gen_type, time):
-    gen_cap = gen_types[gen_type]["real_capacity"][time]
-    real_cost = gen_types[gen_type]["real_cost"]
-    assert real_cost[0] == 2, "This function only supports polynomial cost functions"
-    assert real_cost[1] == 0 and real_cost[2] == 0, "This function only supports 0 startup and shutdown costs"
-
-    degree = int(real_cost[3])
-    assert len(real_cost) == 4 + degree, "The cost matrices must have exactly the number of polynomial coefficients required"
-    
-    total_cost = 0 
-    for i in range(degree):
-        cur_coeff = real_cost[len(real_cost) - i - 1]
-        total_cost += math.pow(gen_cap, i) * cur_coeff
-    return total_cost
-
 def build_gen_matrices(gen_placements):
     # Returns:
     #  - gens: a 2D array, each row is a generator, e.g. ['3', 'G']

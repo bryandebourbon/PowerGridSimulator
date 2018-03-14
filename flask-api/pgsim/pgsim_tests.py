@@ -178,7 +178,7 @@ class PgsimSubmitTestCase(unittest.TestCase):
         assert status["success"]
         assert status["eval"]["passed"]
         print(rv.data)
-        #"cost": 9829.020009271826, "installation_cost": 84988000, "CO2": 3891.7800068414053
+        #"cost": 8740.259, "installation_cost": 84988000, "CO2": 3891.7800068414053
 
     def test_submit_ontario_replace_N_with_G(self):
         # Expect lower cost, but higher pollution
@@ -199,7 +199,7 @@ class PgsimSubmitTestCase(unittest.TestCase):
         assert status["success"]
         assert status["eval"]["passed"]
         print(rv.data)
-        #"cost": 8064.371118511489, "installation_cost": 46988000, "CO2": 8232.851469618177
+        #"cost": 4315.259, "installation_cost": 46988000, "CO2": 8232.851469618177
 
 class PgsimGetChallengeTestCase(unittest.TestCase):
 

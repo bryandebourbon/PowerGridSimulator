@@ -59,7 +59,6 @@ def calc_score(gen_placements):
         # Update the overall metrics with runopf() results.
         overall_pass = overall_pass and pf_metrics["passed"]
         total_loss += pf_metrics["loss"] # Increment the loss
-        total_cost += pf_metrics["cost"] # Increment the cost
         for line, power in pf_metrics["transmissions"].items():
             for power_type, power_val in power.items():
                 # Append the transmission values of this timestep.
@@ -75,7 +74,9 @@ def calc_score(gen_placements):
             for i, gen in enumerate(gens)])        
         
         # Add the cost and CO2 for negative-demand generators. 
-        total_cost += sum([ppc_utils.calculate_poly_cost(gen[1], time) 
+        total_cost += sum([read_pfresults.calculate_real_cost(
+            ppc_utils.gen_types[gen[1]]["real_capacity"][time], 
+            ppc_utils.gen_types[gen[1]]["real_cost"]) 
             for gen in fixed_gens])
         total_CO2 += sum([ppc_utils.gen_types[gen[1]]["unit_CO2"] * 
             ppc_utils.gen_types[gen[1]]["real_capacity"][time]
