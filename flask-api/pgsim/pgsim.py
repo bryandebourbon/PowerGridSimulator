@@ -12,8 +12,8 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 # this fixes the CORS issue, apparently flask has a library for that
 from flask_cors import CORS 
 
-import pgsim.ppc_utils as ppc_utils, pgsim.db_utils as db_utils, pgsim.eval_pg as eval_pg
-# import  ppc_utils, db_utils, eval_pg
+import pgsim.ppc_utils as ppc_utils, pgsim.db_utils as db_utils, pgsim.eval_pg as eval_pg, pgsim.ppc_ontario_data as ppc_ontario_data
+#import ppc_utils, db_utils, eval_pg, ppc_ontario_data
 
 from datetime import datetime, timedelta
 import pprint
@@ -75,8 +75,11 @@ def get_challenge():
     challenge_id = request.headers["challenge_id"]
     saved_challenge = db_utils.get_saved_challenge(challenge_id, team_id)
 
+    data_module = ppc_ontario_data
+    if int(challenge_id) == 11: data_module = None
+
     gens = []
-    for gen_type, gen_params in ppc_utils.gen_types.items():
+    for gen_type, gen_params in data_module.gen_types.items():
         cur_gen = {"type": gen_type}
         for param_name, param in gen_params.items(): 
             if isinstance(param, np.ndarray):   cur_gen[param_name] = param.tolist()
@@ -84,12 +87,12 @@ def get_challenge():
         gens.append(cur_gen)
 
     demands = [{"node": node, 
-                "real": ppc_utils.real_demand_profiles[:,node].tolist(), 
-                "reactive": ppc_utils.reactive_demand_profiles[:,node].tolist()} 
-                for node in range(ppc_utils.real_demand_profiles.shape[1])]
+                "real": data_module.real_demand_profiles[:,node].tolist(), 
+                "reactive": data_module.reactive_demand_profiles[:,node].tolist()} 
+                for node in range(data_module.real_demand_profiles.shape[1])]
 
     lines = [{"from": int(line[F_BUS]) - 1, "to": int(line[T_BUS]) - 1, "capacity": float(line[RATE_A])} 
-                for line in ppc_utils.transmission_limits]
+                for line in data_module.transmission_limits]
 
     challenge = make_response(json.dumps(
         {"id": 1,
@@ -131,7 +134,11 @@ def submit():
     # Convert the dict structure of the input design into a structure used in
     # backend. Assuming there are n nodes, such a structure is a list of n 
     # dicts. Dict #i is the generator dict of node #i (e.g. {'H': 1, "N": 1}).
-    gen_placements = [{} for i in range(ppc_utils.node_count)]
+    max_node_idx = -1
+    for submitted_node in submitted_data:
+        node_idx = int(submitted_node["node"])
+        if node_idx > max_node_idx: max_node_idx = node_idx
+    gen_placements = [{} for i in range(max_node_idx + 1)]
     no_gens = True
     for submitted_node in submitted_data:
         gen_placements[int(submitted_node["node"])] = submitted_node["generators"]
@@ -192,7 +199,9 @@ def do_submit_routine(gen_placements, team_id, challenge_id):
     
     # Pass the design into PyPower and other evaluation metric to calculate 
     # generations, transmissions, cost, CO2 emissions, etc. 
-    new_scores = eval_pg.calc_score(gen_placements)
+    data_module = ppc_ontario_data
+    if int(challenge_id) == 11: data_module = None
+    new_scores = eval_pg.calc_score(gen_placements, data_module)
 
     # Update the stored metrics of this team.
     new_sys_info = {

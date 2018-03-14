@@ -3,6 +3,7 @@ import pgsim
 import read_pfresults
 import eval_pg
 import ppc_utils
+import ppc_ontario_data
 import unittest
 import tempfile
 import numpy as np
@@ -94,10 +95,12 @@ class PgsimutilsTestCase(unittest.TestCase):
         ]
 
     def test_calc_gen_values(self):
-        ppc_utils.build_gen_matrices(self.gen_placements)
+        ppc_utils.build_gen_matrices(self.gen_placements, 
+            ppc_ontario_data.real_demand_profiles, 
+            ppc_ontario_data.gen_types)
 
     def test_calc_score(self):
-        eval_pg.calc_score(self.gen_placements)
+        eval_pg.calc_score(self.gen_placements, ppc_ontario_data)
 
 class PgsimSubmitTestCase(unittest.TestCase):
 
