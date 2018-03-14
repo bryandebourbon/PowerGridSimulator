@@ -43,6 +43,13 @@ db_utils.register_routes(pgsim_app)
 
 MAX_SUBMISSION_ATTEMPTS = 10
 
+challenge_desc = {
+    10 : {"name": "Ontario Power Generation",
+          "description": "Design Ontario's generation system with real-life demand, generation cost, CO2 emission, and more data!"},
+    11 : {"name": "Northern Ontario Power Generation",
+          "description": "Design a very simple generation system for Northern Ontario, with real-life demand, generation cost, CO2 emission, and more data!"},          
+}
+
 @pgsim_app.route("/getChallenge/", methods=["GET"])
 def get_challenge():
     # return a dictionary with the following entries: “generators”, “demands”, “lines”
@@ -95,9 +102,9 @@ def get_challenge():
                 for line in data_module.transmission_limits]
 
     challenge = make_response(json.dumps(
-        {"id": 1,
-         "name": "Ontario Power Generation",
-         "description": "Design Ontario's generation system with real-life demand, generation cost, CO2 emission, and more data! (Description proposed by mighty Jane)",
+        {"id": int(challenge_id),
+         "name": challenge_desc[int(challenge_id)]["name"],
+         "description": challenge_desc[int(challenge_id)]["description"],
          "saved_challenge": saved_challenge,
          "generators": gens,
          "demands": demands,
