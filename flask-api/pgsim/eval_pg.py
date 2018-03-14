@@ -14,7 +14,7 @@ from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, \
     TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST
 
 def calc_score(gen_placements):
-    gens, fixed_gens, gen_caps, gen_costs = ppc_utils.build_gen_matrices(gen_placements)
+    gens, fixed_gens, gen_caps, gen_costs, cur_real_demand_profiles = ppc_utils.build_gen_matrices(gen_placements)
     bus_data = ppc_utils.build_bus_data(gen_placements)
 
     total_loss = 0
@@ -48,7 +48,7 @@ def calc_score(gen_placements):
         ppc["gen"] = cur_gen
 
         # Fill in the timestep-specific demand numbers.
-        bus_data[:, PD] = ppc_utils.real_demand_profiles[time]
+        bus_data[:, PD] = cur_real_demand_profiles[time]
         bus_data[:, QD] = ppc_utils.reactive_demand_profiles[time]
         ppc["bus"] = bus_data
 

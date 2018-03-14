@@ -1,4 +1,4 @@
-import numpy as np, csv, itertools, os, math
+import numpy as np, csv, itertools, os, math, copy
 from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, \
     TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST
 
@@ -151,6 +151,7 @@ def build_gen_matrices(gen_placements):
     gens = np.zeros((0, 2)) # non-negative-demand gens, up for optimization
     fixed_gens = np.zeros((0, 2)) # negative-demand gens
 
+    cur_real_demand_profiles = copy.deepcopy(real_demand_profiles)
     # Concatenate the generation capacity and cost matrics, and identify
     # negative demands (nuclear, wind, and solar).
     for node, placement in enumerate(gen_placements):
@@ -160,7 +161,7 @@ def build_gen_matrices(gen_placements):
                 temp = np.array([[node, gen_type],] * count)
                 gens = np.vstack((gens, temp))
             elif gen_type in ["N", "S", "W"]: # Simply a negative demand, no need to go through runopf()
-                real_demand_profiles[:, node] -= gen_types[gen_type]["real_capacity"]
+                cur_real_demand_profiles[:, node] -= gen_types[gen_type]["real_capacity"]
                 temp = np.array([[node, gen_type],] * count)
                 fixed_gens = np.vstack((fixed_gens, temp))
             else:
@@ -171,7 +172,7 @@ def build_gen_matrices(gen_placements):
 
     gen_costs = np.array([gen_types[gen[1]]["real_cost"] for gen in gens])
     
-    return gens, fixed_gens, gen_caps, gen_costs
+    return gens, fixed_gens, gen_caps, gen_costs, cur_real_demand_profiles
 
 def build_bus_data(gen_placements):
     # Update the BUS_TYPE column according to generator placements. 
@@ -179,7 +180,9 @@ def build_bus_data(gen_placements):
     # dependent demand values.
     assert node_count == len(gen_placements), "Must specify generator placements at all nodes"
     for node, placement in enumerate(gen_placements):
-        if sum(placement.values()) > 0 and bus_data[node, 1] == 1:
-            bus_data[node, 1] = 2
+        if node == 0: continue
+        if sum(placement.values()) > 0: bus_data[node, 1] = 2
+        else:                           bus_data[node, 1] = 1
+
 
     return bus_data
