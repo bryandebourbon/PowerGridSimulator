@@ -462,3 +462,148 @@
 
 
 
+         35607 function calls (35287 primitive calls) in 1.141 seconds
+
+   Ordered by: cumulative time
+   List reduced from 960 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        2    0.000    0.000    1.134    0.567 /anaconda3/lib/python3.6/site-packages/firebase_admin/db.py:505(get)
+        2    0.000    0.000    1.130    0.565 /anaconda3/lib/python3.6/site-packages/firebase_admin/_http_client.py:92(body)
+        2    0.000    0.000    1.129    0.564 /anaconda3/lib/python3.6/site-packages/firebase_admin/db.py:746(request)
+        2    0.000    0.000    1.129    0.564 /anaconda3/lib/python3.6/site-packages/firebase_admin/_http_client.py:64(request)
+        2    0.000    0.000    1.129    0.564 /anaconda3/lib/python3.6/site-packages/google/auth/transport/requests.py:181(request)
+        3    0.000    0.000    1.126    0.375 /anaconda3/lib/python3.6/site-packages/requests/sessions.py:441(request)
+        1    0.000    0.000    0.973    0.973 /Users/jane/Documents/Academics/capstone/PowerGridSimulator/flask-api/pgsim/db_utils.py:27(get_team_id)
+        3    0.000    0.000    0.935    0.312 /anaconda3/lib/python3.6/site-packages/requests/sessions.py:589(send)
+        3    0.000    0.000    0.921    0.307 /anaconda3/lib/python3.6/site-packages/requests/adapters.py:388(send)
+        3    0.000    0.000    0.918    0.306 /anaconda3/lib/python3.6/site-packages/urllib3/connectionpool.py:447(urlopen)
+        3    0.000    0.000    0.917    0.306 /anaconda3/lib/python3.6/site-packages/urllib3/connectionpool.py:322(_make_request)
+        3    0.000    0.000    0.596    0.199 /anaconda3/lib/python3.6/site-packages/urllib3/connectionpool.py:842(_validate_conn)
+        2    0.000    0.000    0.596    0.298 /anaconda3/lib/python3.6/site-packages/urllib3/connection.py:282(connect)
+        2    0.000    0.000    0.419    0.210 /anaconda3/lib/python3.6/site-packages/google/auth/credentials.py:103(before_request)
+        1    0.000    0.000    0.419    0.419 /anaconda3/lib/python3.6/site-packages/google/oauth2/service_account.py:318(refresh)
+        1    0.000    0.000    0.417    0.417 /anaconda3/lib/python3.6/site-packages/google/oauth2/_client.py:118(jwt_grant)
+        1    0.000    0.000    0.417    0.417 /anaconda3/lib/python3.6/site-packages/google/oauth2/_client.py:83(_token_endpoint_request)
+        1    0.000    0.000    0.417    0.417 /anaconda3/lib/python3.6/site-packages/google/auth/transport/requests.py:94(__call__)
+        2    0.000    0.000    0.347    0.174 /anaconda3/lib/python3.6/site-packages/urllib3/connection.py:127(_new_conn)
+        2    0.000    0.000    0.347    0.174 /anaconda3/lib/python3.6/site-packages/urllib3/util/connection.py:36(create_connection)
+
+
+
+         35452 function calls (35149 primitive calls) in 1.182 seconds
+
+   Ordered by: cumulative time
+   List reduced from 960 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        2    0.000    0.000    1.174    0.587 /anaconda3/lib/python3.6/site-packages/firebase_admin/db.py:505(get)
+        2    0.000    0.000    1.171    0.585 /anaconda3/lib/python3.6/site-packages/firebase_admin/_http_client.py:92(body)
+        2    0.000    0.000    1.169    0.585 /anaconda3/lib/python3.6/site-packages/firebase_admin/db.py:746(request)
+        2    0.000    0.000    1.169    0.585 /anaconda3/lib/python3.6/site-packages/firebase_admin/_http_client.py:64(request)
+        2    0.000    0.000    1.169    0.585 /anaconda3/lib/python3.6/site-packages/google/auth/transport/requests.py:181(request)
+        3    0.000    0.000    1.166    0.389 /anaconda3/lib/python3.6/site-packages/requests/sessions.py:441(request)
+        3    0.000    0.000    1.064    0.355 /anaconda3/lib/python3.6/site-packages/requests/sessions.py:589(send)
+        3    0.000    0.000    1.059    0.353 /anaconda3/lib/python3.6/site-packages/requests/adapters.py:388(send)
+        3    0.000    0.000    1.057    0.352 /anaconda3/lib/python3.6/site-packages/urllib3/connectionpool.py:447(urlopen)
+        3    0.000    0.000    1.056    0.352 /anaconda3/lib/python3.6/site-packages/urllib3/connectionpool.py:322(_make_request)
+        1    0.000    0.000    1.030    1.030 /Users/jane/Documents/Academics/capstone/PowerGridSimulator/flask-api/pgsim/db_utils.py:27(get_team_id)
+        9    0.000    0.000    0.658    0.073 /anaconda3/lib/python3.6/socket.py:572(readinto)
+       52    0.000    0.000    0.658    0.013 {method 'readline' of '_io.BufferedReader' objects}
+        9    0.000    0.000    0.658    0.073 /anaconda3/lib/python3.6/site-packages/urllib3/contrib/pyopenssl.py:278(recv_into)
+        9    0.000    0.000    0.658    0.073 /anaconda3/lib/python3.6/site-packages/OpenSSL/SSL.py:1598(recv_into)
+        9    0.657    0.073    0.657    0.073 {built-in method _openssl.SSL_read}
+        3    0.000    0.000    0.657    0.219 /anaconda3/lib/python3.6/http/client.py:1287(getresponse)
+        3    0.000    0.000    0.657    0.219 /anaconda3/lib/python3.6/http/client.py:290(begin)
+        3    0.000    0.000    0.655    0.218 /anaconda3/lib/python3.6/http/client.py:257(_read_status)
+        3    0.000    0.000    0.398    0.133 /anaconda3/lib/python3.6/site-packages/urllib3/connectionpool.py:842(_validate_conn)
+
+
+
+         28485 function calls (28298 primitive calls) in 2.284 seconds
+
+   Ordered by: cumulative time
+   List reduced from 908 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        2    0.000    0.000    2.283    1.142 /anaconda3/lib/python3.6/site-packages/firebase_admin/db.py:505(get)
+        2    0.000    0.000    2.280    1.140 /anaconda3/lib/python3.6/site-packages/firebase_admin/_http_client.py:92(body)
+        2    0.000    0.000    2.278    1.139 /anaconda3/lib/python3.6/site-packages/firebase_admin/db.py:746(request)
+        2    0.000    0.000    2.278    1.139 /anaconda3/lib/python3.6/site-packages/firebase_admin/_http_client.py:64(request)
+        2    0.000    0.000    2.278    1.139 /anaconda3/lib/python3.6/site-packages/google/auth/transport/requests.py:181(request)
+        3    0.000    0.000    2.273    0.758 /anaconda3/lib/python3.6/site-packages/requests/sessions.py:441(request)
+        3    0.000    0.000    2.148    0.716 /anaconda3/lib/python3.6/site-packages/requests/sessions.py:589(send)
+        3    0.000    0.000    2.127    0.709 /anaconda3/lib/python3.6/site-packages/requests/adapters.py:388(send)
+        3    0.000    0.000    2.125    0.708 /anaconda3/lib/python3.6/site-packages/urllib3/connectionpool.py:447(urlopen)
+        3    0.000    0.000    2.124    0.708 /anaconda3/lib/python3.6/site-packages/urllib3/connectionpool.py:322(_make_request)
+        9    0.000    0.000    1.631    0.181 /anaconda3/lib/python3.6/socket.py:572(readinto)
+        9    0.000    0.000    1.630    0.181 /anaconda3/lib/python3.6/site-packages/urllib3/contrib/pyopenssl.py:278(recv_into)
+        9    0.000    0.000    1.630    0.181 /anaconda3/lib/python3.6/site-packages/OpenSSL/SSL.py:1598(recv_into)
+        9    1.630    0.181    1.630    0.181 {built-in method _openssl.SSL_read}
+       58    0.000    0.000    1.625    0.028 {method 'readline' of '_io.BufferedReader' objects}
+        3    0.000    0.000    1.614    0.538 /anaconda3/lib/python3.6/http/client.py:1287(getresponse)
+        3    0.000    0.000    1.614    0.538 /anaconda3/lib/python3.6/http/client.py:290(begin)
+        3    0.000    0.000    1.612    0.537 /anaconda3/lib/python3.6/http/client.py:257(_read_status)
+        1    0.000    0.000    1.605    1.605 /Users/jane/Documents/Academics/capstone/PowerGridSimulator/flask-api/pgsim/db_utils.py:27(get_team_id)
+        1    0.000    0.000    0.678    0.678 /Users/jane/Documents/Academics/capstone/PowerGridSimulator/flask-api/pgsim/db_utils.py:118(get_saved_challenge)
+
+
+
+         28322 function calls (28153 primitive calls) in 1.606 seconds
+
+   Ordered by: cumulative time
+   List reduced from 908 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        2    0.000    0.000    1.606    0.803 /anaconda3/lib/python3.6/site-packages/firebase_admin/db.py:505(get)
+        2    0.000    0.000    1.602    0.801 /anaconda3/lib/python3.6/site-packages/firebase_admin/_http_client.py:92(body)
+        2    0.000    0.000    1.601    0.801 /anaconda3/lib/python3.6/site-packages/firebase_admin/db.py:746(request)
+        2    0.000    0.000    1.601    0.801 /anaconda3/lib/python3.6/site-packages/firebase_admin/_http_client.py:64(request)
+        2    0.000    0.000    1.601    0.801 /anaconda3/lib/python3.6/site-packages/google/auth/transport/requests.py:181(request)
+        3    0.000    0.000    1.599    0.533 /anaconda3/lib/python3.6/site-packages/requests/sessions.py:441(request)
+        1    0.000    0.000    1.419    1.419 /Users/jane/Documents/Academics/capstone/PowerGridSimulator/flask-api/pgsim/db_utils.py:27(get_team_id)
+        2    0.000    0.000    1.035    0.518 /anaconda3/lib/python3.6/site-packages/google/auth/credentials.py:103(before_request)
+        1    0.000    0.000    1.035    1.035 /anaconda3/lib/python3.6/site-packages/google/oauth2/service_account.py:318(refresh)
+        1    0.000    0.000    1.033    1.033 /anaconda3/lib/python3.6/site-packages/google/oauth2/_client.py:118(jwt_grant)
+        1    0.000    0.000    1.033    1.033 /anaconda3/lib/python3.6/site-packages/google/oauth2/_client.py:83(_token_endpoint_request)
+        1    0.000    0.000    1.033    1.033 /anaconda3/lib/python3.6/site-packages/google/auth/transport/requests.py:94(__call__)
+        3    0.000    0.000    0.821    0.274 /anaconda3/lib/python3.6/site-packages/requests/sessions.py:589(send)
+        3    0.000    0.000    0.819    0.273 /anaconda3/lib/python3.6/site-packages/requests/adapters.py:388(send)
+        3    0.000    0.000    0.817    0.272 /anaconda3/lib/python3.6/site-packages/urllib3/connectionpool.py:447(urlopen)
+        3    0.000    0.000    0.815    0.272 /anaconda3/lib/python3.6/site-packages/urllib3/connectionpool.py:322(_make_request)
+        3    0.000    0.000    0.773    0.258 /anaconda3/lib/python3.6/site-packages/requests/sessions.py:662(merge_environment_settings)
+        3    0.000    0.000    0.773    0.258 /anaconda3/lib/python3.6/site-packages/requests/utils.py:686(get_environ_proxies)
+        3    0.000    0.000    0.772    0.257 /anaconda3/lib/python3.6/site-packages/requests/utils.py:629(should_bypass_proxies)
+        3    0.000    0.000    0.771    0.257 /anaconda3/lib/python3.6/urllib/request.py:2601(proxy_bypass)
+
+
+
+         28492 function calls (28303 primitive calls) in 1.025 seconds
+
+   Ordered by: cumulative time
+   List reduced from 908 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        2    0.000    0.000    1.025    0.513 /anaconda3/lib/python3.6/site-packages/firebase_admin/db.py:505(get)
+        2    0.000    0.000    1.022    0.511 /anaconda3/lib/python3.6/site-packages/firebase_admin/_http_client.py:92(body)
+        2    0.000    0.000    1.021    0.510 /anaconda3/lib/python3.6/site-packages/firebase_admin/db.py:746(request)
+        2    0.000    0.000    1.021    0.510 /anaconda3/lib/python3.6/site-packages/firebase_admin/_http_client.py:64(request)
+        2    0.000    0.000    1.021    0.510 /anaconda3/lib/python3.6/site-packages/google/auth/transport/requests.py:181(request)
+        3    0.000    0.000    1.018    0.339 /anaconda3/lib/python3.6/site-packages/requests/sessions.py:441(request)
+        3    0.000    0.000    1.005    0.335 /anaconda3/lib/python3.6/site-packages/requests/sessions.py:589(send)
+        3    0.000    0.000    1.003    0.334 /anaconda3/lib/python3.6/site-packages/requests/adapters.py:388(send)
+        3    0.000    0.000    1.002    0.334 /anaconda3/lib/python3.6/site-packages/urllib3/connectionpool.py:447(urlopen)
+        3    0.000    0.000    1.001    0.334 /anaconda3/lib/python3.6/site-packages/urllib3/connectionpool.py:322(_make_request)
+        3    0.000    0.000    0.668    0.223 /anaconda3/lib/python3.6/http/client.py:1287(getresponse)
+        3    0.000    0.000    0.668    0.223 /anaconda3/lib/python3.6/http/client.py:290(begin)
+        9    0.000    0.000    0.667    0.074 /anaconda3/lib/python3.6/socket.py:572(readinto)
+        9    0.000    0.000    0.667    0.074 /anaconda3/lib/python3.6/site-packages/urllib3/contrib/pyopenssl.py:278(recv_into)
+       59    0.000    0.000    0.667    0.011 {method 'readline' of '_io.BufferedReader' objects}
+        9    0.000    0.000    0.667    0.074 /anaconda3/lib/python3.6/site-packages/OpenSSL/SSL.py:1598(recv_into)
+        3    0.000    0.000    0.666    0.222 /anaconda3/lib/python3.6/http/client.py:257(_read_status)
+        9    0.666    0.074    0.666    0.074 {built-in method _openssl.SSL_read}
+        1    0.000    0.000    0.640    0.640 /Users/jane/Documents/Academics/capstone/PowerGridSimulator/flask-api/pgsim/db_utils.py:27(get_team_id)
+        1    0.000    0.000    0.385    0.385 /Users/jane/Documents/Academics/capstone/PowerGridSimulator/flask-api/pgsim/db_utils.py:118(get_saved_challenge)
+
+
+

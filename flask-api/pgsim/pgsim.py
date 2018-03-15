@@ -43,15 +43,21 @@ db_utils.register_routes(pgsim_app)
 
 MAX_SUBMISSION_ATTEMPTS = 10
 
-challenge_desc = {
+challenges = {
     10 : {"name": "Ontario Power Generation",
-          "description": "Design Ontario's generation system with real-life demand, generation cost, CO2 emission, and more data!"},
+          "description": "Design Ontario's generation system with real-life demand, generation cost, CO2 emission, and more data!",
+          "data_module": ppc_ontario_data},
     11 : {"name": "Northern Ontario Power Generation",
-          "description": "Design a very simple generation system for Northern Ontario, with real-life demand, generation cost, CO2 emission, and more data!"},          
+          "description": "Design a very simple generation system for Northern Ontario, with real-life demand, generation cost, CO2 emission, and more data!",
+          "data_module": ppc_northern_ontario_data},
 }
 
-@pgsim_app.route("/getChallenge/", methods=["GET"])
-def get_challenge():
+@pgsim_app.route('/getChallenge/', methods=["GET"])
+def get_challenge_count():
+    return make_response(json.dumps([challenge_id for challenge_id in challenges]))
+
+@pgsim_app.route("/getChallenge/<int:challenge_id>", methods=["GET"])
+def get_challenge(challenge_id):
     # return a dictionary with the following entries: “generators”, “demands”, “lines”
     # - “generators”: a list of dicts, one dict for each generator type
     # [{ “type”: generator type, can be: “N”, “H”, “G”, “W”, “S”, 
@@ -72,18 +78,17 @@ def get_challenge():
     #    “capacity”: one number, constant capacity
     #    This is up for change, might add more parameters},
     #   { some other line...}, { ... }]
+    if challenge_id not in challenges:
+        return make_response("The requested challenge doesn't exist.")
+
     pr = cProfile.Profile()
     pr.enable()
 
-    print(request.headers)
-
     team_name = request.headers["team_name"]
     team_id = db_utils.get_team_id(team_name)
-    challenge_id = request.headers["challenge_id"]
     saved_challenge = db_utils.get_saved_challenge(challenge_id, team_id)
 
-    data_module = ppc_ontario_data
-    if int(challenge_id) == 11: data_module = ppc_northern_ontario_data
+    data_module = challenges[challenge_id]["data_module"]
 
     gens = []
     for gen_type, gen_params in data_module.gen_types.items():
@@ -103,8 +108,8 @@ def get_challenge():
 
     challenge = make_response(json.dumps(
         {"id": int(challenge_id),
-         "name": challenge_desc[int(challenge_id)]["name"],
-         "description": challenge_desc[int(challenge_id)]["description"],
+         "name": challenges[int(challenge_id)]["name"],
+         "description": challenges[int(challenge_id)]["description"],
          "saved_challenge": saved_challenge,
          "generators": gens,
          "demands": demands,
@@ -134,6 +139,15 @@ def submit():
     #      {'node': 3, 'generators': {'H': 1, "N": 1, "R": 1}} ]
     # Output: A json-wrapped dictionary
 
+    # Get the team and challenge ID.
+    team_name = request.headers["team_name"]
+    team_id = db_utils.get_team_id(team_name)
+    challenge_id = request.headers["challenge_id"]
+    if challenge_id not in challenges:
+        return make_response(json.dumps({
+            'success': False, 
+            'message': "This challenge doesn't exist."}))
+
     # Convert the json data into a dictionary 
     submitted_data = request.get_data().decode('unicode_escape')
     submitted_data = json.loads(submitted_data)
@@ -157,11 +171,6 @@ def submit():
         return make_response(json.dumps({
             'success': False, 
             'message': 'Please specify at least one hydro or gas generator for PyPower to process successfully.'}))
-
-    # Get the team and challenge ID.
-    team_name = request.headers["team_name"]
-    team_id = db_utils.get_team_id(team_name)
-    challenge_id = request.headers["challenge_id"]
 
     # Evaluate the submitted design.
     status = do_submit_routine(gen_placements, team_id, challenge_id)
@@ -206,8 +215,7 @@ def do_submit_routine(gen_placements, team_id, challenge_id):
     
     # Pass the design into PyPower and other evaluation metric to calculate 
     # generations, transmissions, cost, CO2 emissions, etc. 
-    data_module = ppc_ontario_data
-    if int(challenge_id) == 11: data_module = ppc_northern_ontario_data
+    data_module = challenges[challenge_id]["data_module"]
     new_scores = eval_pg.calc_score(gen_placements, data_module)
 
     # Update the stored metrics of this team.
