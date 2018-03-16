@@ -52,11 +52,11 @@ challenges = {
           "data_module": ppc_northern_ontario_data},
 }
 
-@pgsim_app.route('/getChallenge/', methods=["GET"])
+@pgsim_app.route('/api/getChallenge/', methods=["GET"])
 def get_challenge_count():
     return make_response(json.dumps([challenge_id for challenge_id in challenges]))
 
-@pgsim_app.route("/getChallenge/<int:challenge_id>", methods=["GET"])
+@pgsim_app.route("/api/getChallenge/<int:challenge_id>", methods=["GET"])
 def get_challenge(challenge_id):
     # return a dictionary with the following entries: “generators”, “demands”, “lines”
     # - “generators”: a list of dicts, one dict for each generator type
@@ -128,7 +128,7 @@ def get_challenge(challenge_id):
     return challenge
 
 # Submit and evaluate submitted form data.
-@pgsim_app.route("/submit/", methods=["POST"])
+@pgsim_app.route("/api/submit/", methods=["POST"])
 def submit():
     # Input: A json-wrapped list of dictionaries, each dict for each node in 
     # order; each dict says how many generators of each type that this node has. 
