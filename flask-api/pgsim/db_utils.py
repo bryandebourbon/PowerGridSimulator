@@ -31,55 +31,88 @@ def get_team_id(team_name):
     else:
         return list(team.values())[0]['team_id']
 
-def insert_submission_entry(gen_placements, team_id, challenge_id):
-    submission_entry = {}
-    latest_sub = SUBMISSIONS.order_by_child('submission_id').limit_to_last(1).get()
+def insert_submission_entry(gen_placements, team_id, new_sys_info):
+    '''
+    SUBMISSIONS table is structured like:
+    SUBMISSIONS
+      |
+      -- challenge_id
+            |
+            -- submission_id
+                    |
+                    -- num_attempt
+                    -- submission_info
+                    -- submission_time
+                    -- team_id
+    '''
+    challenge_ref = SUBMISSIONS.child(new_sys_info['challenge_id'])
+    latest_sub = challenge_ref.order_by_child('submission_id').limit_to_last(1).get()
     if latest_sub:
         submission_id = list(latest_sub.values())[0]['submission_id'] + 1
     else:
         submission_id = 0
 
-    submission_entry['submission_id'] = submission_id
-    submission_entry['team_id'] = team_id
-    submission_entry['challenge_id'] = challenge_id
-    submission_entry['submission_info'] = gen_placements
-    submission_entry['submission_time'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    sub_entry = {}
+    sub_entry['num_attempt'] = new_sys_info['new_num_attempts']
+    sub_entry['submission_id'] = submission_id
+    sub_entry['submission_info'] = gen_placements
+    sub_entry['submission_time'] = new_sys_info['new_sub_datetime']
+    sub_entry['team_id'] = team_id
 
-    SUBMISSIONS.push().set(submission_entry)
+    challenge_ref.push().set(sub_entry)
+
     return submission_id
+
+# TODO(Mel): Display previous entry and add the ability to pull one up 
+
+def get_saved_challenge(challenge_id, team_id):
+    """
+    Check if the team has submitted this challenge before. 
+    If yes return the latest submission, else return default.
+    """
+    result = {
+                'num_attempt': 0,
+                'submission_id': 0,
+                'submission_info': None,
+                'submission_time': None,
+                'team_id': None
+            }
+    challenge_ref = SUBMISSIONS.child(challenge_id)
+    team_subs = challenge_ref.order_by_child('team_id').equal_to(int(team_id)).get()
+
+    latest_time = datetime.strptime("1000-01-01 01:01:01", "%Y-%m-%d %H:%M:%S")
+    for sub in team_subs.values():
+        print(sub['submission_time'])
+        dt = datetime.strptime(sub['submission_time'], "%Y-%m-%d %H:%M:%S")
+        if dt > latest_time:
+            result = sub
+            latest_time = dt
+
+    return result
     
-def update_scores_entry(submission_id, new_sys_info, team_id, new_scores):
+def insert_scores_entry(challenge_id, submission_id, team_id, new_scores):
+    '''
+    SCORES table is structured like:
+    SCORES
+      |
+      -- challenge_id
+            |
+            -- submission_id
+                    |
+                    -- evals
+                    -- team_id
+    '''
     new_scores_entry = {}
-    new_scores_entry['submit_id_best'] = submission_id
-    new_scores_entry['num_attempts'] = new_sys_info['new_num_attempts']
-    new_scores_entry['last_submit_success_time'] = new_sys_info['new_sub_datetime']
-    new_scores_entry['challenge_id'] = new_sys_info['challenge_id']
-    new_scores_entry['scores_best'] = new_scores
+    new_scores_entry[submission_id] = {}
+    new_scores_entry[submission_id]['evals'] = new_scores
+    new_scores_entry[submission_id]['team_id'] = team_id
 
-    # child's parameter must be a non-empty string
-    score = SCORES.child(str(team_id))
+    challenge_id = str(challenge_id)
+    score = SCORES.child(challenge_id)
     if score:
-        SCORES.child(str(team_id)).update(new_scores_entry)
+        SCORES.child(challenge_id).update(new_scores_entry)
     else:
-        SCORES.child(str(team_id)).set(new_scores_entry)
-
-def get_scores_status_entry(team_id):
-    score = SCORES.order_by_child('team_id').equal_to(team_id).get()
-    if not score:
-        return {
-            'team_id': None,
-            'submit_id_best': None,
-            'scores_best': None,
-            'num_attempts': 0,
-            'last_submit_success_time': None
-        }
-
-    return list(score.values())[0]
-
-def get_best_scores(current_best, new_scores):
-    if new_scores['score'] > current_best['score']:
-        return new_scores
-    return current_best
+        SCORES.child(challenge_id).set(new_scores_entry)
 
 def get_leaderboard():
     # Leaderboard functions to display top 3 teams in different categories.
@@ -110,36 +143,6 @@ def get_leaderboard():
             team_name = list(team.values())[0]['team_name']
             result[cat][team_name] = passed_scores[team_id][cat]
     
-    return result
-
-# TODO(Mel): Display previous entry and add the ability to pull one up 
-
-
-def get_saved_challenge(challenge_id, team_id):
-    """
-    Check if the team has submitted this challenge before. 
-    If yes return the latest submission's 'submission_info' field in the format of:
-    {
-        'node_id1': {
-            'H': 1,
-            'N': 2
-        },
-        'node_id2': {
-            'H': 2
-        }
-    }
-    Else return empty dictionary.
-    """
-    result = {}
-    latest_time = datetime.now()
-    team_subs = SUBMISSIONS.order_by_child('team_id').equal_to(team_id).get()
-    for sub in team_subs.values():
-        if sub['challenge_id'] == challenge_id:
-            dt = datetime.strptime(sub['submission_time'], "%Y-%m-%d %H:%M:%S")
-            if dt < latest_time:
-                result = sub['submission_info']
-                latest_time = dt
-
     return result
 
 def delete_users():
@@ -198,21 +201,24 @@ def register_routes(current_app):
     return
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
     # init_db_teams()
     # print(get_team_id("yourteam"))
-    # update_scores_entry(1, new_sys_info = {
-    #    'new_sub_datetime': '2018-03-09 14:20:18',
-    #    'new_num_attempts': 1,
-    #    'challenge_id': 1}, 
-    #    team_id=3, new_scores={"cost": 6120.23, 
-    #                             "passed": True, 
-    #                             "CO2": 10000.41, 
-    #                             "installation_cost": 523081,
-    #                             "lines": {0: {'from': 0}},
-    #                             "nodes": {0: {'node':0}}})
-    # print(get_scores_status_entry(3))
-    # print(get_scores_status_entry(10))
+    # insert_submission_entry({0: {}, 1: {"H": 1}, 2: {"N": 1},
+    #                         3: {"H": 1, "N": 1, "R": 1}},
+    #                         1, new_sys_info = {
+    #                            'new_sub_datetime': '2018-03-16 18:20:18',
+    #                            'new_num_attempts': 1,
+    #                            'challenge_id': '10'})
+
+    # insert_scores_entry(10, 1, team_id=3,
+    #    new_scores={"cost": 6120.23, 
+    #                 "passed": True, 
+    #                 "CO2": 10000.41, 
+    #                 "installation_cost": 523081,
+    #                 "lines": {0: {'from': 0}},
+    #                 "nodes": {0: {'node':0}}})
     # print(get_leaderboard())
     # print(get_saved_challenge('10', '1'))
+    print(get_saved_challenge('10', '3'))
     # delete_users()

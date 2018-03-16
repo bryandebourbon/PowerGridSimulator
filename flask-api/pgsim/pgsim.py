@@ -13,7 +13,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 from flask_cors import CORS 
 
 import pgsim.ppc_utils as ppc_utils, pgsim.db_utils as db_utils, pgsim.eval_pg as eval_pg, pgsim.ppc_ontario_data as ppc_ontario_data, pgsim.ppc_northern_ontario_data as ppc_northern_ontario_data
-#import ppc_utils, db_utils, eval_pg, ppc_ontario_data, ppc_northern_ontario_data
+# import ppc_utils, db_utils, eval_pg, ppc_ontario_data, ppc_northern_ontario_data
 
 from datetime import datetime, timedelta
 import pprint
@@ -110,7 +110,7 @@ def get_challenge(challenge_id):
         {"id": int(challenge_id),
          "name": challenges[int(challenge_id)]["name"],
          "description": challenges[int(challenge_id)]["description"],
-         "saved_challenge": saved_challenge,
+         "saved_challenge": saved_challenge['submission_info'],
          "generators": gens,
          "demands": demands,
          "lines": lines}))
@@ -143,7 +143,7 @@ def submit():
     team_name = request.headers["team_name"]
     team_id = db_utils.get_team_id(team_name)
     challenge_id = request.headers["challenge_id"]
-    if challenge_id not in challenges:
+    if int(challenge_id) not in challenges:
         return make_response(json.dumps({
             'success': False, 
             'message': "This challenge doesn't exist."}))
@@ -185,14 +185,13 @@ def do_submit_routine(gen_placements, team_id, challenge_id):
     status = {'success': True, 'message': 'Processing...'}
 
     # Check if the team has waited long enough since the last submission.
-    # TODO(Mel): Get the latest?(you mean current?) scores status.
-    latest_scores_status_entry = db_utils.get_scores_status_entry(team_id)
+    latest_submission_entry = db_utils.get_saved_challenge(challenge_id, team_id)
     sub_date_time = datetime.now()
-    if not latest_scores_status_entry['last_submit_success_time']: 
+    if not latest_submission_entry['submission_time']: 
         sub_wait_time = timedelta(days=10)
     else:
         sub_wait_time = sub_date_time - datetime.strptime(
-            latest_scores_status_entry['last_submit_success_time'], "%Y-%m-%d %H:%M:%S")
+            latest_submission_entry['submission_time'], "%Y-%m-%d %H:%M:%S")
     # TODO(Mel): Update the time limit to be longer before deployment.
     if timedelta(seconds=5) > sub_wait_time:
        status['success'] = False
@@ -200,14 +199,19 @@ def do_submit_routine(gen_placements, team_id, challenge_id):
        return status
     
     # Check if the team still has enough allowed attempts left.
-    sub_index = latest_scores_status_entry['num_attempts'] # Should start off at 0
+    sub_index = latest_submission_entry['num_attempt'] # Should start off at 0
     if sub_index >= MAX_SUBMISSION_ATTEMPTS:
        status['success'] = False
        status['message'] = "Max submission attempts reached."
        return status
 
     # Store the submitted design into the database.
-    submission_id = db_utils.insert_submission_entry(gen_placements, team_id, challenge_id)
+    new_sys_info = {
+       'new_sub_datetime': sub_date_time.strftime("%Y-%m-%d %H:%M:%S"),
+       'new_num_attempts': sub_index + 1,
+       'challenge_id': challenge_id
+    }
+    submission_id = db_utils.insert_submission_entry(gen_placements, team_id, new_sys_info)
     if submission_id < 0:
        status['success'] = False
        status['message'] = "Could not insert submission to database."
@@ -215,21 +219,11 @@ def do_submit_routine(gen_placements, team_id, challenge_id):
     
     # Pass the design into PyPower and other evaluation metric to calculate 
     # generations, transmissions, cost, CO2 emissions, etc. 
-    data_module = challenges[challenge_id]["data_module"]
+    data_module = challenges[int(challenge_id)]["data_module"]
     new_scores = eval_pg.calc_score(gen_placements, data_module)
 
     # Update the stored metrics of this team.
-    new_sys_info = {
-       'new_sub_datetime': sub_date_time.strftime("%Y-%m-%d %H:%M:%S"),
-       'new_num_attempts': sub_index + 1,
-       'challenge_id': challenge_id
-    }
-    if sub_index == 0:
-        db_utils.update_scores_entry(submission_id, new_sys_info, team_id, new_scores)
-    else:
-        # get best scores
-        best_scores = db_utils.get_best_scores(latest_scores_status_entry['scores_best'], new_scores)
-        db_utils.update_scores_entry(submission_id, new_sys_info, team_id, best_scores)
+    db_utils.insert_scores_entry(challenge_id, submission_id, team_id, new_scores)
 
     status['message'] = "{} Submission #{} successful.".format(sub_date_time.strftime("%Y-%m-%d %H:%M:%S"), sub_index)
     status['eval'] = new_scores

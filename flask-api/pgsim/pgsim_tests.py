@@ -114,6 +114,7 @@ class PgsimSubmitTestCase(unittest.TestCase):
                        content_type='application/json',
                        headers={"team_name": 'ourteam', "challenge_id": 10})
         status = json.loads(rv.data.decode('unicode_escape'))
+        print(status)
         assert not status["success"]
         assert status["message"] == "Please specify at least one hydro or gas generator for PyPower to process successfully."
         
