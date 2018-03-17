@@ -77,12 +77,11 @@ def get_saved_challenge(challenge_id, team_id):
                 'submission_time': None,
                 'team_id': None
             }
-    challenge_ref = SUBMISSIONS.child(challenge_id)
+    challenge_ref = SUBMISSIONS.child(str(challenge_id))
     team_subs = challenge_ref.order_by_child('team_id').equal_to(int(team_id)).get()
 
     latest_time = datetime.strptime("1000-01-01 01:01:01", "%Y-%m-%d %H:%M:%S")
     for sub in team_subs.values():
-        print(sub['submission_time'])
         dt = datetime.strptime(sub['submission_time'], "%Y-%m-%d %H:%M:%S")
         if dt > latest_time:
             result = sub
@@ -107,22 +106,21 @@ def insert_scores_entry(challenge_id, submission_id, team_id, new_scores):
     new_scores_entry[submission_id]['evals'] = new_scores
     new_scores_entry[submission_id]['team_id'] = team_id
 
-    challenge_id = str(challenge_id)
     score = SCORES.child(challenge_id)
     if score:
         SCORES.child(challenge_id).update(new_scores_entry)
     else:
         SCORES.child(challenge_id).set(new_scores_entry)
 
-def get_leaderboard():
+def get_leaderboard(challenge_id):
     # Leaderboard functions to display top 3 teams in different categories.
-
+    challenge_ref = SCORES.child(str(challenge_id))
     result, passed_teams = {}, {}
-    passed_teams = SCORES.order_by_child('scores_best/passed').equal_to(True).get()
+    passed_teams = challenge_ref.order_by_child('evals/passed').equal_to(True).get()
     passed_scores = {}
     # get 'scores_best' for every passed team
     for team_id in passed_teams:
-        passed_scores[team_id] = passed_teams[team_id]['scores_best']
+        passed_scores[team_id] = passed_teams[team_id]['evals']
         if result == {}:
             for cat in passed_scores[team_id]:
                 if cat == 'lines' or cat == 'nodes' or cat == 'passed':
@@ -160,8 +158,8 @@ def delete_users():
 # Endpoints of database related frontend call.
 def register_routes(current_app):
     
-    @current_app.route('/leaderboard/', methods=['GET'])
-    def show_leaderboard():
+    @current_app.route('/api/leaderboard/<int:challenge_id>', methods=['GET'])
+    def show_leaderboard(challenge_id):
         """
         Returns a dictionary in the follwing format, teams in names:
             {
@@ -177,7 +175,7 @@ def register_routes(current_app):
               }
             }
         """
-        leaderboard = get_leaderboard()
+        leaderboard = get_leaderboard(challenge_id)
         return make_response(json.dumps(leaderboard))
 
     '''

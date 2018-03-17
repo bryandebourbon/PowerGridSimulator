@@ -607,3 +607,32 @@
 
 
 
+         23254 function calls (23000 primitive calls) in 1.682 seconds
+
+   Ordered by: cumulative time
+   List reduced from 944 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        2    0.000    0.000    1.672    0.836 /Users/melindalu/anaconda3/lib/python3.6/site-packages/firebase_admin/db.py:505(get)
+        2    0.000    0.000    1.672    0.836 /Users/melindalu/anaconda3/lib/python3.6/site-packages/firebase_admin/_http_client.py:92(body)
+        2    0.000    0.000    1.671    0.836 /Users/melindalu/anaconda3/lib/python3.6/site-packages/firebase_admin/db.py:746(request)
+        2    0.000    0.000    1.671    0.836 /Users/melindalu/anaconda3/lib/python3.6/site-packages/firebase_admin/_http_client.py:64(request)
+        2    0.000    0.000    1.671    0.836 /Users/melindalu/anaconda3/lib/python3.6/site-packages/google/auth/transport/requests.py:181(request)
+        3    0.000    0.000    1.662    0.554 /Users/melindalu/anaconda3/lib/python3.6/site-packages/requests/sessions.py:441(request)
+        3    0.000    0.000    1.643    0.548 /Users/melindalu/anaconda3/lib/python3.6/site-packages/requests/sessions.py:589(send)
+        3    0.000    0.000    1.639    0.546 /Users/melindalu/anaconda3/lib/python3.6/site-packages/requests/adapters.py:388(send)
+        3    0.000    0.000    1.637    0.546 /Users/melindalu/anaconda3/lib/python3.6/site-packages/urllib3/connectionpool.py:447(urlopen)
+        3    0.000    0.000    1.635    0.545 /Users/melindalu/anaconda3/lib/python3.6/site-packages/urllib3/connectionpool.py:322(_make_request)
+        1    0.000    0.000    1.585    1.585 /Users/melindalu/Desktop/Year_4_Sem_2/Capstone/PowerGridSimulator/flask-api/pgsim/db_utils.py:27(get_team_id)
+        3    0.000    0.000    1.237    0.412 /Users/melindalu/anaconda3/lib/python3.6/http/client.py:1287(getresponse)
+        3    0.000    0.000    1.236    0.412 /Users/melindalu/anaconda3/lib/python3.6/http/client.py:290(begin)
+       47    0.000    0.000    1.234    0.026 {method 'readline' of '_io.BufferedReader' objects}
+        5    0.000    0.000    1.234    0.247 /Users/melindalu/anaconda3/lib/python3.6/socket.py:572(readinto)
+        3    0.000    0.000    1.234    0.411 /Users/melindalu/anaconda3/lib/python3.6/http/client.py:257(_read_status)
+        5    0.000    0.000    1.234    0.247 /Users/melindalu/anaconda3/lib/python3.6/site-packages/urllib3/contrib/pyopenssl.py:278(recv_into)
+        5    0.000    0.000    1.234    0.247 /Users/melindalu/anaconda3/lib/python3.6/site-packages/OpenSSL/SSL.py:1598(recv_into)
+        5    1.233    0.247    1.233    0.247 {built-in method _openssl.SSL_read}
+        3    0.000    0.000    0.397    0.132 /Users/melindalu/anaconda3/lib/python3.6/site-packages/urllib3/connectionpool.py:842(_validate_conn)
+
+
+
