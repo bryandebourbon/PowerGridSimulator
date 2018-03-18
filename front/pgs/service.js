@@ -4,7 +4,7 @@ app.service('DataService', function () {
 
         return new Promise(function (resolve, reject) {
             $.ajax({
-                url: 'http://127.0.0.1:5000/getChallenge/',
+                url: API_ADDRESS.getAllChallenges,
                 type: 'GET',
                 headers: headers,
                 success: function (data) {
@@ -23,7 +23,7 @@ app.service('DataService', function () {
     var getLeaderBoard = function () {
         return new Promise(function (resolve, reject) {
             $.ajax({
-                url: 'http://127.0.0.1:5000/leaderboard/',
+                url: API_ADDRESS.getLeaderBoard,
                 type: 'GET',
                 success: function (res) {
                     var data = JSON.parse(res);
@@ -65,7 +65,7 @@ app.service('DataService', function () {
             var headers = { team_name: args.teamname, challenge_id: args.challengeID };
 
             $.ajax({
-                url: 'http://127.0.0.1:5000/submit/',
+                url: API_ADDRESS.submitChallenge,
                 type: 'POST',
                 headers: headers,
                 data: submission,

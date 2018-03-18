@@ -14,3 +14,14 @@ var generatorTypeMap = [{ abbreviation: 'G', display: 'Gas' },
                         { abbreviation: 'N', display: 'Nuclear' },
                         { abbreviation: 'S', display: 'Solar' },
                         { abbreviation: 'W', display: 'Wind' }];
+
+var STRINGS = {
+
+}
+
+var API_ADDRESS = {
+    getAllChallenges: 'http://127.0.0.1:5000/api/getChallenge/',
+    getSingleChallenge: 'http://127.0.0.1:5000/api/getChallenge/',
+    submitChallenge: 'http://127.0.0.1:5000/api/submit/',
+    getLeaderBoard: 'http://127.0.0.1:5000/api/leaderboard/',
+}
