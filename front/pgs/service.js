@@ -1,6 +1,6 @@
 app.service('DataService', function () {
-    var getChallenge = function (args) {
-        var headers = { team_name: args.teamname || '', challenge_id: args.challengeID };
+    var getChallenges = function (args) {
+        var headers = { team_name: args.teamname || '' };
 
         return new Promise(function (resolve, reject) {
             $.ajax({
@@ -82,7 +82,7 @@ app.service('DataService', function () {
     }
 
 
-    this.getChallenge = function (args) { return getChallenge(args); }
+    this.getChallenges = function (args) { return getChallenges(args); }
     this.getLeaderBoard = function (args) { return getLeaderBoard(args); }
     this.submitChallenge = function (args) { return submitChallenge(args); }
 })
