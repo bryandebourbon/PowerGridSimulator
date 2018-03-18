@@ -1,2 +1,0 @@
-include pgsim/schema.sql
-include pgsim/*.py
