@@ -279,11 +279,11 @@ var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSer
 	$scope.goBack = function () {
 		showSpinner();
 
-		$DataService.getChallenge({ teamname: $.cookie('teamname'), challengeID: 10 })
+		$DataService.getChallenges({ teamname: $.cookie('teamname') })
 			.then(function (data) {
 				hideSpinner();
 
-				$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
+				$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
 			}).catch(function (error) {
 				console.log(error);
 			})
