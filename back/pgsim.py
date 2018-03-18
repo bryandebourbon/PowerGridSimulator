@@ -12,8 +12,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 # this fixes the CORS issue, apparently flask has a library for that
 from flask_cors import CORS 
 
-import pgsim.ppc_utils as ppc_utils, pgsim.db_utils as db_utils, pgsim.eval_pg as eval_pg, pgsim.ppc_ontario_data as ppc_ontario_data, pgsim.ppc_northern_ontario_data as ppc_northern_ontario_data
-# import ppc_utils, db_utils, eval_pg, ppc_ontario_data, ppc_northern_ontario_data
+import ppc_utils, db_utils, eval_pg, ppc_ontario_data, ppc_northern_ontario_data
 
 from datetime import datetime, timedelta
 import pprint
