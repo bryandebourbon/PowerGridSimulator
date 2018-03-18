@@ -243,9 +243,18 @@ class PgsimGetChallengeTestCase(unittest.TestCase):
         pgsim.pgsim_app.testing = True
         self.app = pgsim.pgsim_app.test_client()
 
-    def test_get_challenge_count(self):
-        rv = self.app.get('/api/getChallenge/')
-        assert json.loads(rv.data.decode('unicode_escape')) == [10, 11]
+    def test_get_challenge_list(self):
+        rv = self.app.get('/api/getChallenge/',
+                        headers={"team_name": 'ourteam'})
+        expected_list = [{'id': 10,
+                          'name': 'Ontario Power Generation', 
+                          'description': "Design Ontario's generation system with real-life demand, generation cost, CO2 emission, and more data!",
+                          'saved_flag': True}, 
+                         {'id': 11, 
+                          'name': 'Northern Ontario Power Generation',
+                          'description': 'Design a very simple generation system for Northern Ontario, with real-life demand, generation cost, CO2 emission, and more data!', 
+                          'saved_flag': True}]
+        assert json.loads(rv.data.decode('unicode_escape')) == expected_list
 
     def test_get_nonexistent_challenge(self):
         rv = self.app.get('/api/getChallenge/9')

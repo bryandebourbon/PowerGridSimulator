@@ -52,8 +52,31 @@ challenges = {
 }
 
 @pgsim_app.route('/api/getChallenge/', methods=["GET"])
-def get_challenge_count():
-    return make_response(json.dumps([challenge_id for challenge_id in challenges]))
+def get_challenge_list():
+    """
+    Returns a list of challenges of the following format:
+    [{
+        id: 1, name: name, description: description1, saved: false
+     }, {
+        id: 2, name: name2, description: description2, saved: true
+    }]
+    """
+    result = []
+    team_name = request.headers["team_name"]
+    team_id = db_utils.get_team_id(team_name)
+    for challenge_id in challenges:
+        challenge = {}
+        challenge['id'] = challenge_id
+        challenge['name'] = challenges[challenge_id]['name']
+        challenge['description'] = challenges[challenge_id]['description']
+        saved_flag = False
+        saved_challenge = db_utils.get_saved_challenge(challenge_id, team_id)
+        if saved_challenge:
+            saved_flag = True
+        challenge['saved_flag'] = saved_flag
+
+        result.append(challenge)
+    return make_response(json.dumps(result))
 
 @pgsim_app.route("/api/getChallenge/<int:challenge_id>", methods=["GET"])
 def get_challenge(challenge_id):
