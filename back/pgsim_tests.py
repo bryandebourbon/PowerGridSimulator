@@ -112,20 +112,20 @@ class PgsimSubmitTestCase(unittest.TestCase):
         placements = []
         rv = self.app.post('/api/submit/', data=json.dumps(placements),
                        content_type='application/json',
-                       headers={"team_name": 'ourteam', "challenge_id": 10})
+                       headers={"team_name": 'Ateam', "challenge_id": 10})
         status = json.loads(rv.data.decode('unicode_escape'))
         print(status)
-        assert not status["success"]
+        assert not status["success"], status['message']
         assert status["message"] == "Please specify at least one hydro or gas generator for PyPower to process successfully."
         
     def test_submit_11_simple(self):
         placements = [{'node': 0, 'generators': {'G':2} }]
         rv = self.app.post('/api/submit/', data=json.dumps(placements),
                             content_type='application/json',
-                            headers={"team_name": 'ourteam', "challenge_id": 11})
+                            headers={"team_name": 'Bteam', "challenge_id": 11})
         status = json.loads(rv.data.decode('unicode_escape'))
         print(status)
-        assert status["success"]
+        assert status["success"], status['message']
         assert status["eval"]["passed"]
 
     def test_submit_11_simple2(self):
@@ -133,48 +133,48 @@ class PgsimSubmitTestCase(unittest.TestCase):
                         {'node': 1, 'generators': {'H':1} }]
         rv = self.app.post('/api/submit/', data=json.dumps(placements),
                             content_type='application/json',
-                            headers={"team_name": 'ourteam', "challenge_id": 11})
+                            headers={"team_name": 'Cteam', "challenge_id": 11})
         status = json.loads(rv.data.decode('unicode_escape'))
         print(status)
-        assert status["success"]
+        assert status["success"], status['message']
         assert status["eval"]["passed"]
 
-    def test_submit_11_simple2(self):
+    def test_submit_11_simple3(self):
         placements = [{'node': 0, 'generators': {'G':1} },
                         {'node': 1, 'generators': {'H':1} }]
         rv = self.app.post('/api/submit/', data=json.dumps(placements),
                             content_type='application/json',
-                            headers={"team_name": 'ourteam', "challenge_id": 11})
+                            headers={"team_name": 'Dteam', "challenge_id": 11})
         status = json.loads(rv.data.decode('unicode_escape'))
         print(status)
-        assert status["success"]
+        assert status["success"], status['message']
         assert status["eval"]["passed"]
 
     def test_submit_simple(self):
         placements = [{'node': 4, 'generators': {'H':1} }]
         rv = self.app.post('/api/submit/', data=json.dumps(placements),
                             content_type='application/json',
-                            headers={"team_name": 'ourteam', "challenge_id": 10})
+                            headers={"team_name": 'Eteam', "challenge_id": 10})
         status = json.loads(rv.data.decode('unicode_escape'))
-        assert status["success"]
+        assert status["success"], status['message']
         assert not status["eval"]["passed"]
 
     def test_submit_simple2(self):
         placements = [{'node': 0, 'generators': {'G':1} }]
         rv = self.app.post('/api/submit/', data=json.dumps(placements),
                             content_type='application/json',
-                            headers={"team_name": 'yourteam', "challenge_id": 10})
+                            headers={"team_name": 'Fteam', "challenge_id": 10})
         status = json.loads(rv.data.decode('unicode_escape'))
-        assert status["success"]
+        assert status["success"], status['message']
         assert not status["eval"]["passed"]
 
     def test_submit_simple3(self):
         placements = [{'node': 0, 'generators': {'N':1} }]
         rv = self.app.post('/api/submit/', data=json.dumps(placements),
                             content_type='application/json',
-                            headers={"team_name": 'ourteam', "challenge_id": 10})
+                            headers={"team_name": 'Gteam', "challenge_id": 10})
         status = json.loads(rv.data.decode('unicode_escape'))
-        assert not status["success"]
+        assert not status["success"], status['message']
         assert status["message"] == "Please specify at least one hydro or gas generator for PyPower to process successfully."
         
     def test_submit(self):
@@ -190,9 +190,9 @@ class PgsimSubmitTestCase(unittest.TestCase):
                     {"node": 9, "generators": {"H": 1, "N":1, "G":1, "S":1, "W":1}}]
         rv = self.app.post('/api/submit/', data=json.dumps(placements),
                             content_type='application/json',
-                            headers={"team_name": 'ourteam', "challenge_id": 10})
+                            headers={"team_name": 'Jteam', "challenge_id": 10})
         status = json.loads(rv.data.decode('unicode_escape'))
-        assert status["success"]
+        assert status["success"], status['message']
         assert status["eval"]["passed"]
         print(rv.data)
 
@@ -209,9 +209,9 @@ class PgsimSubmitTestCase(unittest.TestCase):
                        {"node": 9, "generators": {"G": 1, "W": 1}}]
         rv = self.app.post('/api/submit/', data=json.dumps(placements),
                             content_type='application/json',
-                            headers={"team_name": 'ourteam', "challenge_id": 10})
+                            headers={"team_name": 'Iteam', "challenge_id": 10})
         status = json.loads(rv.data.decode('unicode_escape'))
-        assert status["success"]
+        assert status["success"], status['message']
         assert status["eval"]["passed"]
         print(rv.data)
         #"cost": 8740.259, "installation_cost": 84988000, "CO2": 3891.7800068414053
@@ -230,9 +230,9 @@ class PgsimSubmitTestCase(unittest.TestCase):
                        {"node": 9, "generators": {"G": 1, "W": 1}}]
         rv = self.app.post('/api/submit/', data=json.dumps(placements),
                             content_type='application/json',
-                            headers={"team_name": 'ourteam', "challenge_id": 10})
+                            headers={"team_name": 'Jteam', "challenge_id": 10})
         status = json.loads(rv.data.decode('unicode_escape'))
-        assert status["success"]
+        assert status["success"], status['message']
         assert status["eval"]["passed"]
         print(rv.data)
         #"cost": 4315.259, "installation_cost": 46988000, "CO2": 8232.851469618177
