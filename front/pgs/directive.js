@@ -18,17 +18,17 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 	$scope.register = function () {
 		var user = { email: $scope.email, password: $scope.password, teamname: $scope.teamname };
 
-		if (user.email && user.email.length < 1) {
+		if (!_.isNull(user.email) && user.email.length < 1) {
 			showWarning('Email field cannot be empty.');
 
 			return;
 		}
-		if (user.password && user.password.length < 5) {
+		if (!_.isNull(user.password) && user.password.length < 5) {
 			showWarning('Password field should be at least 6 characters.');
 
 			return;
 		}
-		if (user.teamname && user.teamname.length < 1) {
+		if (!_.isNull(user.teamname) && user.teamname.length < 1) {
 			showWarning('Team Name field should not be empty.');
 
 			return;
@@ -155,41 +155,41 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 	$scope.login = function () {
 		var user = { email: $scope.email, password: $scope.password || '', teamname: $scope.teamname || '' };
 
-		if (user.email && user.email.length < 1) {
+		if (!_.isNull(user.email) && user.email.length < 1) {
 			showWarning('Email field should not be empty.');
 
 			return;
 		}
-		if (user.password && user.password.length < 1) {
+		if (!_.isNull(user.password) && user.password.length < 1) {
 			showWarning('Password field should not be empty.');
 
 			return;
 		}
-		if (user.teamname && user.teamname.length < 1) {
+		if (!_.isNull(user.teamname) && user.teamname.length < 1) {
 			showWarning('Team Name field should not be empty.');
 
 			return;
 		}
 
-		firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch(function (error) {
+		firebase.auth().signInWithEmailAndPassword(user.email, user.password).then(function (data) {
+			showSpinner();
+
+			$DataService.getChallenges({ teamname: user.teamname })
+				.then(function (data) {
+					hideSpinner();
+
+					$.cookie('teamname', $scope.teamname);
+					$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
+				}).catch(function (error) {
+					hideSpinner();
+
+					showWarning(error);
+				})
+		}).catch(function (error) {
 			showWarning(error);
 
 			return;
 		});
-
-		showSpinner();
-
-		$DataService.getChallenges({ teamname: user.teamname})
-			.then(function (data) {
-				hideSpinner();
-				
-				$.cookie('teamname', $scope.teamname);
-				$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
-			}).catch(function (error) {
-				hideSpinner();
-
-				showWarning(error);
-			})
 	}
 }]
 
@@ -306,7 +306,227 @@ app.directive('simulatorDirective', function () {
 var vis = new Vis();
 var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
 	$scope.renderGrid = function () {
+<<<<<<< HEAD
 		vis.render()
+=======
+		//https://bost.ocks.org/mike/map/
+		//https://medium.com/@mbostock/command-line-cartography-part-1-897aa8f8ca2c
+		//http://mtaptich.github.io/d3-lessons/d3-extras/
+		//https://embed.plnkr.co/plunk/awGtKX
+
+		var width = 500,
+			height = 1000,
+			scale = 1200;
+
+
+		var points = [
+			[-79.376220703125, 43.70759350405294],
+			[-79.4970703125, 46.34692761055676],
+			[-81.32080078125, 48.472921272487824],
+			[-89.4287109375, 48.545705491847464],
+			[-92.28515625, 52.8823912222619],
+			[-86.0888671875, 51.83577752045248],
+			[-87.890625, 55.99838095535963],
+			[-75.89355468749999, 45.1510532655634],
+			[-81.6943359375, 43.004647127794435]
+		];
+
+		var generator_type = ["nuclear", "wind", "coal", "solar", "wind"];
+		var generator_color = ["green", "blue", "grey", "orange", "white"];
+		var generator_count = 0;
+		//  The projection is used to project geographical coordinates on the SVG
+		projection = d3.geo.mercator().scale(scale).translate([width + 1555, height + 460]);
+
+		//  Path is the conversion of geographical shapes (states) to a SVG path 
+		path = d3.geo.path().projection(projection);
+
+		//  Map is the SVG which everything is drawn on.
+		map = d3.select("#simulator-svg")
+			.append("svg")
+			.attr("width", width)
+			.attr("height", height);
+		var gBackground = map.append("g"); // appended first
+		
+		var gPathPoints = map.append("g");
+		var gDataPoints = map.append("g");
+
+		var gPowerZones = map.append("g");
+
+		gDataPoints.selectAll(".point")
+			.data(points)
+			.enter().append("circle")
+			.attr("r", 8)
+			.attr("fill", "red")
+			.attr("transform", function (d) { return "translate(" + projection(d) + ")"; })
+			.on("click", function () {
+
+
+
+
+			})
+			.on("dblclick", function () {
+				last = d3.select(this).style('fill', generator_color[generator_count])
+				this.generator_type = generator_type[generator_count]
+				generator_count = (generator_count + 1) % 5
+
+			})
+			;
+
+		var line = d3.svg.line()
+			.interpolate("cardinal-closed")
+			.x(function (d) { return projection(d)[0]; })
+			.y(function (d) { return projection(d)[1]; });
+
+		var power_lines = [
+
+
+			[
+				[-79.376220703125, 43.70759350405294],
+				[-79.4970703125, 46.34692761055676]
+			],// neck to south
+			[
+				[-79.4970703125, 46.34692761055676],
+				[-81.32080078125, 48.472921272487824]
+			],// center to neck
+			[
+				[-81.32080078125, 48.472921272487824],
+				[-86.0888671875, 51.83577752045248]
+			],// north middle to center middle
+			[
+				[-92.28515625, 52.8823912222619],
+				[-86.0888671875, 51.83577752045248]
+			],// north middle
+			[
+				[-86.0888671875, 51.83577752045248],
+				[-87.890625, 55.99838095535963],
+			],// most north
+			[
+				[-86.0888671875, 51.83577752045248],
+				[-89.4287109375, 48.545705491847464],
+			],// bottom north
+			[
+				[-79.376220703125, 43.70759350405294],
+				[-81.6943359375, 43.004647127794435]
+			],// bottom left
+
+			[
+				[-75.89355468749999, 45.1510532655634],
+				[-79.376220703125, 43.70759350405294]
+			]// bottom right
+		]
+
+		//store an array with all the lines so you can add circles
+
+
+		var linepath = gDataPoints.append("path")
+			.data([power_lines])
+			.attr("d", line)
+			.attr('class', 'journey')
+			.attr("fill", "red")
+			;
+		var linepath = gPathPoints.selectAll(".line")
+			.data(power_lines).enter().append("path")
+			.attr("d", line)
+			.attr('class', 'journey')
+			.attr("fill", "red")
+			;
+		console.log(linepath)
+
+		// var circle = gPathPoints.append("circle")
+		// 	.attr("r", 4)
+		// 	.attr("fill", "green")
+		// 	.attr("transform", "translate(" + projection(points[0]) + ")");
+
+		// var circle2 = gPathPoints.append("circle")
+		// 	.attr("r", 2)
+		// 	.attr("fill", "green")
+		// 	.attr("transform", "translate(" + projection(points[0]) + ")");
+
+		// transition();
+		// function transition() {
+		// 	circle.transition()
+		// 		.duration(5000)
+		// 		.attrTween("transform", translateAlong(linepath.node()))
+		// 		.each("end", transition);
+		// }
+		// transition2();
+		// function transition2() {
+		// 	circle2.transition()
+		// 		.duration(3000)
+		// 		.attrTween("transform", translateAlong2(linepath.node()))
+		// 		.each("end", transition2);
+		// }
+
+		// function translateAlong(path) {
+		// 	var l = path.getTotalLength();
+		// 	return function (d, i, a) {
+		// 		return function (t) {
+		// 			var p = path.getPointAtLength(t * l);
+		// 			return "translate(" + (p.x + 5) + "," + p.y + ")";
+		// 		};
+		// 	};
+		// }
+		// function translateAlong2(path) {
+		// 	var l = path.getTotalLength();
+		// 	return function (d, i, a) {
+		// 		return function (t) {
+		// 			var p = path.getPointAtLength(t * l);
+		// 			return "translate(" + (p.x - 5) + "," + p.y + ")";
+		// 		};
+		// 	};
+		// }
+
+		//  Load state information to create individual state paths
+		d3.json("Visuals/geojson/Ontario.geo.json", function (error, ont) {
+			if (error) throw error;
+			gBackground.selectAll("path")
+				.attr("width", width)
+				.attr("height", height)
+
+				.data(topojson.feature(ont, ont.objects.boarderlines).features)
+				.enter().append("path")
+				.attr("d", path)
+				.attr("class", "state");
+
+		});
+		prefix = "./Visuals/geojson/";
+		filenames = ["Bruce.geo.topojson",
+					 "East.geo.topojson",
+					 "Essa.geo.topojson",
+					 "Niagara.geo.topojson",
+					 "Northeast.geo.topojson",
+					 "Northwest.geo.topojson",
+					 "Ottawa.geo.topojson",
+					 "Southwest.geo.topojson",
+					 "Toronto.geo.topojson",
+					 "West.geo.topojson",
+					]
+			//	for (i=0; i<filenames.length; i++){
+		
+
+		var tester = function (i) {
+			pwr_colors = ["green", "yellow", "red", "purple", "blue", "orange", "pink", "red", "purple", "blue"]
+
+
+		filename = prefix + filenames[i]
+	
+		//  Load state information to create individual state paths
+		d3.json(filename, function (error, pwr) {
+			if (error) throw error;
+			map.append("g").selectAll("path")
+				.attr("width", width)
+				.attr("height", height)
+
+				.data(topojson.feature(pwr, pwr.objects.boarderlines).features)
+				.enter().append("path")
+				.attr("d", path)
+				.attr("class", "pwrRegions")
+				.style("fill", pwr_colors[i])
+				.style("opacity", "0.5"); 
+
+
+		});
+>>>>>>> 3e28a5f2f411fe035d5a5d38999793a6270d329e
 	}
 
 
@@ -327,6 +547,15 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 			
 			generator.type = generatorType.display;
 		})
+
+		$timeout(function () {
+			_.forEach($scope.challenge.generators, function (g, i) {
+				if (g.count == 0) {
+					var _generatorAddButton = $('.pgs-add-button:eq(' + i + ')');
+					_generatorAddButton.addClass('disabled pgs-disabled');	// this is a hacky fix, ng-disabled not working here
+				}
+			})
+		})
 	}
 	var populateNodes = function () {
 		// coming back from the evaluation page, no need to re-populate the challenge nodes list
@@ -343,7 +572,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 
 				var node = {
 					index: d.node,
-					name: name || 'Node ' + d.node,
+					name: name,
 					demands: {
 						real: d.real,
 						reactive: d.reactive
@@ -705,10 +934,15 @@ var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', functi
 
 					var i = 1;
 					_.forEach(b, function (v, k) {
-						var winner = { ranking: i, name: k, score: v };
+						var winner = { name: k, score: Math.round(v * 100) / 100 };
 						$scope.environmentalFootprintBoard.push(winner);
 
 						i ++;
+					})
+
+					$scope.environmentalFootprintBoard = _.sortBy($scope.environmentalFootprintBoard, function (w) { return w.score; });
+					_.forEach($scope.environmentalFootprintBoard, function (w, i) {
+						w.ranking = i + 1;
 					})
 
 					break;
@@ -717,10 +951,15 @@ var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', functi
 
 					var i = 1;
 					_.forEach(b, function (v, k) {
-						var winner = { ranking: i, name: k, score: v };
+						var winner = { name: k, score: Math.round(v * 100) / 100 };
 						$scope.realCostBoard.push(winner);
 
 						i++;						
+					})
+
+					$scope.realCostBoard = _.sortBy($scope.realCostBoard, function (w) { return w.score; });
+					_.forEach($scope.realCostBoard, function (w, i) {
+						w.ranking = i + 1;
 					})
 
 					break;
@@ -729,10 +968,15 @@ var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', functi
 
 					var i = 1;
 					_.forEach(b, function (v, k) {
-						var winner = { ranking: i, name: k, score: v };
+						var winner = { name: k, score: Math.round(v * 100) / 100 };
 						$scope.installationCostBoard.push(winner);
 					
 						i++;
+					})
+
+					$scope.installationCostBoard = _.sortBy($scope.installationCostBoard, function (w) { return w.score; });
+					_.forEach($scope.installationCostBoard, function (w, i) {
+						w.ranking = i + 1;
 					})
 
 					break;
