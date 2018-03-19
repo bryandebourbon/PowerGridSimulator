@@ -948,10 +948,15 @@ var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', functi
 
 					var i = 1;
 					_.forEach(b, function (v, k) {
-						var winner = { ranking: i, name: k, score: v };
+						var winner = { name: k, score: v };
 						$scope.environmentalFootprintBoard.push(winner);
 
 						i ++;
+					})
+
+					$scope.environmentalFootprintBoard = _.sortBy($scope.environmentalFootprintBoard, function (w) { return w.score; });
+					_.forEach($scope.environmentalFootprintBoard, function (w, i) {
+						w.ranking = i + 1;
 					})
 
 					break;
@@ -960,10 +965,15 @@ var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', functi
 
 					var i = 1;
 					_.forEach(b, function (v, k) {
-						var winner = { ranking: i, name: k, score: v };
+						var winner = { name: k, score: v };
 						$scope.realCostBoard.push(winner);
 
 						i++;						
+					})
+
+					$scope.realCostBoard = _.sortBy($scope.realCostBoard, function (w) { return w.score; });
+					_.forEach($scope.realCostBoard, function (w, i) {
+						w.ranking = i + 1;
 					})
 
 					break;
@@ -972,10 +982,15 @@ var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', functi
 
 					var i = 1;
 					_.forEach(b, function (v, k) {
-						var winner = { ranking: i, name: k, score: v };
+						var winner = { name: k, score: v };
 						$scope.installationCostBoard.push(winner);
 					
 						i++;
+					})
+
+					$scope.installationCostBoard = _.sortBy($scope.installationCostBoard, function (w) { return w.score; });
+					_.forEach($scope.installationCostBoard, function (w, i) {
+						w.ranking = i + 1;
 					})
 
 					break;
