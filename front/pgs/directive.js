@@ -347,25 +347,25 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 
 		var gPowerZones = map.append("g");
 
-		// gDataPoints.selectAll(".point")
-		// 	.data(points)
-		// 	.enter().append("circle")
-		// 	.attr("r", 8)
-		// 	.attr("fill", "red")
-		// 	.attr("transform", function (d) { return "translate(" + projection(d) + ")"; })
-		// 	.on("click", function () {
+		gDataPoints.selectAll(".point")
+			.data(points)
+			.enter().append("circle")
+			.attr("r", 8)
+			.attr("fill", "red")
+			.attr("transform", function (d) { return "translate(" + projection(d) + ")"; })
+			.on("click", function () {
 
 
 
 
-		// 	})
-		// 	.on("dblclick", function () {
-		// 		last = d3.select(this).style('fill', generator_color[generator_count])
-		// 		this.generator_type = generator_type[generator_count]
-		// 		generator_count = (generator_count + 1) % 5
+			})
+			.on("dblclick", function () {
+				last = d3.select(this).style('fill', generator_color[generator_count])
+				this.generator_type = generator_type[generator_count]
+				generator_count = (generator_count + 1) % 5
 
-		// 	})
-		// 	;
+			})
+			;
 
 		var line = d3.svg.line()
 			.interpolate("cardinal-closed")
@@ -410,20 +410,22 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 			]// bottom right
 		]
 
-		// store an array with all the lines so you can add circles
-		// var linepath = gDataPoints.append("path")
-		// 	.data([power_lines])
-		// 	.attr("d", line)
-		// 	.attr('class', 'journey')
-		// 	.attr("fill", "red")
-		// 	;
-		// var linepath = gPathPoints.selectAll(".line")
-		// 	.data(power_lines).enter().append("path")
-		// 	.attr("d", line)
-		// 	.attr('class', 'journey')
-		// 	.attr("fill", "red")
-		// 	;
-		// console.log(linepath)
+		//store an array with all the lines so you can add circles
+
+
+		var linepath = gDataPoints.append("path")
+			.data([power_lines])
+			.attr("d", line)
+			.attr('class', 'journey')
+			.attr("fill", "red")
+			;
+		var linepath = gPathPoints.selectAll(".line")
+			.data(power_lines).enter().append("path")
+			.attr("d", line)
+			.attr('class', 'journey')
+			.attr("fill", "red")
+			;
+		console.log(linepath)
 
 		// var circle = gPathPoints.append("circle")
 		// 	.attr("r", 4)
@@ -482,65 +484,65 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 				.attr("class", "state");
 
 		});
+		prefix = "./visuals/geojson/";
+		filenames = ["Bruce.geo.topojson",
+					 "East.geo.topojson",
+					 "Essa.geo.topojson",
+					 "Niagara.geo.topojson",
+					 "Northeast.geo.topojson",
+					 "Northwest.geo.topojson",
+					 "Ottawa.geo.topojson",
+					 "Southwest.geo.topojson",
+					 "Toronto.geo.topojson",
+					 "West.geo.topojson",
+					]
+			//	for (i=0; i<filenames.length; i++){
 		
-	// 	filenames = ["Bruce.geo.topojson",
-	// 				 "East.geo.topojson",
-	// 				 "Essa.geo.topojson",
-	// 				 "Niagara.geo.topojson",
-	// 				 "Northeast.geo.topojson",
-	// 				 "Northwest.geo.topojson",
-	// 				 "Ottawa.geo.topojson",
-	// 				 "Southwest.geo.topojson",
-	// 				 "Toronto.geo.topojson",
-	// 				 "West.geo.topojson",
-	// 				]
-	// 		//	for (i=0; i<filenames.length; i++){
-		
 
-	// 	var tester = function (i) {
-	// 		pwr_colors = ["green", "yellow", "red", "purple", "blue", "orange", "pink", "red", "purple", "blue"]
+		var tester = function (i) {
+			pwr_colors = ["green", "yellow", "red", "purple", "blue", "orange", "pink", "red", "purple", "blue"]
 
 
-	// 	filename = filenames[i]
+		filename = prefix + filenames[i]
 	
-	// 	//  Load state information to create individual state paths
-	// 	d3.json(filename, function (error, pwr) {
-	// 		if (error) throw error;
-	// 		map.append("g").selectAll("path")
-	// 			.attr("width", width)
-	// 			.attr("height", height)
+		//  Load state information to create individual state paths
+		d3.json(filename, function (error, pwr) {
+			if (error) throw error;
+			map.append("g").selectAll("path")
+				.attr("width", width)
+				.attr("height", height)
 
-	// 			.data(topojson.feature(pwr, pwr.objects.boarderlines).features)
-	// 			.enter().append("path")
-	// 			.attr("d", path)
-	// 			.attr("class", "pwrRegions")
-	// 			.style("fill", pwr_colors[i])
-	// 			.style("opacity", "0.5"); 
-
-
-	// 	});
-	// }
-
-	// tester(5);
-	// 	tester(0);
-	// 	tester(1);
-	// 	tester(2);
-	// 	tester(3);
-	// 	tester(4);
-	// 	tester(5);
-	// 	tester(9);
-	// 	tester(7);
-	// 	tester(8);
-	
-
-	// }
+				.data(topojson.feature(pwr, pwr.objects.boarderlines).features)
+				.enter().append("path")
+				.attr("d", path)
+				.attr("class", "pwrRegions")
+				.style("fill", pwr_colors[i])
+				.style("opacity", "0.5"); 
 
 
-
-
-
-
+		});
 	}
+
+	tester(5);
+		tester(0);
+		tester(1);
+		tester(2);
+		tester(3);
+		tester(4);
+		tester(5);
+		tester(9);
+		tester(7);
+		tester(8);
+	
+
+	
+
+
+
+
+}
+
+	
 
 	var clickHandler = function (d) {
 		$scope.node = _.find($scope.nodes, function (n) { return n.index == d.index; });
