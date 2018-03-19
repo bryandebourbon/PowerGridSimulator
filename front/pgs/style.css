@@ -202,3 +202,17 @@
 	fill: green !important;
     opacity: 0.5 !important;
 } */
+
+
+
+.active {
+  stroke: #000;
+  stroke-width: 2px;
+  stroke: red;
+}
+
+
+.node:not(:hover) .nodetext {
+display: none;
+}
+
