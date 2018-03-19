@@ -1,0 +1,29 @@
+
+docker network create pgs_internal
+
+# (1) make backend container 
+ docker build -t imgback ./back
+
+#run copy of container
+docker stop backend
+docker rm backend
+ docker run   \
+--name backend \
+--network=pgs_internal \
+--publish=8000:8000 \
+imgback
+
+
+# (2) make frontend container 
+ docker build -t imgfront ./front
+
+#run copy of container
+docker stop frontend
+docker rm frontend
+ docker run  \
+--name frontend \
+--network=pgs_internal \
+--publish=80:80 \
+-v ~/PowerGridSimulator/front/pgs:/usr/share/nginx/html/  \
+-v ~/PowerGridSimulator/front/nginx:/etc/nginx/conf.d \
+imgfront
