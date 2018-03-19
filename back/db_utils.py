@@ -1,4 +1,4 @@
-
+from collections import OrderedDict
 from flask import Blueprint, request, session, g, redirect, url_for, abort, \
      render_template, flash, current_app, make_response
 import os, json, firebase_admin
@@ -126,7 +126,7 @@ def get_leaderboard(challenge_id):
             for cat in passed_scores[team_id]:
                 if cat == 'lines' or cat == 'nodes' or cat == 'passed':
                     continue
-                result[cat] = {}
+                result[cat] = OrderedDict()
 
     # get top 3 for each category by sorting the values
     for cat in result:
