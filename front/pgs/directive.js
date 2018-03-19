@@ -484,7 +484,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 				.attr("class", "state");
 
 		});
-		prefix = "./visuals/geojson/";
+		prefix = "./Visuals/geojson/";
 		filenames = ["Bruce.geo.topojson",
 					 "East.geo.topojson",
 					 "Essa.geo.topojson",
