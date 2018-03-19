@@ -71,7 +71,7 @@ def get_challenge_list():
         challenge['description'] = challenges[challenge_id]['description']
         saved_flag = False
         saved_challenge = db_utils.get_saved_challenge(challenge_id, team_id)
-        if saved_challenge:
+        if saved_challenge['submission_info']:
             saved_flag = True
         challenge['saved_flag'] = saved_flag
 

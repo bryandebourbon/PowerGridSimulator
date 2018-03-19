@@ -15,7 +15,7 @@ SUBMISSIONS = db.reference('submissions')
 SCORES = db.reference('scores')
 
 # Read in the teams.txt and put the team data into the database. 
-def init_db_teams(authfile="pgsim/data/teams.txt"):
+def init_db_teams(authfile="./data/teams.txt"):
     team_info = []
     with open(authfile, 'r') as f:
         contents = list(f)
@@ -119,8 +119,9 @@ def get_leaderboard(challenge_id):
     passed_teams = challenge_ref.order_by_child('evals/passed').equal_to(True).get()
     passed_scores = {}
     # get 'scores_best' for every passed team
-    for team_id in passed_teams:
-        passed_scores[team_id] = passed_teams[team_id]['evals']
+    for team in passed_teams.values():
+        team_id = team['team_id']
+        passed_scores[team_id] = team['evals']
         if result == {}:
             for cat in passed_scores[team_id]:
                 if cat == 'lines' or cat == 'nodes' or cat == 'passed':
@@ -200,7 +201,7 @@ def register_routes(current_app):
 
 
 if __name__ == "__main__":
-    # init_db_teams()
+    init_db_teams()
     # print(get_team_id("yourteam"))
     # insert_submission_entry({0: {}, 1: {"H": 1}, 2: {"N": 1},
     #                         3: {"H": 1, "N": 1, "R": 1}},
@@ -218,5 +219,5 @@ if __name__ == "__main__":
     #                 "nodes": {0: {'node':0}}})
     # print(get_leaderboard())
     # print(get_saved_challenge('10', '1'))
-    print(get_saved_challenge('10', '3'))
+    # print(get_saved_challenge('10', '3'))
     # delete_users()
