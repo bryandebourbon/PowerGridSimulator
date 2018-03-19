@@ -25,6 +25,10 @@ import cProfile, pstats, io
 pgsim_app = Flask(__name__) # create the application instance :)
 pgsim_app.config.from_object(__name__) # load config from this file , flaskr.py
 
+
+def create_app():
+    return pgsim_app
+    
 # apply CORS to our pgsim app
 CORS(pgsim_app)
 
