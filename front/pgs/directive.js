@@ -67,12 +67,12 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 									displayName: user.teamname
 								}).then(function () {
 
-									$DataService.getChallenge({ teamname: user.teamname, challengeID: 10 })
+									$DataService.getChallenges({ teamname: user.teamname })
 										.then(function (data) {
 											hideSpinner();
 
 											$.cookie('teamname', $scope.teamname);
-											$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
+											$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
 										}).catch(function (error) {
 											hideSpinner();
 
@@ -125,12 +125,12 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 
 									teams.update(newTeam);
 
-									$DataService.getChallenge({ teamname: user.teamname, challengeID: 10 })
+									$DataService.getChallenges({ teamname: user.teamname })
 										.then(function (data) {
 											hideSpinner();
 
 											$.cookie('teamname', $scope.teamname);
-											$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
+											$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
 										}).catch(function (error) {
 											hideSpinner();
 
@@ -179,12 +179,12 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 
 		showSpinner();
 
-		$DataService.getChallenge({ teamname: user.teamname, challengeID: 10 })
+		$DataService.getChallenges({ teamname: user.teamname})
 			.then(function (data) {
 				hideSpinner();
 				
 				$.cookie('teamname', $scope.teamname);
-				$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
+				$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
 			}).catch(function (error) {
 				hideSpinner();
 
@@ -203,13 +203,7 @@ app.directive('challengesDirective', function () {
 		controller: challengesDirectiveController
 	}
 })
-var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
-	var processChallenges = function () {
-		_.forEach($scope.challenges, function (c) {
-			c.saved = _.size(c.saved_challenge) == 0 ? 'False' : 'True';
-		})
-	}
-
+var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataService', function ($scope, $rootScope, $timeout, $DataService) {
 	$scope.previewChallenge = function (id) {
 		var challenge = _.find($scope.challenges, function (c) { return c.id == id; });
 
@@ -225,15 +219,22 @@ var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', functio
 		var challenge = _.find($scope.challenges, function (c) { return c.id == id; });
 
 		if (challenge) {
-			$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: challenge }); });
+			$DataService.getChallenge({ teamname: $.cookie('teamname'), challengeID: id })
+				.then(function (data) {
+					hideSpinner();
+
+					$rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: data });
+				}).catch(function (error) {
+					hideSpinner();
+
+					showWarning(error);
+				})
 		}
 	}
 
 	$scope.goBack = function () {
 		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'login' }); });
 	}
-
-	processChallenges();
 }]
 
 app.directive('challengeDirective', function () {
@@ -278,11 +279,11 @@ var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSer
 	$scope.goBack = function () {
 		showSpinner();
 
-		$DataService.getChallenge({ teamname: $.cookie('teamname'), challengeID: 10 })
+		$DataService.getChallenges({ teamname: $.cookie('teamname') })
 			.then(function (data) {
 				hideSpinner();
 
-				$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [data] });
+				$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
 			}).catch(function (error) {
 				console.log(error);
 			})
@@ -812,7 +813,7 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 	$scope.viewLeaderBoard = function () {
 		showSpinner();
 
-		$DataService.getLeaderBoard()
+		$DataService.getLeaderBoard({ challengeID: $scope.challenge.id })
 			.then(function (data) {
 				hideSpinner();
 
@@ -825,7 +826,7 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 	$scope.goBack = function () {
 		showSpinner();
 
-		$DataService.getChallenge({ teamname: $.cookie('teamname'), challengeID: 10 })
+		$DataService.getChallenge({ teamname: $.cookie('teamname'), challengeID: $scope.challenge.id })
 			.then(function (data) {
 				hideSpinner();
 

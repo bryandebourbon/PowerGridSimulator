@@ -14,7 +14,13 @@ var initFirebase = function () {
 var multiplexArray = function (data) {
     var data24h = data.length != 24 ? [] : data;
 
-    if (data.length == 6) {
+    if (data.length == 1) {
+        _.forEach(data, function (v) {
+            _.forEach(_.range(24), function (i) {
+                data24h.push(v);
+            })
+        })
+    } else if (data.length == 6) {
         _.forEach(data, function (v) {
             _.forEach([1, 2, 3, 4], function (i) {
                 data24h.push(v);

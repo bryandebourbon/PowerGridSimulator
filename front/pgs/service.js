@@ -1,6 +1,6 @@
 app.service('DataService', function () {
-    var getChallenge = function (args) {
-        var headers = { team_name: args.teamname || '', challenge_id: args.challengeID };
+    var getChallenges = function (args) {
+        var headers = { team_name: args.teamname || '' };
 
         return new Promise(function (resolve, reject) {
             $.ajax({
@@ -20,11 +20,35 @@ app.service('DataService', function () {
             })
         })
     }
-    var getLeaderBoard = function () {
+    var getChallenge = function (args) {
+        var headers = { team_name: args.teamname || '' };
+
         return new Promise(function (resolve, reject) {
             $.ajax({
-                url: API_ADDRESS.getLeaderBoard,
+                url: API_ADDRESS.getSingleChallenge + args.challengeID,
                 type: 'GET',
+                headers: headers,
+                success: function (data) {
+                    if (data) {
+                        var challenge = JSON.parse(data);
+
+                        resolve(challenge);
+                    }
+                },
+                error: function (data) {
+                    reject(data);
+                }
+            })
+        })
+    }
+    var getLeaderBoard = function (args) {
+        var headers = { teamname: args.teamname || '' };
+
+        return new Promise(function (resolve, reject) {
+            $.ajax({
+                url: API_ADDRESS.getLeaderBoard + args.challengeID,
+                type: 'GET',
+                headers: headers,
                 success: function (res) {
                     var data = JSON.parse(res);
 
@@ -82,6 +106,7 @@ app.service('DataService', function () {
     }
 
 
+    this.getChallenges = function (args) { return getChallenges(args); }
     this.getChallenge = function (args) { return getChallenge(args); }
     this.getLeaderBoard = function (args) { return getLeaderBoard(args); }
     this.submitChallenge = function (args) { return submitChallenge(args); }
