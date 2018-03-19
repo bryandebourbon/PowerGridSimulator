@@ -152,6 +152,9 @@
 .pgs-dim {
     opacity: .5;
 }
+.pgs-disabled {
+    outline: none !IMPORTANT;
+}
 
 @keyframes spin {
     0% { transform: rotate(0deg); }

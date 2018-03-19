@@ -472,7 +472,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		// }
 
 		//  Load state information to create individual state paths
-		d3.json("ontario.geo.json", function (error, ont) {
+		d3.json("Visuals/geojson/Ontario.geo.json", function (error, ont) {
 			if (error) throw error;
 			gBackground.selectAll("path")
 				.attr("width", width)
@@ -557,6 +557,15 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 			
 			generator.type = generatorType.display;
 		})
+
+		$timeout(function () {
+			_.forEach($scope.challenge.generators, function (g, i) {
+				if (g.count == 0) {
+					var _generatorAddButton = $('.pgs-add-button:eq(' + i + ')');
+					_generatorAddButton.addClass('disabled pgs-disabled');	// this is a hacky fix, ng-disabled not working here
+				}
+			})
+		})
 	}
 	var populateNodes = function () {
 		// coming back from the evaluation page, no need to re-populate the challenge nodes list
@@ -573,7 +582,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 
 				var node = {
 					index: d.node,
-					name: name || 'Node ' + d.node,
+					name: name,
 					demands: {
 						real: d.real,
 						reactive: d.reactive
