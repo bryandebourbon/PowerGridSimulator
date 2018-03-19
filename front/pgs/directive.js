@@ -171,25 +171,25 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 			return;
 		}
 
-		firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch(function (error) {
+		firebase.auth().signInWithEmailAndPassword(user.email, user.password).then(function (data) {
+			showSpinner();
+
+			$DataService.getChallenges({ teamname: user.teamname })
+				.then(function (data) {
+					hideSpinner();
+
+					$.cookie('teamname', $scope.teamname);
+					$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
+				}).catch(function (error) {
+					hideSpinner();
+
+					showWarning(error);
+				})
+		}).catch(function (error) {
 			showWarning(error);
 
 			return;
 		});
-
-		showSpinner();
-
-		$DataService.getChallenges({ teamname: user.teamname})
-			.then(function (data) {
-				hideSpinner();
-				
-				$.cookie('teamname', $scope.teamname);
-				$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
-			}).catch(function (error) {
-				hideSpinner();
-
-				showWarning(error);
-			})
 	}
 }]
 
