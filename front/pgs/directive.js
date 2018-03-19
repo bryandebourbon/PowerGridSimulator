@@ -153,7 +153,7 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 	}
 
 	$scope.login = function () {
-		var user = { email: $scope.email, password: $scope.password || '', teamname: $scope.teamname || '' };
+		var user = { email: $scope.email, password: $scope.password || '' };
 
 		if (!_.isNull(user.email) && user.email.length < 1) {
 			showWarning('Email field should not be empty.');
@@ -165,16 +165,13 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 
 			return;
 		}
-		if (!_.isNull(user.teamname) && user.teamname.length < 1) {
-			showWarning('Team Name field should not be empty.');
-
-			return;
-		}
 
 		firebase.auth().signInWithEmailAndPassword(user.email, user.password).then(function (data) {
+			$scope.teamname = data.displayName;
+
 			showSpinner();
 
-			$DataService.getChallenges({ teamname: user.teamname })
+			$DataService.getChallenges({ teamname: data.displayName })
 				.then(function (data) {
 					hideSpinner();
 
@@ -191,6 +188,8 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 			return;
 		});
 	}
+
+	var _teamname = $('#team-name').hide();
 }]
 
 app.directive('challengesDirective', function () {
