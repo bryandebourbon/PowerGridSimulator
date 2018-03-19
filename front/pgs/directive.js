@@ -18,17 +18,17 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 	$scope.register = function () {
 		var user = { email: $scope.email, password: $scope.password, teamname: $scope.teamname };
 
-		if (user.email && user.email.length < 1) {
+		if (!_.isNull(user.email) && user.email.length < 1) {
 			showWarning('Email field cannot be empty.');
 
 			return;
 		}
-		if (user.password && user.password.length < 5) {
+		if (!_.isNull(user.password) && user.password.length < 5) {
 			showWarning('Password field should be at least 6 characters.');
 
 			return;
 		}
-		if (user.teamname && user.teamname.length < 1) {
+		if (!_.isNull(user.teamname) && user.teamname.length < 1) {
 			showWarning('Team Name field should not be empty.');
 
 			return;
@@ -155,17 +155,17 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 	$scope.login = function () {
 		var user = { email: $scope.email, password: $scope.password || '', teamname: $scope.teamname || '' };
 
-		if (user.email && user.email.length < 1) {
+		if (!_.isNull(user.email) && user.email.length < 1) {
 			showWarning('Email field should not be empty.');
 
 			return;
 		}
-		if (user.password && user.password.length < 1) {
+		if (!_.isNull(user.password) && user.password.length < 1) {
 			showWarning('Password field should not be empty.');
 
 			return;
 		}
-		if (user.teamname && user.teamname.length < 1) {
+		if (!_.isNull(user.teamname) && user.teamname.length < 1) {
 			showWarning('Team Name field should not be empty.');
 
 			return;
