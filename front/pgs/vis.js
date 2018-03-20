@@ -1,54 +1,61 @@
 function Vis () {
 
-	var tester = function (i) {
-		pwr_colors = ["green", "yellow", "red", "purple", "blue", 
-						  "orange", "pink", "white", "purple", "blue",
-						  "cyan", "brown"]
-
-		filename = prefix + filenames[i]
-		//  Load state information to create individual state paths
-		d3.json(filename, function (error, pwr) {
-			if (error) throw error;
-			gPowerZones.append("g").selectAll("path")
-				.attr("width", width)
-				.attr("height", height)
-				.data(topojson.feature(pwr, pwr.objects.boarderlines).features)
-				.enter().append("path")
-				.attr("d", path)
-				.attr("class", "pwrRegions")
-				.style("fill", pwr_colors[i])
-				.style("opacity", "0.5"); 
-		});
-	};
-
 	var render  = function () {
-		var width = 500,
-			height = 1000,
-			scale = 1200;
 
-		//  The projection is used to project geographical coordinates on the SVG
-		projection = d3.geo.mercator().scale(scale).translate([width + 1555, height + 460]);
 
-		//  Path is the conversion of geographical shapes (states) to a SVG path 
-		path = d3.geo.path().projection(projection);
 
-		//  Map is the SVG which everything is drawn on.
-		map = d3.select("#simulator-svg")
+		d3.select("svg").remove()
+
+		var width = $( window ).width()*0.8 ;
+			height = $( window ).height()*0.7;
+			scale = (width - 1) / 2 / Math.PI;
+
+		var zoom = d3.behavior.zoom()
+		    .translate([width / 2, height / 2])
+		    .scale(scale)
+		    .scaleExtent([scale, 50 * scale])
+		    .on("zoom", zoomed);
+
+		var drag = d3.behavior.drag()
+		    .origin(function(d) { return d; })
+		    .on("dragstart", dragstarted)
+		    .on("drag", dragged)
+		    .on("dragend", dragended);
+
+		var svg = d3.select(".pgs-simulation")
 			.append("svg")
 			.attr("width", width)
-			.attr("height", height);
+			.attr("height", height)
+			.append("g")
+		    .attr("transform", "translate(" + -5 + "," + -5 + ")")
+		    .call(zoom);
+
+		var rect = svg.append("rect")
+			.attr("width", width)
+		    .attr("height", height)
+		    .style("fill", "none")
+		    .style("pointer-events", "all");
+
+		var container = svg.append("g");
 
 
-		var gBackground = map.append("g"); 
-		var gPathPoints = map.append("g");
-		var gDataPoints = map.append("g");
-		var gPowerZones = map.append("g");
+		projection = d3.geo.mercator().scale(scale)
+							.translate([width , height]);
 
-
-
-		var gPowerNodes = map.append("g");
 		
+		path = d3.geo.path().projection(projection);
 
+
+		var gBackground = container.append("g"); 
+		var gPathPoints = container.append("g");
+		var gDataPoints = container.append("g");
+		var gPowerZones = container.append("g");
+		var gPowerNodes = container .append("g").attr("id", "controler");
+
+	
+
+
+	
 
 		prefix = "./visuals/geojson/";
 
@@ -81,6 +88,29 @@ function Vis () {
 					 "Bruce.geo.topojson",
 					]
 
+
+	var tester = function (i) {
+		pwr_colors = ["green", "yellow", "red", "purple", "blue", 
+						  "orange", "pink", "white", "purple", "blue",
+						  "cyan", "brown"]
+
+		filename = prefix + filenames[i]
+		//  Load state information to create individual state paths
+		d3.json(filename, function (error, pwr) {
+			if (error) throw error;
+			gPowerZones.append("g").selectAll("path")
+				.attr("width", width)
+				.attr("height", height)
+				.data(topojson.feature(pwr, pwr.objects.boarderlines).features)
+				.enter().append("path")
+				.attr("d", path)
+				.attr("class", "pwrRegions")
+				.style("fill", pwr_colors[i])
+				.style("opacity", "0.5"); 
+		});
+	};
+
+
 	for (i=0; i < 10;i++){
 		tester(i)
 	}
@@ -89,7 +119,7 @@ function Vis () {
 	radius = 32;
 
 	prefix = "./visuals/icons/";
-	controller_height = 14*radius//height/2 //- radius //* 2;
+	controller_height = $( window ).height()*0.7 - radius * 2;//height/2 //- radius //* 2;
 	spacing_factor = width / 5	
 
 	power_generators = [
@@ -97,82 +127,94 @@ function Vis () {
 	      "type": "Gas", 
 	      "img":  prefix + "Gas.png",
 	      "x": width - spacing_factor,
-	      "y": controller_height
+	      "y": controller_height, 
+	      "start_x": width - spacing_factor,
+	      "start_y": controller_height, 	      
 	    },
 	    {
 	      "type": "Hydro", 
 	      "img":  prefix + "Hydro.png",
 	      "x": width - 2*spacing_factor,
-	      "y": controller_height
+	      "y": controller_height,
+	      "start_x": width - 2*spacing_factor,
+	      "start_y": controller_height, 
 	    },
 	    {
 	      "type": "Nuclear", 
 	      "img":  prefix + "Nuclear.png",
 	      "x": width - 3*spacing_factor,
-	      "y": controller_height
+	      "y": controller_height,
+	      "start_x": width - 3*spacing_factor,
+	      "start_y": controller_height, 
 	    },
 	    {
 	      "type": "Solar", 
 	      "img":  prefix + "Solar.png",
 	      "x": width - 4*spacing_factor,
-	      "y": controller_height
+	      "y": controller_height,
+	      "start_x": width - 4*spacing_factor,
+	      "start_y": controller_height, 
 	    },
 	    {
 	      "type": "Wind", 
 	      "img":  prefix + "Wind.png",
 	      "x": width - 5*spacing_factor,
-	      "y": controller_height
+	      "y": controller_height,
+	      "start_x": width - 5*spacing_factor,
+	      "start_y": controller_height, 
 	    },
     ]
 
 
-	var color = d3.scaleCategory20(); //function(){ return "blue" }
 
 	var node = gPowerNodes.selectAll("image")
-	    .data(power_generators);
-
-	var nodeEnter = node.enter().append("image")
-	    .attr("class", "node")
-      	//.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-   
-
-
-	nodeEnter//.append("svg:circle")	    
+	    .data(power_generators)
+	    .enter()
+	    .append("image")
 		.attr("x", function(d) { return d.x; })
 	    .attr("y", function(d) { return d.y; })
-	   // .attr("r", radius)
-	   // .style("fill", function(d, i) { return color(i); });
-
-//  var images = nodeEnter.append("svg:image")
         .attr("xlink:href",  function(d) { return d.img;})
         .attr("height", "50px")
+        .call(drag)
 
-    gPowerNodes.call(d3.drag()
-	    .subject(function() { return d3.event.sourceEvent.target.__data__; })
-	    .on("start", dragstarted));
 
-		function dragstarted() {
-		  var circle = d3.select(d3.event.sourceEvent.target)
-		      .raise()
-		      .classed("active", true);
+		function zoomed() {
+			projection.translate(zoom.translate()).scale(zoom.scale());
+			container.selectAll("path").attr("d", path);
+		};
 
-		  d3.event
-		      .on("drag", dragged)
-		      .on("end", dragended);
+		function dragstarted(datum) {
+			d3.event.sourceEvent.stopPropagation();
+			d3.select(this).classed("dragging", true);
+			// console.log("node");
+			console.log(datum);
 
-		  function dragged() {
-		    circle
-		        .attr("x", d3.event.subject.x = d3.event.x)
-		        .attr("y", d3.event.subject.y = d3.event.y);
-		  }
 
-		  function dragended() {
-		    circle
-		        .classed("active", false);
-		    
-		  }
-		}
+	var node = gPowerNodes.selectAll("image")
+	    .data(power_generators, function(d) { return Math.floor(Math.random() * 200) + 1  ; })
+	    .enter()
+	    .append("image")
+		.attr("x", function(d) { return d.x; })
+	    .attr("y", function(d) { return d.y; })
+        .attr("xlink:href",  function(d) { return d.img;})
+        .attr("height", "50px")
+        .call(drag)
+
+
+
+		};
+
+		function dragged(d) {
+			d3.select(this)
+			.attr("x", d.x = d3.event.x)
+			.attr("y", d.y = d3.event.y);
+		};
+
+		function dragended(d) {
+			d3.select(this).classed("dragging", false);
+		};
 	};
+
 
 	return {
 		render: function () { return render(); }

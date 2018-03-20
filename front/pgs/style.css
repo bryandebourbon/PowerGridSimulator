@@ -218,4 +218,9 @@
 .node:not(:hover) .nodetext {
 display: none;
 }
-
+/*
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+*/

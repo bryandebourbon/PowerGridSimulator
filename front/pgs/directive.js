@@ -18,21 +18,21 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 	$scope.register = function () {
 		var user = { email: $scope.email, password: $scope.password, teamname: $scope.teamname };
 
-		if (!_.isNull(user.email) && user.email.length < 1) {
-			showWarning('Email field cannot be empty.');
+		// if (!_.isNull(user.email) && user.email.length < 1) {
+		// 	showWarning('Email field cannot be empty.');
 
-			return;
-		}
-		if (!_.isNull(user.password) && user.password.length < 5) {
-			showWarning('Password field should be at least 6 characters.');
+		// 	return;
+		// }
+		// if (!_.isNull(user.password) && user.password.length < 5) {
+		// 	showWarning('Password field should be at least 6 characters.');
 
-			return;
-		}
-		if (!_.isNull(user.teamname) && user.teamname.length < 1) {
-			showWarning('Team Name field should not be empty.');
+		// 	return;
+		// }
+		// if (!_.isNull(user.teamname) && user.teamname.length < 1) {
+		// 	showWarning('Team Name field should not be empty.');
 
-			return;
-		}
+		// 	return;
+		// }
 
 		var teams = firebase.database().ref().child('teams');
 		teams.orderByChild('team_name').equalTo(user.teamname).once('value', function (team) {
@@ -153,7 +153,22 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 	}
 
 	$scope.login = function () {
+
+
 		var user = { email: $scope.email, password: $scope.password || '', teamname: $scope.teamname || '' };
+
+
+			$DataService.getChallenges({ teamname: user.teamname })
+				.then(function (data) {
+					hideSpinner();
+
+					$.cookie('teamname', $scope.teamname);
+					$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
+				}).catch(function (error) {
+					hideSpinner();
+
+					showWarning(error);
+				});
 
 		if (!_.isNull(user.email) && user.email.length < 1) {
 			showWarning('Email field should not be empty.');
@@ -306,8 +321,13 @@ app.directive('simulatorDirective', function () {
 var vis = new Vis();
 var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
 	$scope.renderGrid = function () {
+
 		vis.render()
-	}
+		$(this).css('height', 'auto');
+		$(this).css('width', 'auto');
+		$(window).on('resize', function(){
+			vis.render()});
+		}
 
 
 
