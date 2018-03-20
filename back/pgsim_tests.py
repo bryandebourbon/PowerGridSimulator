@@ -256,6 +256,19 @@ class PgsimGetChallengeTestCase(unittest.TestCase):
                           'saved_flag': True}]
         assert json.loads(rv.data.decode('unicode_escape')) == expected_list
 
+    def test_get_challenge_list_not_saved(self):
+        rv = self.app.get('/api/getChallenge/',
+                        headers={"team_name": 'imaginaryteam'})
+        expected_list = [{'id': 10,
+                          'name': 'Ontario Power Generation', 
+                          'description': "Design Ontario's generation system with real-life demand, generation cost, CO2 emission, and more data!",
+                          'saved_flag': False}, 
+                         {'id': 11, 
+                          'name': 'Northern Ontario Power Generation',
+                          'description': 'Design a very simple generation system for Northern Ontario, with real-life demand, generation cost, CO2 emission, and more data!', 
+                          'saved_flag': False}]
+        assert json.loads(rv.data.decode('unicode_escape')) == expected_list
+
     def test_get_nonexistent_challenge(self):
         rv = self.app.get('/api/getChallenge/9')
         assert rv.data.decode('unicode_escape') == "The requested challenge doesn't exist."
