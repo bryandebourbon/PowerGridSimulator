@@ -1,13 +1,11 @@
-function Vis () {
+var Vis = (function () {
 
 	var render  = function () {
 
-
-
 		d3.select("svg").remove()
 
-		var width = $( window ).width()*0.8 ;
-			height = $( window ).height()*0.7;
+		var width = $( window ).width() * 0.8 ;
+			height = $( window ).height() * 0.7;
 			scale = (width - 1) / 2 / Math.PI;
 
 		var zoom = d3.behavior.zoom()
@@ -15,8 +13,6 @@ function Vis () {
 		    .scale(scale)
 		    .scaleExtent([scale, 50 * scale])
 		    .on("zoom", zoomed);
-
-
 		    // .translate([100,50]).scale(.5);
 
 		var drag = d3.behavior.drag()
@@ -36,17 +32,14 @@ function Vis () {
 
 		var svg = d3.select(".pgs-simulation")
 			.append("svg")
+			.attr('id', 'pgs-simulation')
+			.attr('class', '#pgs-simulation')
 			.attr("width", width)
 			.attr("height", height)
 			.append("g")
 		    .attr("transform", "translate(" + -5 + "," + -5 + ")")
 		   // .attr("transform","translate("+width / 2+","+ height / 2+")scale("+scale+")") 
-		    .call(zoom)
-
-		    
-
-
-		    ;
+		    .call(zoom);
 
 		var rect = svg.append("rect")
 			.attr("width", width)
@@ -56,13 +49,10 @@ function Vis () {
 
 		var container = svg.append("g");
 
-
 		projection = d3.geo.mercator().scale(scale)
 							.translate([width , height]);
-
 		
 		path = d3.geo.path().projection(projection);
-
 
 		var gBackground = container.append("g"); 
 		var gPathPoints = container.append("g");
@@ -70,13 +60,7 @@ function Vis () {
 		var gPowerZones = container.append("g");
 		var gPowerNodes = container .append("g").attr("id", "controler");
 
-	
-
-
-	
-
 		prefix = "./visuals/geojson/";
-
 
 		//  Load state information to create individual state paths
 		d3.json(prefix + "ontario.geo.json", function (error, ont) {
@@ -90,12 +74,8 @@ function Vis () {
 				.attr("d", path)
 				// .attr("class", "state")
 				// .style("fill", "blue")
-				// .style("opacity", "0.1")
-
-				;
-
+				// .style("opacity", "0.1");
 		});
-
 		
 		filenames = [
 					"Northwest.geo.topojson",
@@ -110,7 +90,6 @@ function Vis () {
 					 "Bruce.geo.topojson",
 					]
 
-
 	var tester = function (i) {
 		pwr_colors = ["green", "yellow", "red", "purple", "blue", 
 						  "orange", "pink", "white", "purple", "blue",
@@ -123,8 +102,8 @@ function Vis () {
 			gPowerZones.append("g").selectAll("path")
 				.attr("width", width)
 				.attr("height", height)
-				.data(topojson.feature(pwr, pwr.objects.boarderlines).features,
-						 function(d){ console.log(d)})
+				.data(topojson.feature(pwr, pwr.objects.boarderlines).features, function (d) { return; })
+						//  function(d){ console.log(d)})
 				.enter().append("path")
 				.attr("d", path)
 				.attr("class", "pwrRegions")
@@ -143,16 +122,11 @@ function Vis () {
 				// 	DropManager.droppable = null;
 				// 	console.log(pwr_colors[i] + " mouseup detected");
 				// });
-				;
-
-
-
-				 
 		});
-	};
+	}
 
 
-	for (i=0; i < 10;i++){
+	for (i = 0; i < 10; i ++){
 		tester(i)
 	}
 
@@ -211,8 +185,6 @@ function Vis () {
 	    },
     ]
 
-
-
 	var node = gPowerNodes.selectAll("image")
 			    .data(power_generators, function(d) { return Math.floor(Math.random() * 200) + 1  ; })
 			    .enter()
@@ -223,7 +195,6 @@ function Vis () {
         .attr("height", "50px")
         .call(drag)
 
-
 		function zoomed() {
 			projection
 			.translate(zoom.translate())
@@ -233,9 +204,6 @@ function Vis () {
 			// container.selectAll(".installed")
 			// 		.attr("transform", "translate(" + d3.event.translate +
 			// 		 ")scale(" + d3.event.scale + ")");
-
-					
-			
 
 			// $(container.selectAll(".installed")).show();
 		};
@@ -330,18 +298,13 @@ function Vis () {
 	        .attr("xlink:href",  function(d) { return d.img;})
 	        .attr("height", "50px")
 	        .call(drag)
-
-
 			} 
-
-
 		};
 
 		function dragged(d) {
 			// if (d3.select(this).classed("installed")){
 			// 	return
 			// }
-
 
 			// console.log("x = " + d.x)
 			// console.log("y = " + d.y)
@@ -369,23 +332,16 @@ function Vis () {
 
 			target = $(elem).parent()
 
-
 			console.log(target)
 			selection = d3.select(this)
 			selection.classed("installed", true);
 
 			var removed = selection.remove();
-
 			
 			// sleep(1000);
 
 			// target = DropManager.droppable
 			target.append(removed.node());
-
-
-
-
-
 
 			svg.selectAll(".installed").call(zoom)
 
@@ -400,7 +356,7 @@ function Vis () {
 	return {
 		render: function () { return render(); }
 	}
-}
+})();
 
 
 

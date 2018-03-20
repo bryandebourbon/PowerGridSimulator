@@ -16,14 +16,13 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 	$scope.register = function () {
 		var user = { email: $scope.email || '', password: $scope.password || ''};
 
-		// if (!_.isNull(user.email) && user.email.length < 1) {
-		// 	showWarning('Email field cannot be empty.');
+		if (!_.isNull(user.email) && user.email.length < 1) {
+			showWarning('Email field cannot be empty.');
 
-		// 	return;
-		// }
-		// if (!_.isNull(user.password) && user.password.length < 5) {
-		// 	showWarning('Password field should be at least 6 characters.');
-
+			return;
+		}
+		if (!_.isNull(user.password) && user.password.length < 5) {
+			showWarning('Password field should be at least 6 characters.');
 
 			return;
 		}
@@ -151,142 +150,10 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 			}).catch(function (error) {
 				showWarning(error.message);
 			})
-		
-		// var teams = firebase.database().ref().child('teams');
-		// teams.orderByChild('team_name').equalTo(user.teamname).once('value', function (team) {
-		// 	var data = team.val();
-
-		// 	if (data) {
-		// 		var secretCode = _.keys(data)[0];
-
-		// 		var _teamManagementModal = $('#team-management-modal');
-		// 		var _distributeTeamSecretCode = $('#distribute-team-secret-code');
-		// 		var _collectTeamSecretCode = $('#collect-team-secret-code');
-		// 		var _secretCodeInput = $('#secret-code-input');
-
-		// 		_distributeTeamSecretCode.hide();
-		// 		_collectTeamSecretCode.show();
-
-		// 		_secretCodeInput.val('');
-
-		// 		_teamManagementModal.modal('show');
-
-		// 		_teamManagementModal.on('click', function (evt) {
-		// 			var inputCode = $('#secret-code-input').val();
-
-		// 			if (inputCode == secretCode) {
-		// 				$('#team-management-modal').modal('hide');
-
-		// 				showSpinner();
-
-		// 				firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-		// 					.then(function (firebaseUser) {
-		// 						firebaseUser.updateProfile({
-		// 							displayName: user.teamname
-		// 						}).then(function () {
-
-		// 							$DataService.getChallenges({ teamname: user.teamname })
-		// 								.then(function (data) {
-		// 									hideSpinner();
-
-		// 									$.cookie('teamname', $scope.teamname);
-		// 									$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
-		// 								}).catch(function (error) {
-		// 									hideSpinner();
-
-		// 									showWarning(error);
-		// 								})
-		// 						}).catch(function (error) {
-		// 							hideSpinner();
-
-		// 							showWarning(error.message);
-		// 						})
-		// 					}).catch(function (error) {
-		// 						hideSpinner();
-
-		// 						showWarning(error.message);
-		// 					})
-		// 			} else {
-		// 				showWarning('Wrong team secret code, please re-enter.');
-		// 			}
-		// 		})
-		// 	} else {
-		// 		var secretCode = teams.push().key;
-
-		// 		var _teamManagementModal = $('#team-management-modal');
-		// 		var _distributeTeamSecretCode = $('#distribute-team-secret-code');
-		// 		var _collectTeamSecretCode = $('#collect-team-secret-code');
-		// 		var _secretCode = $('.pgs-secret-code');
-		// 		var _submitSecretCodeButton = $('#submit-secret-code');
-
-		// 		_distributeTeamSecretCode.show();
-		// 		_collectTeamSecretCode.hide();
-		// 		_submitSecretCodeButton.hide();
-
-		// 		_secretCode.text(secretCode);
-
-		// 		_teamManagementModal.modal('show');
-
-		// 		_teamManagementModal.on('hide.bs.modal', function (evt) {
-		// 			showSpinner();
-
-		// 			firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-		// 				.then(function (firebaseUser) {
-		// 					firebaseUser.updateProfile({
-		// 						displayName: user.teamname
-		// 					}).then(function () {
-		// 						teams.orderByChild('team_id').limitToLast(1).once('value', function (teamData) {
-		// 							var teamID = _.head(_.values(teamData.val())).team_id + 1;
-
-		// 							var newTeam = {};
-		// 							newTeam[secretCode] = { team_id: teamID, team_name: user.teamname };
-
-		// 							teams.update(newTeam);
-
-		// 							$DataService.getChallenges({ teamname: user.teamname })
-		// 								.then(function (data) {
-		// 									hideSpinner();
-
-		// 									$.cookie('teamname', $scope.teamname);
-		// 									$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
-		// 								}).catch(function (error) {
-		// 									hideSpinner();
-
-		// 									showWarning(error);
-		// 								})
-		// 						}).catch(function (error) {
-		// 							hideSpinner();
-
-		// 							showWarning(error);
-		// 						})
-		// 					})
-		// 				}).catch(function (error) {
-		// 					hideSpinner();
-
-		// 					showWarning(error.message);
-		// 				})
-		// 		})
-		// 	}
-		// })
 	}
 
 	$scope.login = function () {
-
 		var user = { email: $scope.email || '', password: $scope.password || '' };
-
-
-
-			$DataService.getChallenges({ teamname: user.teamname })
-				.then(function (data) {
-					hideSpinner();
-
-					$.cookie('teamname', $scope.teamname);
-					$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
-				}).catch(function (error) {
-					hideSpinner();
-
-					showWarning(error);
-				});
 
 		if (!_.isNull(user.email) && user.email.length < 1) {
 			showWarning('Email field should not be empty.');
@@ -435,28 +302,14 @@ app.directive('simulatorDirective', function () {
 	}
 })
 
-var vis = new Vis();
 var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
 	$scope.renderGrid = function () {
-
-		vis.render()
+		Vis.render()
 		$(this).css('height', 'auto');
 		$(this).css('width', 'auto');
 		$(window).on('resize', function(){
-			vis.render()});
+			Vis.render()});
 		}
-
-
-
-
-	
-
-	var clickHandler = function (d) {
-		$scope.node = _.find($scope.nodes, function (n) { return n.index == d.index; });
-		delete $scope.aggregatedGenerator;
-
-		$scope.$apply();
-	}
 
 	var populateGenerators = function () {
 		_.forEach($scope.challenge.generators, function (generator) {
