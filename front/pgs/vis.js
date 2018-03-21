@@ -14,7 +14,7 @@ var Vis = (function () {
 		    // .translate([100,50]).scale(.5);
 
 		var drag = d3.behavior.drag()
-		    .origin(function(d) { return d; })
+		    .origin(function(d) { return { x: d.x, y: d.y }; })
 		    .on('dragstart', function (d) { return handleDragStart(d); })
 		    .on('drag', function (d) { return handleDrag(d); })
 		    .on('dragend', function (d) { return handleDragEnd(d); });
@@ -118,19 +118,21 @@ var Vis = (function () {
 
 		var power_generators = _.cloneDeep(generator_configs);
 		_.forEach(power_generators, function (g) {
+			g._guid = guid();
+			g._original = true;
+
 			g._x = width - (g.index + 1) * spacing;	// default x position
 			g._y = baseHeight;	// default y position
 			
 			g.x = g._x;
 			g.y = g._y;
-
-			g._original = true;
 		})
 
 		gGenerators.selectAll('image')
 			.data(power_generators)
 			.enter()
 			.append('image')
+				.attr('id', function (d) { return d._guid; })
 				.attr('x', function(d) { return d.x; })
 				.attr('y', function(d) { return d.y; })
 				.attr('xlink:href',  function(d) { return d.img; })
@@ -153,62 +155,52 @@ var Vis = (function () {
 		var cloneGenerator = function (d) {
 			var clone = _.cloneDeep(d);
 
-			// d.x = d._x;
-			// d.y = d._y;
+			clone._guid = guid();
 
-			// d._original = true;
+			clone.x = d._x;
+			clone.y = d._y;
+
+			clone._original = true;
 
 			return clone;
 		}
 		var handleDragStart = function (d) {
-			console.log(d.x, d.y);
-
 			d3.event.sourceEvent.stopPropagation();
-			d3.select(d3.event.sourceEvent.target).classed('dragging', true);
+			d3.select('#' + d._guid).classed('dragging', true);
 
 			if (!d._dragging) {
+				d.x = d3.event.x ? d3.event.x : d.x;
+				d.y = d3.event.y ? d3.event.y : d.y;
+
 				var dataCopy = cloneGenerator(d);
 
-				// gGenerators.selectAll('image')
-				// 	.data(newCopy)
-				// 	.enter()
-				// 	.append('image')
-				// 		.attr('x', function(d) { return d.x; })
-				// 		.attr('y', function(d) { return d.y; })
-				// 		.attr('xlink:href',  function(d) { return d.img;})
-				// 		.attr('height', '50px')
-				// 		.call(drag);
+				if (d._original) {
+					gGenerators.append('image')
+						.datum(dataCopy)
+						.attr('id', function (d) { return d._guid; })
+						.attr('x', function (d) { return d.x; })
+						.attr('y', function (d) { return d.y; })
+						.attr('xlink:href', function (d) { return d.img; })
+						.attr('height', '50px')
+						.call(drag);
 
-				// if (d._original) {
-				// 	gGenerators.append('image')
-				// 		.datum(dataCopy)
-				// 		.attr('x', function (d) { return d.x; })
-				// 		.attr('y', function (d) { return d.y; })
-				// 		.attr('xlink:href', function (d) { return d.img; })
-				// 		.attr('height', '50px')
-				// 		.call(drag);
-
-				// 	delete d._original;
-				// }
+						delete d._original;
+				}
 
 				d._dragging = true;
 			} 
 		}
 		var handleDrag = function (d) {
-			console.log(d.x, d.y);
-			
 			if (d._dragging) {
 				d.x = d3.event.x;
 				d.y = d3.event.y;
 
-				d3.select(d3.event.sourceEvent.target)
-					.attr('x', d.x = d.x)
-					.attr('y', d.y = d.y);
+				d3.select('#' + d._guid)
+					.attr('x', d.x)
+					.attr('y', d.y);
 			}
 		}
 		var handleDragEnd = function (d) {
-			console.log(d.x, d.y);
-			
 			// if (d3.select(this).classed('installed')){
 			// 	return;
 			// }
@@ -235,7 +227,7 @@ var Vis = (function () {
 
 			// svg.selectAll('.installed').call(zoom);
 
-			d3.select(d3.event.sourceEvent.target).classed('dragging', false);
+			d3.select('#' + d._guid).classed('dragging', false);
 			delete d._dragging;
 		}
 
