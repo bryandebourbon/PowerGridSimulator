@@ -134,8 +134,8 @@ def get_leaderboard(challenge_id):
             continue
         # All current categories are the lower the better.
         top_teams = sorted(passed_scores, key=lambda x: passed_scores[x][cat])
-        if len(top_teams) > 3:
-            top_teams = top_teams[:3]
+        if len(top_teams) > 10:
+            top_teams = top_teams[:10]
         # convert ids into names and put them into result.
         for team_id in top_teams:
             team = TEAMS.order_by_child('team_id').equal_to(int(team_id)).get()
