@@ -79,7 +79,7 @@ var Vis = (function () {
 			}
 		}
 
-		function lngLatToArc(d, sourceName, targetName, bend){
+	function lngLatToArc(d, sourceName, targetName, bend){
 		// If no bend is supplied, then do the plain square root
 		bend = bend || 1;
 		// `d[sourceName]` and `d[targetname]` are arrays of `[lng, lat]`
@@ -118,7 +118,7 @@ var Vis = (function () {
 				renderRegion(i);
 			})
 
-			var arcdata =
+			var powerline_data =
 			  [{
 			      target:[-88.11035156249999, 52.4292222779551 ],
 			      source:[-81.7822265625, 48.341646172374 ]
@@ -160,16 +160,27 @@ var Vis = (function () {
 			     target:[    -80.71929931640624,     43.54655738051152 ],
 			     source:[    -79.31854248046875,     43.72942933300513 ]
 			    }]
+
+
+				_.forEach(powerline_data, function (g) {
+					g._guid = guid();
+					g._original = true;
+
+				})
 				var arcs = svg.append("g")
 							   .attr("class","arcs");
 
 			    arcs.selectAll("path")
-		   			.data(arcdata)
+		   			.data(powerline_data)
 		   			.enter()
 		   			.append("path")
 		   			.attr('d', function(d) {
-		   				return lngLatToArc(d, 'source', 'target', 15); // A bend of 5 looks nice and subtle, but this will depend on the length of your arcs and the visual look your visualization requires. Higher number equals less bend.
-		   			});
+		   				return lngLatToArc(d, 'source', 'target', 15);
+		   			})
+					.on('click', function (d) {
+						console.log(d._guid)
+					})
+				;
 
 		}
 
