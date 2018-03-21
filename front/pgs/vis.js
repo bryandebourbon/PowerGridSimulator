@@ -1,183 +1,196 @@
-function Vis () {
+var Vis = (function () {
+	var render  = function ($scope) {
+		d3.select('#pgs-simulation-svg').remove();
 
-	var tester = function (i) {
-		pwr_colors = ["green", "yellow", "red", "purple", "blue", 
-						  "orange", "pink", "white", "purple", "blue",
-						  "cyan", "brown"]
+		var width = 750;
+		var height = 500 ;
 
-		filename = prefix + filenames[i]
-		//  Load state information to create individual state paths
-		d3.json(filename, function (error, pwr) {
-			if (error) throw error;
-			gPowerZones.append("g").selectAll("path")
-				.attr("width", width)
-				.attr("height", height)
-				.data(topojson.feature(pwr, pwr.objects.boarderlines).features)
-				.enter().append("path")
-				.attr("d", path)
-				.attr("class", "pwrRegions")
-				.style("fill", pwr_colors[i])
-				.style("opacity", "0.5"); 
-		});
-	};
+		var zoom = d3.behavior.zoom()
+		    .translate([-1128 , -387])	// specific values for this SVG size
+		    .scale(5.85)
+		    .scaleExtent([.5, 40])
+		    .on('zoom', function () { return handleZoom(); });
 
-	var render  = function () {
-		var width = 500,
-			height = 1000,
-			scale = 1200;
-
-		//  The projection is used to project geographical coordinates on the SVG
-		projection = d3.geo.mercator().scale(scale).translate([width + 1555, height + 460]);
-
-		//  Path is the conversion of geographical shapes (states) to a SVG path 
-		path = d3.geo.path().projection(projection);
-
-		//  Map is the SVG which everything is drawn on.
-		map = d3.select("#simulator-svg")
-			.append("svg")
-			.attr("width", width)
-			.attr("height", height);
-
-
-		var gBackground = map.append("g"); 
-		var gPathPoints = map.append("g");
-		var gDataPoints = map.append("g");
-		var gPowerZones = map.append("g");
-
-
-
-		var gPowerNodes = map.append("g");
-		
-
-
-		prefix = "./visuals/geojson/";
-
-
-		//  Load state information to create individual state paths
-		d3.json(prefix + "ontario.geo.json", function (error, ont) {
-			if (error) throw error;
-			gBackground.selectAll("path")
-				.attr("width", width)
-				.attr("height", height)
-
-				.data(topojson.feature(ont, ont.objects.boarderlines).features)
-				.enter().append("path")
-				.attr("d", path)
-				.attr("class", "state");
-
-		});
+		var drag = d3.behavior.drag()
+		    .origin(function(d) { return { x: d.x, y: d.y }; })
+		    .on('dragstart', function (d) { return handleDragStart(d); })
+		    .on('drag', function (d) { return handleDrag(d); })
+		    .on('dragend', function (d) { return handleDragEnd(d); });
 
 		
-		filenames = [
-					"Northwest.geo.topojson",
-					 "Northeast.geo.topojson",
-					 "East.geo.topojson",
-					 "Essa.geo.topojson",
-					 "West.geo.topojson",
-					 "Ottawa.geo.topojson",
-					 "Southwest.geo.topojson",
-					 "Toronto.geo.topojson",
-					 "Niagara.geo.topojson",
-					 "Bruce.geo.topojson",
-					]
+		var svg = d3.select('.pgs-simulation')
+			.append('svg')
+				.attr('id', 'pgs-simulation-svg')
+				.attr('class', 'pgs-simulation')
+				.attr('width', width)
+				.attr('height', height)
+			.append('g')
+				.call(zoom)
 
-	for (i=0; i < 10;i++){
-		tester(i)
-	}
+		var projection = d3.geo.mercator();
+		var path = d3.geo.path().projection(projection);
 
-	//---- Controler ----
-	radius = 32;
+		var gMap = svg.append('g').classed('map', true).attr('transform', 'translate(-1128, -387) scale(5.85)');
+		var gBackground = gMap.append('g').classed('background', true); 
+		var gPathPoints = gMap.append('g').classed('path-points', true);
+		var gDataPoints = gMap.append('g').classed('data-points', true);
+		var gPowerZones = gMap.append('g').classed('power-zones', true);
 
-	prefix = "./visuals/icons/";
-	controller_height = 14*radius//height/2 //- radius //* 2;
-	spacing_factor = width / 5	
+		var gGenerators = svg.append('g').classed('generators', true);
 
-	power_generators = [
-		{
-	      "type": "Gas", 
-	      "img":  prefix + "Gas.png",
-	      "x": width - spacing_factor,
-	      "y": controller_height
-	    },
-	    {
-	      "type": "Hydro", 
-	      "img":  prefix + "Hydro.png",
-	      "x": width - 2*spacing_factor,
-	      "y": controller_height
-	    },
-	    {
-	      "type": "Nuclear", 
-	      "img":  prefix + "Nuclear.png",
-	      "x": width - 3*spacing_factor,
-	      "y": controller_height
-	    },
-	    {
-	      "type": "Solar", 
-	      "img":  prefix + "Solar.png",
-	      "x": width - 4*spacing_factor,
-	      "y": controller_height
-	    },
-	    {
-	      "type": "Wind", 
-	      "img":  prefix + "Wind.png",
-	      "x": width - 5*spacing_factor,
-	      "y": controller_height
-	    },
-    ]
+		var renderOntario = function () {
+			var ontarioGeoJson = _.find(geoJsonFiles, function (f) { return f.index == -1; });
+			if (ontarioGeoJson) {
+				d3.json(ontarioGeoJson.name, function (error, ont) {
+					if (error) {
+						throw error;
+					}
 
-
-	var color = d3.scaleCategory20(); //function(){ return "blue" }
-
-	var node = gPowerNodes.selectAll("image")
-	    .data(power_generators);
-
-	var nodeEnter = node.enter().append("image")
-	    .attr("class", "node")
-      	//.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-   
-
-
-	nodeEnter//.append("svg:circle")	    
-		.attr("x", function(d) { return d.x; })
-	    .attr("y", function(d) { return d.y; })
-	   // .attr("r", radius)
-	   // .style("fill", function(d, i) { return color(i); });
-
-//  var images = nodeEnter.append("svg:image")
-        .attr("xlink:href",  function(d) { return d.img;})
-        .attr("height", "50px")
-
-    gPowerNodes.call(d3.drag()
-	    .subject(function() { return d3.event.sourceEvent.target.__data__; })
-	    .on("start", dragstarted));
-
-		function dragstarted() {
-		  var circle = d3.select(d3.event.sourceEvent.target)
-		      .raise()
-		      .classed("active", true);
-
-		  d3.event
-		      .on("drag", dragged)
-		      .on("end", dragended);
-
-		  function dragged() {
-		    circle
-		        .attr("x", d3.event.subject.x = d3.event.x)
-		        .attr("y", d3.event.subject.y = d3.event.y);
-		  }
-
-		  function dragended() {
-		    circle
-		        .classed("active", false);
-		    
-		  }
+					gBackground.selectAll('path')
+						.data([_.merge(topojson.feature(ont, ont.objects.boarderlines).features[0], { index: -1, _guid: guid() })])
+						.enter()
+						.append('path')
+							.attr('id', function (d) { return d._guid; })
+							.attr('d', path)
+				})
+			}
 		}
-	};
+		
+		var renderRegion = function (index) {
+			var regionGeoJson = _.find(geoJsonFiles, function (f) { return f.index == index; });
+			if (regionGeoJson) {
+				d3.json(regionGeoJson.name, function (error, reg) {
+					if (error) {
+						throw error;
+					}
 
-	return {
-		render: function () { return render(); }
+					gPowerZones.append('g').selectAll('path')
+						.data([_.merge(topojson.feature(reg, reg.objects.boarderlines).features[0], { index: index, _guid: guid() })])
+						.enter()
+						.append('path')
+							.attr('id', function (d) { return d._guid; })
+							.attr('d', path)
+							.style('fill', _.find(regionColors, function (c) { return c.index == index; }) ? _.find(regionColors, function (c) { return c.index == index; }).color : 'black')
+							.style('opacity', .5)
+							.on('click', function (d) {
+								$scope.handleClick({ type: 'node', index: d.index });
+							})
+				});
+			}
+		}
+		var renderRegions = function () {
+			_.forEach(_.range(10), function (i) {
+				renderRegion(i);
+			})
+		}
+
+		var renderGenerators = function () {
+			var radius = 32;
+
+			var baseHeight = $(window).height() * 0.75 - radius * 2;
+			var spacing = width / 5;
+
+			var power_generators = _.cloneDeep(generator_configs);
+			_.forEach(power_generators, function (g) {
+				g._guid = guid();
+				g._original = true;
+
+				g._x = width - (g.index + .6) * spacing;
+				g._y = baseHeight;
+
+				g.x = g._x;
+				g.y = g._y;
+			})
+
+			gGenerators.selectAll('image')
+				.data(power_generators)
+				.enter()
+				.append('image')
+				.attr('id', function (d) { return d._guid; })
+				.attr('x', function (d) { return d.x; })
+				.attr('y', function (d) { return d.y; })
+				.attr('xlink:href', function (d) { return d.img; })
+				.attr('height', '50px')
+				.call(drag);
+		}
+
+		var handleZoom = function () {
+			var transform = { x: d3.event.translate[0], y: d3.event.translate[1], scale: d3.event.scale };
+		
+			gMap.attr('transform', 'translate(' + transform.x + ',' + transform.y + ') scale(' + transform.scale + ')');
+		}
+
+		var handleDragStart = function (d) {
+			d3.event.sourceEvent.stopPropagation();
+			d3.select('#' + d._guid).classed('dragging', true);
+
+			if (!d._dragging) {
+				d.x = d3.event.x ? d3.event.x : d.x;
+				d.y = d3.event.y ? d3.event.y : d.y;
+
+				var dataCopy = _.cloneDeep(d);
+				dataCopy._guid = guid();
+
+				dataCopy.x = d._x;
+				dataCopy.y = d._y;
+
+				dataCopy._original = true;
+
+				if (d._original) {
+					gGenerators.append('image')
+						.datum(dataCopy)
+						.attr('id', function (d) { return d._guid; })
+						.attr('x', function (d) { return d.x; })
+						.attr('y', function (d) { return d.y; })
+						.attr('xlink:href', function (d) { return d.img; })
+						.attr('height', '50px')
+						.call(drag);
+
+						delete d._original;
+				}
+
+				d._dragging = true;
+
+				$scope.handleDrag({ type: d.type })
+			} 
+		}
+		var handleDrag = function (d) {
+			if (d._dragging) {
+				d.x = d3.event.x;
+				d.y = d3.event.y;
+
+				d3.select('#' + d._guid)
+					.attr('x', d.x)
+					.attr('y', d.y);
+			}
+		}
+		var handleDragEnd = function (d) {
+			delete d._dragging;
+			d3.select('#' + d._guid).classed('dragging', false).remove();
+
+			var coords = { x: d3.event.sourceEvent.x, y: d3.event.sourceEvent.y };
+			var target = d3.select(document.elementFromPoint(coords.x, coords.y));
+			var data = target.data();
+
+			if (target.data && typeof target.data == 'function' && target.data().length > 0 && target.data()[0] && target.data()[0].type == 'Feature') {
+				var index = _.head(target.data()).index;
+				
+				$scope.handleDrop({ type: d.type, target: index })
+			} else {
+				$scope.revertDrag({ type: d.type });
+			}
+		}
+
+		renderOntario();
+		renderRegions();
+		
+		renderGenerators();
 	}
-}
+	
+	return {
+		render: function ($scope) { return render($scope); }
+	}
+})();
 
 
 

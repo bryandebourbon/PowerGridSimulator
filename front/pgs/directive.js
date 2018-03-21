@@ -31,6 +31,7 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 			.then(function (firebaseUser) {
 				var _teamManagementModal = $('#team-management-modal');
 				var _collectTeamname = $('#collect-team-name');
+
 				var _collectTeamSecretCode = $('#collect-team-secret-code');
 				var _distributeTeamSecretCode = $('#distribute-team-secret-code');
 				
@@ -149,123 +150,6 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 			}).catch(function (error) {
 				showWarning(error.message);
 			})
-		
-		// var teams = firebase.database().ref().child('teams');
-		// teams.orderByChild('team_name').equalTo(user.teamname).once('value', function (team) {
-		// 	var data = team.val();
-
-		// 	if (data) {
-		// 		var secretCode = _.keys(data)[0];
-
-		// 		var _teamManagementModal = $('#team-management-modal');
-		// 		var _distributeTeamSecretCode = $('#distribute-team-secret-code');
-		// 		var _collectTeamSecretCode = $('#collect-team-secret-code');
-		// 		var _secretCodeInput = $('#secret-code-input');
-
-		// 		_distributeTeamSecretCode.hide();
-		// 		_collectTeamSecretCode.show();
-
-		// 		_secretCodeInput.val('');
-
-		// 		_teamManagementModal.modal('show');
-
-		// 		_teamManagementModal.on('click', function (evt) {
-		// 			var inputCode = $('#secret-code-input').val();
-
-		// 			if (inputCode == secretCode) {
-		// 				$('#team-management-modal').modal('hide');
-
-		// 				showSpinner();
-
-		// 				firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-		// 					.then(function (firebaseUser) {
-		// 						firebaseUser.updateProfile({
-		// 							displayName: user.teamname
-		// 						}).then(function () {
-
-		// 							$DataService.getChallenges({ teamname: user.teamname })
-		// 								.then(function (data) {
-		// 									hideSpinner();
-
-		// 									$.cookie('teamname', $scope.teamname);
-		// 									$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
-		// 								}).catch(function (error) {
-		// 									hideSpinner();
-
-		// 									showWarning(error);
-		// 								})
-		// 						}).catch(function (error) {
-		// 							hideSpinner();
-
-		// 							showWarning(error.message);
-		// 						})
-		// 					}).catch(function (error) {
-		// 						hideSpinner();
-
-		// 						showWarning(error.message);
-		// 					})
-		// 			} else {
-		// 				showWarning('Wrong team secret code, please re-enter.');
-		// 			}
-		// 		})
-		// 	} else {
-		// 		var secretCode = teams.push().key;
-
-		// 		var _teamManagementModal = $('#team-management-modal');
-		// 		var _distributeTeamSecretCode = $('#distribute-team-secret-code');
-		// 		var _collectTeamSecretCode = $('#collect-team-secret-code');
-		// 		var _secretCode = $('.pgs-secret-code');
-		// 		var _submitSecretCodeButton = $('#submit-secret-code');
-
-		// 		_distributeTeamSecretCode.show();
-		// 		_collectTeamSecretCode.hide();
-		// 		_submitSecretCodeButton.hide();
-
-		// 		_secretCode.text(secretCode);
-
-		// 		_teamManagementModal.modal('show');
-
-		// 		_teamManagementModal.on('hide.bs.modal', function (evt) {
-		// 			showSpinner();
-
-		// 			firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-		// 				.then(function (firebaseUser) {
-		// 					firebaseUser.updateProfile({
-		// 						displayName: user.teamname
-		// 					}).then(function () {
-		// 						teams.orderByChild('team_id').limitToLast(1).once('value', function (teamData) {
-		// 							var teamID = _.head(_.values(teamData.val())).team_id + 1;
-
-		// 							var newTeam = {};
-		// 							newTeam[secretCode] = { team_id: teamID, team_name: user.teamname };
-
-		// 							teams.update(newTeam);
-
-		// 							$DataService.getChallenges({ teamname: user.teamname })
-		// 								.then(function (data) {
-		// 									hideSpinner();
-
-		// 									$.cookie('teamname', $scope.teamname);
-		// 									$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
-		// 								}).catch(function (error) {
-		// 									hideSpinner();
-
-		// 									showWarning(error);
-		// 								})
-		// 						}).catch(function (error) {
-		// 							hideSpinner();
-
-		// 							showWarning(error);
-		// 						})
-		// 					})
-		// 				}).catch(function (error) {
-		// 					hideSpinner();
-
-		// 					showWarning(error.message);
-		// 				})
-		// 		})
-		// 	}
-		// })
 	}
 
 	$scope.login = function () {
@@ -418,22 +302,9 @@ app.directive('simulatorDirective', function () {
 	}
 })
 
-var vis = new Vis();
 var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
-	$scope.renderGrid = function () {
-		vis.render()
-	}
-
-
-
-
-	
-
-	var clickHandler = function (d) {
-		$scope.node = _.find($scope.nodes, function (n) { return n.index == d.index; });
-		delete $scope.aggregatedGenerator;
-
-		$scope.$apply();
+	$scope.renderMap = function () {
+		Vis.render($scope);
 	}
 
 	var populateGenerators = function () {
@@ -540,7 +411,11 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 
 		var ZERO_VALUE = [0, 0, 0, 0, 0, 0];
 		var realDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.real) ? $scope.node.demands.real : ZERO_VALUE;
-		var reactiveDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.reactive) ? $scope.node.demands.reactive : ZERO_VALU	}
+		var reactiveDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.reactive) ? $scope.node.demands.reactive : ZERO_VALUE;
+	
+		drawLineChart({ container: realDemandsContainer, series: 1, data: [realDemandsData] });
+		drawLineChart({ container: reactiveDemandsContainer, series: 1, data: [reactiveDemandsData] });
+	}
 
 	$scope.viewGeneratorInfo = function (generator) {
 		var _generatorProfileTitle = $('#generator-profile-modal .modal-title');
@@ -617,6 +492,49 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 			$timeout(function () { $('.pgs-add-button').attr('disabled', true); });
 		}
 	})
+
+	$scope.handleClick = function (args) {
+		if (args.type == 'node') {
+			$scope.node = _.find($scope.challenge.nodes, function (n) { return n.index == args.index; });
+
+			$timeout(function () { $scope.$apply(); });
+		}
+	}
+	$scope.handleDrag = function (args) {
+		var generator = _.find($scope.challenge.generators, function (g) { return g.type == args.type; });
+
+		if (generator) {
+			generator.count --;
+		}
+
+		$timeout(function () { $scope.$apply(); });
+	}
+	$scope.revertDrag = function (args) {
+		var generator = _.find($scope.challenge.generators, function (g) { return g.type == args.type; });
+
+		if (generator) {
+			generator.count ++;
+		}
+
+		$timeout(function () { $scope.$apply(); });
+	}
+	$scope.handleDrop = function (args) {
+		var target = _.find($scope.challenge.nodes, function (n) { return n.index == args.target; });
+
+		if (target) {
+			var targetBin = _.find(target.generators, function (g) { return g.type == args.type; });
+
+			if (targetBin) {
+				targetBin.count ++;
+			} else {
+				var generator = _.find($scope.challenge.generators, function (g) { return g.type == args.type; });
+
+				target.generators.push(_.merge(_.cloneDeep(generator), { count: 1 }));
+			}
+		}
+
+		$timeout(function () { $scope.$apply(); });
+	}
 
 	populateGenerators();
 	populateNodes();
@@ -774,8 +692,6 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 					hideSpinner();
 
 					var data = JSON.parse(res);
-
-					console.log(data);
 
 					var res = {
 						status: 'OK',
