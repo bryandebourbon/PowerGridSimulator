@@ -246,15 +246,12 @@ class PgsimGetChallengeTestCase(unittest.TestCase):
     def test_get_challenge_list(self):
         rv = self.app.get('/api/getChallenge/',
                         headers={"team_name": 'ourteam'})
-        expected_list = [{'id': 10,
-                          'name': 'Ontario Power Generation', 
-                          'description': "Design Ontario's generation system with real-life demand, generation cost, CO2 emission, and more data!",
-                          'saved_flag': True}, 
-                         {'id': 11, 
-                          'name': 'Northern Ontario Power Generation',
-                          'description': 'Design a very simple generation system for Northern Ontario, with real-life demand, generation cost, CO2 emission, and more data!', 
-                          'saved_flag': True}]
-        assert json.loads(rv.data.decode('unicode_escape')) == expected_list
+        expected_list = [10, 11]
+        response = json.loads(rv.data.decode('unicode_escape'))
+        response_id_list = []
+        for challenge in response:
+            response_id_list.append(challenge['id'])
+        assert response_id_list == expected_list
 
     def test_get_challenge_list_not_saved(self):
         rv = self.app.get('/api/getChallenge/',
@@ -262,7 +259,7 @@ class PgsimGetChallengeTestCase(unittest.TestCase):
         expected_list = [{'id': 10,
                           'name': 'Ontario Power Generation', 
                           'description': "Design Ontario's generation system with real-life demand, generation cost, CO2 emission, and more data!",
-                          'saved_flag': False}, 
+                          'saved_flag': True}, 
                          {'id': 11, 
                           'name': 'Northern Ontario Power Generation',
                           'description': 'Design a very simple generation system for Northern Ontario, with real-life demand, generation cost, CO2 emission, and more data!', 

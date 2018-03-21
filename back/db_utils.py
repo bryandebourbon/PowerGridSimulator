@@ -200,8 +200,8 @@ def register_routes(current_app):
     return
 
 
-if __name__ == "__main__":
-    init_db_teams()
+# if __name__ == "__main__":
+    # init_db_teams()
     # print(get_team_id("yourteam"))
     # insert_submission_entry({0: {}, 1: {"H": 1}, 2: {"N": 1},
     #                         3: {"H": 1, "N": 1, "R": 1}},
@@ -217,7 +217,7 @@ if __name__ == "__main__":
     #                 "installation_cost": 523081,
     #                 "lines": {0: {'from': 0}},
     #                 "nodes": {0: {'node':0}}})
-    # print(get_leaderboard())
+    # print(get_leaderboard('10'))
     # print(get_saved_challenge('10', '1'))
     # print(get_saved_challenge('10', '3'))
     # delete_users()
