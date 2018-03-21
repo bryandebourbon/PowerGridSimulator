@@ -304,12 +304,16 @@ app.directive('simulatorDirective', function () {
 
 var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
 	$scope.renderGrid = function () {
-		Vis.render()
-		$(this).css('height', 'auto');
-		$(this).css('width', 'auto');
-		$(window).on('resize', function(){
-			Vis.render()});
-		}
+		Vis.render();
+
+		// (for Bryan) the this object here refer to the angular $scope object, why do we want to set css attributes to $scope??
+		// $(this).css('height', 'auto');
+		// $(this).css('width', 'auto');
+		
+		$(window).on('resize', function() {
+			Vis.resize();
+		})
+	}
 
 	var populateGenerators = function () {
 		_.forEach($scope.challenge.generators, function (generator) {
