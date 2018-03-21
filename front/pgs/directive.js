@@ -519,7 +519,21 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		$timeout(function () { $scope.$apply(); });
 	}
 	$scope.handleDrop = function (args) {
-		console.log(args.target);
+		var target = _.find($scope.challenge.nodes, function (n) { return n.index == args.target; });
+
+		if (target) {
+			var targetBin = _.find(target.generators, function (g) { return g.type == args.type; });
+
+			if (targetBin) {
+				targetBin.count ++;
+			} else {
+				var generator = _.find($scope.challenge.generators, function (g) { return g.type == args.type; });
+
+				target.generators.push(_.merge(_.cloneDeep(generator), { count: 1 }));
+			}
+		}
+
+		$timeout(function () { $scope.$apply(); });
 	}
 
 	populateGenerators();

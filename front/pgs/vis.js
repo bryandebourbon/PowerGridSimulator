@@ -17,15 +17,7 @@ var Vis = (function () {
 		    .on('drag', function (d) { return handleDrag(d); })
 		    .on('dragend', function (d) { return handleDragEnd(d); });
 
-		var dropManager = {
-				dragged: null,
-				droppable: null,
-				// draggedMatchesTarget: function() {
-				// 	if (!this.droppable) return false;
-				// 	return (dwarfSet[this.droppable].indexOf(this.dragged) >= 0);
-				// }
-			}
-
+		
 		var svg = d3.select('.pgs-simulation')
 			.append('svg')
 				.attr('id', 'pgs-simulation-svg')
@@ -60,8 +52,6 @@ var Vis = (function () {
 						.append('path')
 							.attr('id', function (d) { return d._guid; })
 							.attr('d', path)
-							// .style('fill', 'blue')
-							// .style('opacity', '0.1');
 				})
 			}
 		}
@@ -82,19 +72,9 @@ var Vis = (function () {
 							.attr('d', path)
 							.style('fill', _.find(regionColors, function (c) { return c.index == index; }) ? _.find(regionColors, function (c) { return c.index == index; }).color : 'black')
 							.style('opacity', .5)
-							.on('mouseenter',function(d) {
-								dropManager.droppable = d3.select('#' + d._guid);
-							})
-							.on('mouseout', function(d){
-								dropManager.droppable = null;
-							})
 							.on('click', function (d) {
 								$scope.handleClick({ type: 'node', index: d.index });
 							})
-							.on('mouseup',function(d) {
-								console.log(d);
-								// $scope.
-							});
 				});
 			}
 		}
@@ -185,37 +165,17 @@ var Vis = (function () {
 			}
 		}
 		var handleDragEnd = function (d) {
-			// if (d3.select(this).classed('installed')){
-			// 	return;
-			// }
-			
-			// var coordinates = [0, 0];
-			// coordinates = d3.mouse(this);
-			// var x = coordinates[0];
-			// var y = coordinates[1];
-
-			// elem = document.elementFromPoint(x, y);
-
-			// target = $(elem).parent()
-
-			// console.log(target)
-			// selection = d3.select(this)
-			// selection.classed('installed', true);
-
-			// var removed = selection.remove();
-			
-			// // sleep(1000);
-
-			// // target = DropManager.droppable
-			// target.append(removed.node());
-
-			// svg.selectAll('.installed').call(zoom);
-
 			delete d._dragging;
 			d3.select('#' + d._guid).classed('dragging', false).remove();
 
-			if (dropManager.droppable) {
-				$scope.handleDrop({ type: d.type, target: dropManager.droppable ? dropManager.droppable.data() : null })
+			var coords = { x: d3.event.sourceEvent.x, y: d3.event.sourceEvent.y };
+			var target = d3.select(document.elementFromPoint(coords.x, coords.y));
+			var data = target.data();
+
+			if (target.data && typeof target.data == 'function' && target.data().length > 0 && target.data()[0] && target.data()[0].type == 'Feature') {
+				var index = _.head(target.data()).index;
+				
+				$scope.handleDrop({ type: d.type, target: index })
 			} else {
 				$scope.revertDrag({ type: d.type });
 			}
