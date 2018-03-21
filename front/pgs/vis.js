@@ -27,7 +27,7 @@ var Vis = (function () {
 			.append('g')
 				.call(zoom)
 
-		var projection = d3.geo.mercator(); //.scale(scale).translate([width , height]);
+		var projection = d3.geo.mercator();
 		var path = d3.geo.path().projection(projection);
 
 		var gMap = svg.append('g').classed('map', true).attr('transform', 'translate(-1128, -387) scale(5.85)');
