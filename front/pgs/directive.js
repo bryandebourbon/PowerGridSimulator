@@ -500,6 +500,28 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 			$timeout(function () { $scope.$apply(); });
 		}
 	}
+	$scope.handleDrag = function (args) {
+		var generator = _.find($scope.challenge.generators, function (g) { return g.type == args.type; });
+
+		if (generator) {
+			generator.count --;
+		}
+
+		$timeout(function () { $scope.$apply(); });
+	}
+	$scope.revertDrag = function (args) {
+		var generator = _.find($scope.challenge.generators, function (g) { return g.type == args.type; });
+
+		if (generator) {
+			generator.count ++;
+		}
+
+		$timeout(function () { $scope.$apply(); });
+	}
+	$scope.handleDrop = function (args) {
+		console.log(args.target);
+	}
+
 	populateGenerators();
 	populateNodes();
 	populateLines();

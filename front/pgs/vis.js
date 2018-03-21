@@ -17,8 +17,8 @@ var Vis = (function () {
 		    .on('drag', function (d) { return handleDrag(d); })
 		    .on('dragend', function (d) { return handleDragEnd(d); });
 
-		var DropManager = {
-				// dragged: null,
+		var dropManager = {
+				dragged: null,
 				droppable: null,
 				// draggedMatchesTarget: function() {
 				// 	if (!this.droppable) return false;
@@ -55,9 +55,10 @@ var Vis = (function () {
 					}
 
 					gBackground.selectAll('path')
-						.data([_.merge(topojson.feature(ont, ont.objects.boarderlines).features[0], { index: -1 })])
+						.data([_.merge(topojson.feature(ont, ont.objects.boarderlines).features[0], { index: -1, _guid: guid() })])
 						.enter()
 						.append('path')
+							.attr('id', function (d) { return d._guid; })
 							.attr('d', path)
 							// .style('fill', 'blue')
 							// .style('opacity', '0.1');
@@ -74,25 +75,26 @@ var Vis = (function () {
 					}
 
 					gPowerZones.append('g').selectAll('path')
-						.data([_.merge(topojson.feature(reg, reg.objects.boarderlines).features[0], { index: index })])
+						.data([_.merge(topojson.feature(reg, reg.objects.boarderlines).features[0], { index: index, _guid: guid() })])
 						.enter()
 						.append('path')
+							.attr('id', function (d) { return d._guid; })
 							.attr('d', path)
 							.style('fill', _.find(regionColors, function (c) { return c.index == index; }) ? _.find(regionColors, function (c) { return c.index == index; }).color : 'black')
 							.style('opacity', .5)
-							.on('mouseover',function(d) {
-								// DropManager.droppable = d3.select(this); 
-								// console.log('Mouseover region ', d.index)
+							.on('mouseenter',function(d) {
+								dropManager.droppable = d3.select('#' + d._guid);
 							})
 							.on('mouseout', function(d){
-								DropManager.droppable = null;
+								dropManager.droppable = null;
 							})
 							.on('click', function (d) {
 								$scope.handleClick({ type: 'node', index: d.index });
 							})
-						// .on('mouseup',function(e){
-						// 	DropManager.droppable = null;
-						// });
+							.on('mouseup',function(d) {
+								console.log(d);
+								// $scope.
+							});
 				});
 			}
 		}
@@ -168,6 +170,8 @@ var Vis = (function () {
 				}
 
 				d._dragging = true;
+
+				$scope.handleDrag({ type: d.type })
 			} 
 		}
 		var handleDrag = function (d) {
@@ -207,8 +211,14 @@ var Vis = (function () {
 
 			// svg.selectAll('.installed').call(zoom);
 
-			d3.select('#' + d._guid).classed('dragging', false);
 			delete d._dragging;
+			d3.select('#' + d._guid).classed('dragging', false).remove();
+
+			if (dropManager.droppable) {
+				$scope.handleDrop({ type: d.type, target: dropManager.droppable ? dropManager.droppable.data() : null })
+			} else {
+				$scope.revertDrag({ type: d.type });
+			}
 		}
 
 		renderOntario();
