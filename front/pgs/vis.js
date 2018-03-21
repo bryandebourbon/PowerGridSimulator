@@ -1,5 +1,5 @@
 var Vis = (function () {
-	var render  = function () {
+	var render  = function ($scope) {
 		d3.select('#pgs-simulation-svg').remove();
 
 		var width = 750;
@@ -88,7 +88,7 @@ var Vis = (function () {
 								DropManager.droppable = null;
 							})
 							.on('click', function (d) {
-								// console.log('Click region ', d.index);
+								$scope.handleClick({ type: 'node', index: d.index });
 							})
 						// .on('mouseup',function(e){
 						// 	DropManager.droppable = null;
@@ -218,7 +218,7 @@ var Vis = (function () {
 	}
 	
 	return {
-		render: function () { return render(); }
+		render: function ($scope) { return render($scope); }
 	}
 })();
 

@@ -304,11 +304,7 @@ app.directive('simulatorDirective', function () {
 
 var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
 	$scope.renderMap = function () {
-		Vis.render();
-		
-		$(window).on('resize', function() {
-			Vis.resize();
-		})
+		Vis.render($scope);
 	}
 
 	var populateGenerators = function () {
@@ -415,7 +411,11 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 
 		var ZERO_VALUE = [0, 0, 0, 0, 0, 0];
 		var realDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.real) ? $scope.node.demands.real : ZERO_VALUE;
-		var reactiveDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.reactive) ? $scope.node.demands.reactive : ZERO_VALU	}
+		var reactiveDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.reactive) ? $scope.node.demands.reactive : ZERO_VALUE;
+	
+		drawLineChart({ container: realDemandsContainer, series: 1, data: [realDemandsData] });
+		drawLineChart({ container: reactiveDemandsContainer, series: 1, data: [reactiveDemandsData] });
+	}
 
 	$scope.viewGeneratorInfo = function (generator) {
 		var _generatorProfileTitle = $('#generator-profile-modal .modal-title');
@@ -493,6 +493,13 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		}
 	})
 
+	$scope.handleClick = function (args) {
+		if (args.type == 'node') {
+			$scope.node = _.find($scope.challenge.nodes, function (n) { return n.index == args.index; });
+
+			$timeout(function () { $scope.$apply(); });
+		}
+	}
 	populateGenerators();
 	populateNodes();
 	populateLines();
