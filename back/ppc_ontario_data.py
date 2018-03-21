@@ -26,7 +26,7 @@ for line_idx in range(transmission_limits.shape[0]):
 # Hardcoded demand profiles for each timestep for all the buses. (Number of rows
 # == number of timesteps; number of columns == number of buses.)
 # TODO: Read a longer time series of the demand profiles.
-timestep_start = 42
+timestep_start = 90
 timestep_count = 6
 node_count = 10
 
