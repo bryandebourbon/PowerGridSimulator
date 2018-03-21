@@ -10,14 +10,14 @@ var Vis = (function () {
 		    .translate([width , height])
 		    .scale(scale)
 		    .scaleExtent([scale, 50 * scale])
-		    .on('zoom', zoomed);
+		    .on('zoom', handleZoom);
 		    // .translate([100,50]).scale(.5);
 
 		var drag = d3.behavior.drag()
 		    .origin(function(d) { return d; })
-		    .on('dragstart', dragstarted)
-		    .on('drag', dragged)
-		    .on('dragend', dragended);
+		    .on('dragstart', function (d) { return handleDragStart(d); })
+		    .on('drag', function (d) { return handleDrag(d); })
+		    .on('dragend', function (d) { return handleDragEnd(d); });
 
 		var DropManager = {
 				// dragged: null,
@@ -52,7 +52,7 @@ var Vis = (function () {
 		var gPathPoints = container.append('g').classed('path-points', true);
 		var gDataPoints = container.append('g').classed('data-points', true);
 		var gPowerZones = container.append('g').classed('power-zones', true);
-		var gPowerNodes = container.append('g').classed('power-nodes', true).attr('id', 'controler');
+		var gGenerators = container.append('g').classed('generators', true).attr('id', 'controler');
 
 		var renderOntario = function () {
 			var ontarioGeoJson = _.find(geoJsonFiles, function (f) { return f.index == -1; });
@@ -113,27 +113,31 @@ var Vis = (function () {
 		//---- Controler ----
 		var radius = 32;
 
-		var iconPrefix = './visuals/icons/';
-		controller_height = $( window ).height()*0.7 - radius * 2;//height/2 //- radius //* 2;
-		spacing_factor = width / 5	
+		var baseHeight = $(window).height() * 0.7 - radius * 2;//height/2 //- radius //* 2;
+		var spacing = width / 5	
 
-		var power_generators = [{ index: 0, type: 'Gas', img: iconPrefix + 'Gas.png', x: width - spacing_factor, y: controller_height, start_x: width - spacing_factor, start_y: controller_height },
-			{ index: 1, type: 'Hydro', img: iconPrefix + 'Hydro.png', x: width - 2*spacing_factor, y: controller_height, start_x: width - 2*spacing_factor, start_y: controller_height },
-			{ index: 2, type: 'Nuclear', img: iconPrefix + 'Nuclear.png', x: width - 3*spacing_factor, y: controller_height, start_x: width - 3*spacing_factor, start_y: controller_height },
-			{ index: 3, type: 'Solar', img: iconPrefix + 'Solar.png', x: width - 4*spacing_factor, y: controller_height, start_x: width - 4*spacing_factor, start_y: controller_height },
-			{ index: 4, type: 'Wind', img: iconPrefix + 'Wind.png', x: width - 5*spacing_factor, y: controller_height, start_x: width - 5*spacing_factor, start_y: controller_height }];
+		var power_generators = _.cloneDeep(generator_configs);
+		_.forEach(power_generators, function (g) {
+			g._x = width - (g.index + 1) * spacing;	// default x position
+			g._y = baseHeight;	// default y position
+			
+			g.x = g._x;
+			g.y = g._y;
 
-		var node = gPowerNodes.selectAll('image')
-					.data(power_generators, function(d) { return Math.floor(Math.random() * 200) + 1; })
-					.enter()
+			g._original = true;
+		})
+
+		gGenerators.selectAll('image')
+			.data(power_generators)
+			.enter()
 			.append('image')
-			.attr('x', function(d) { return d.x; })
-			.attr('y', function(d) { return d.y; })
-			.attr('xlink:href',  function(d) { return d.img;})
-			.attr('height', '50px')
-			.call(drag);
+				.attr('x', function(d) { return d.x; })
+				.attr('y', function(d) { return d.y; })
+				.attr('xlink:href',  function(d) { return d.img; })
+				.attr('height', '50px')
+				.call(drag);
 
-		function zoomed() {
+		var handleZoom = function () {
 			projection
 			.translate(zoom.translate())
 			.scale(zoom.scale());
@@ -144,149 +148,95 @@ var Vis = (function () {
 			// 		 ')scale(' + d3.event.scale + ')');
 
 			// $(container.selectAll('.installed')).show();
-		};
+		}
 
-		function dragstarted(datum) {
-			// if (d3.select(this).classed('installed')){
-			// 	return
-			// }
+		var cloneGenerator = function (d) {
+			var clone = _.cloneDeep(d);
+
+			// d.x = d._x;
+			// d.y = d._y;
+
+			// d._original = true;
+
+			return clone;
+		}
+		var handleDragStart = function (d) {
+			console.log(d.x, d.y);
 
 			d3.event.sourceEvent.stopPropagation();
-			d3.select(this).classed('dragging', true);
-			// console.log('node');
-			// console.log(datum);
+			d3.select(d3.event.sourceEvent.target).classed('dragging', true);
 
-			if (datum.start_x == datum.x 
-				&& datum.start_y == datum.y){
+			if (!d._dragging) {
+				var dataCopy = cloneGenerator(d);
 
-				if (datum.type == 'Gas'){
+				// gGenerators.selectAll('image')
+				// 	.data(newCopy)
+				// 	.enter()
+				// 	.append('image')
+				// 		.attr('x', function(d) { return d.x; })
+				// 		.attr('y', function(d) { return d.y; })
+				// 		.attr('xlink:href',  function(d) { return d.img;})
+				// 		.attr('height', '50px')
+				// 		.call(drag);
 
-					newcopy = [{	
-								'type': 'Gas', 
-								'img':  iconPrefix + 'Gas.png',
-								'x': width - spacing_factor,
-								'y': controller_height, 
-								'start_x': width - spacing_factor,
-								'start_y': controller_height,
-								'index': 0, 	      
-								}]
+				// if (d._original) {
+				// 	gGenerators.append('image')
+				// 		.datum(dataCopy)
+				// 		.attr('x', function (d) { return d.x; })
+				// 		.attr('y', function (d) { return d.y; })
+				// 		.attr('xlink:href', function (d) { return d.img; })
+				// 		.attr('height', '50px')
+				// 		.call(drag);
 
-				} 
-				else if (datum.type == 'Hydro'){
-					
-					newcopy = [{
-								'type': 'Hydro', 
-								'img':  iconPrefix + 'Hydro.png',
-								'x': width - 2*spacing_factor,
-								'y': controller_height,
-								'start_x': width - 2*spacing_factor,
-								'start_y': controller_height,
-								'index': 1, 
-							}]
+				// 	delete d._original;
+				// }
 
-				}
-
-				else if (datum.type == 'Nuclear'){
-					
-					newcopy = [{
-								'type': 'Nuclear', 
-								'img':  iconPrefix + 'Nuclear.png',
-								'x': width - 3*spacing_factor,
-								'y': controller_height,
-								'start_x': width - 3*spacing_factor,
-								'start_y': controller_height,
-								'index': 2, 
-								}]
-
-				}
-
-				else if (datum.type == 'Solar'){
-					
-					newcopy = [{
-								'type': 'Solar', 
-								'img':  iconPrefix + 'Solar.png',
-								'x': width - 4*spacing_factor,
-								'y': controller_height,
-								'start_x': width - 4*spacing_factor,
-								'start_y': controller_height, 
-								'index': 3,
-								}]
-
-				}
-
-				else if (datum.type == 'Wind'){
-					
-					newcopy = [{
-								'type': 'Wind', 
-								'img':  iconPrefix + 'Wind.png',
-								'x': width - 5*spacing_factor,
-								'y': controller_height,
-								'start_x': width - 5*spacing_factor,
-								'start_y': controller_height,
-								'index': 4, 
-								}]
-
-				}				
-			gPowerNodes.selectAll('image')
-			.data(newcopy, function(d) { return Math.floor(Math.random() * 200) + 1  ; })
-			.enter()
-			.append('image')
-			.attr('x', function(d) { return d.x; })
-			.attr('y', function(d) { return d.y; })
-			.attr('xlink:href',  function(d) { return d.img;})
-			.attr('height', '50px')
-			.call(drag)
+				d._dragging = true;
 			} 
-		};
-
-		function dragged(d) {
-			// if (d3.select(this).classed('installed')){
-			// 	return
-			// }
-
-			// console.log('x = ' + d.x)
-			// console.log('y = ' + d.y)
-
-			// console.log('event x = ' + d3.event.x)
-			// console.log('event y = '+ d3.event.y)
-
-			d3.select(this)
-			.attr('x', d.x = d3.event.x)
-			.attr('y', d.y = d3.event.y);
-		};
-
-
-		function dragended(d,e, f ) {
-			if (d3.select(this).classed('installed')){
-				return
-			}
-
-			var coordinates = [0, 0];
-			coordinates = d3.mouse(this);
-			var x = coordinates[0];
-			var y = coordinates[1];
-
-			elem = document.elementFromPoint(x, y);
-
-			target = $(elem).parent()
-
-			console.log(target)
-			selection = d3.select(this)
-			selection.classed('installed', true);
-
-			var removed = selection.remove();
+		}
+		var handleDrag = function (d) {
+			console.log(d.x, d.y);
 			
-			// sleep(1000);
+			if (d._dragging) {
+				d.x = d3.event.x;
+				d.y = d3.event.y;
 
-			// target = DropManager.droppable
-			target.append(removed.node());
+				d3.select(d3.event.sourceEvent.target)
+					.attr('x', d.x = d.x)
+					.attr('y', d.y = d.y);
+			}
+		}
+		var handleDragEnd = function (d) {
+			console.log(d.x, d.y);
+			
+			// if (d3.select(this).classed('installed')){
+			// 	return;
+			// }
+			
+			// var coordinates = [0, 0];
+			// coordinates = d3.mouse(this);
+			// var x = coordinates[0];
+			// var y = coordinates[1];
 
-			svg.selectAll('.installed').call(zoom)
+			// elem = document.elementFromPoint(x, y);
 
-			// console.log(d);
-			// console.log(e);
-			// console.log(f);
-			// .classed('dragging', false);
+			// target = $(elem).parent()
+
+			// console.log(target)
+			// selection = d3.select(this)
+			// selection.classed('installed', true);
+
+			// var removed = selection.remove();
+			
+			// // sleep(1000);
+
+			// // target = DropManager.droppable
+			// target.append(removed.node());
+
+			// svg.selectAll('.installed').call(zoom);
+
+			d3.select(d3.event.sourceEvent.target).classed('dragging', false);
+			delete d._dragging;
 		}
 
 		renderOntario();
