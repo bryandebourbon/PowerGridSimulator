@@ -167,7 +167,7 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 		}
 
 		firebase.auth().signInWithEmailAndPassword(user.email, user.password).then(function (data) {
-			$scope.teamname = data.displayName;
+			var teamname = data.displayName;
 
 			showSpinner();
 
@@ -623,7 +623,7 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 	$scope.viewLeaderBoard = function () {
 		showSpinner();
 
-		$DataService.getLeaderBoard({ challengeID: $scope.challenge.id })
+		$DataService.getLeaderBoard({ teamname: $.cookie('teamname'), challengeID: $scope.challenge.id })
 			.then(function (data) {
 				hideSpinner();
 
