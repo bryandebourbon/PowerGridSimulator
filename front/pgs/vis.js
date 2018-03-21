@@ -63,7 +63,7 @@ var Vis = (function () {
 					}
 
 					gBackground.selectAll('path')
-						.data(topojson.feature(ont, ont.objects.boarderlines).features)
+						.data([_.merge(topojson.feature(ont, ont.objects.boarderlines).features[0], { index: -1 })])
 						.enter()
 						.append('path')
 							.attr('d', path)
@@ -82,33 +82,33 @@ var Vis = (function () {
 					}
 
 					gPowerZones.append('g').selectAll('path')
-						.data(topojson.feature(reg, reg.objects.boarderlines).features)
+						.data([_.merge(topojson.feature(reg, reg.objects.boarderlines).features[0], { index: index })])
 						.enter()
 						.append('path')
 							.attr('d', path)
 							.style('fill', _.find(regionColors, function (c) { return c.index == index; }) ? _.find(regionColors, function (c) { return c.index == index; }).color : 'black')
 							.style('opacity', .5)
-							.on('mouseover',function(evt) {
+							.on('mouseover',function(d) {
 								// DropManager.droppable = d3.select(this); 
-								console.log('Mouseover region ', evt)
+								// console.log('Mouseover region ', d.index)
 							})
-							.on('mouseout', function(evt){
+							.on('mouseout', function(d){
 								DropManager.droppable = null;
 							})
 							.on('click', function (d) {
-								console.log('Click region ', d);
+								// console.log('Click region ', d.index);
 							})
 						// .on('mouseup',function(e){
 						// 	DropManager.droppable = null;
-						// 	console.log(pwr_colors[i] + ' mouseup detected');
 						// });
 				});
 			}
 		}
-
-		_.forEach(_.range(10), function (i) {
-			renderRegion(i);
-		})
+		var renderRegions = function () {
+			_.forEach(_.range(10), function (i) {
+				renderRegion(i);
+			})
+		}
 
 		//---- Controler ----
 		var radius = 32;
@@ -290,6 +290,7 @@ var Vis = (function () {
 		}
 
 		renderOntario();
+		renderRegions();
 	}
 	
 	var resize = function () {
