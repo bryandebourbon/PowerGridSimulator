@@ -1,15 +1,14 @@
 var Vis = (function () {
 	var render  = function () {
-		d3.select('svg').remove();
+		d3.select('#pgs-simulation-svg').remove();
 
-		var width = 750; //.8 * $(window).width();
-		var height = 500 ; //.7 * $(window).height();
-		// var scale = (width - 1) / 2 / Math.PI;
+		var width = 750;
+		var height = 500 ;
 
 		var zoom = d3.behavior.zoom()
 		    .translate([-1128 , -387])	// specific values for this SVG size
 		    .scale(5.85)
-		    .scaleExtent([.5, 20])
+		    .scaleExtent([.5, 40])
 		    .on('zoom', function () { return handleZoom(); });
 
 		var drag = d3.behavior.drag()
@@ -218,13 +217,8 @@ var Vis = (function () {
 		renderGenerators();
 	}
 	
-	var resize = function () {
-
-	}
-
 	return {
-		render: function () { return render(); },
-		resize: function () { return resize(); }
+		render: function () { return render(); }
 	}
 })();
 
