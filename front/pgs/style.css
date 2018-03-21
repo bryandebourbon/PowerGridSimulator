@@ -194,9 +194,11 @@
     margin: 24px;
 }
 
-#simulator-svg {
-	width: 500px;
-    height: 500px;
+#pgs-simulation-svg {
+    border-style: solid;
+    border-width: 1px;
+    border-color: grey;
+    border-radius: 10px;
 }
 
 .journey{

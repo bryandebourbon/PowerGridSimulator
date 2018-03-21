@@ -303,12 +303,8 @@ app.directive('simulatorDirective', function () {
 })
 
 var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
-	$scope.renderGrid = function () {
+	$scope.renderMap = function () {
 		Vis.render();
-
-		// (for Bryan) the this object here refer to the angular $scope object, why do we want to set css attributes to $scope??
-		// $(this).css('height', 'auto');
-		// $(this).css('width', 'auto');
 		
 		$(window).on('resize', function() {
 			Vis.resize();
@@ -653,8 +649,6 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 					hideSpinner();
 
 					var data = JSON.parse(res);
-
-					console.log(data);
 
 					var res = {
 						status: 'OK',

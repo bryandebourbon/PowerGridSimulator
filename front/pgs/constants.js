@@ -44,12 +44,6 @@ var regionColors = [{ index: 0, color: 'green' },
                     { index: 9, color: 'blue' }];
 
 var iconPrefix = './visuals/icons/';
-// var power_generators = [{ index: 0, type: 'Gas', img: iconPrefix + 'Gas.png', x: width - spacingFactor, y: controller_height, start_x: width - spacingFactor, start_y: controller_height },
-//                         { index: 1, type: 'Hydro', img: iconPrefix + 'Hydro.png', x: width - 2 * spacingFactor, y: controller_height, start_x: width - 2 * spacingFactor, start_y: controller_height },
-//                         { index: 2, type: 'Nuclear', img: iconPrefix + 'Nuclear.png', x: width - 3 * spacingFactor, y: controller_height, start_x: width - 3 * spacingFactor, start_y: controller_height },
-//                         { index: 3, type: 'Solar', img: iconPrefix + 'Solar.png', x: width - 4 * spacingFactor, y: controller_height, start_x: width - 4 * spacingFactor, start_y: controller_height },
-//                         { index: 4, type: 'Wind', img: iconPrefix + 'Wind.png', x: width - 5 * spacingFactor, y: controller_height, start_x: width - 5 * spacingFactor, start_y: controller_height }];
-
 var generator_configs = [{ index: 0, type: 'Gas', img: iconPrefix + 'Gas.png' },
                         { index: 1, type: 'Hydro', img: iconPrefix + 'Hydro.png' },
                         { index: 2, type: 'Nuclear', img: iconPrefix + 'Nuclear.png' },
