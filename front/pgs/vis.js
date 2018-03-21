@@ -7,10 +7,10 @@ var Vis = (function () {
 		var scale = (width - 1) / 2 / Math.PI;
 
 		var zoom = d3.behavior.zoom()
-		    .translate([width , height])
-		    .scale(scale)
-		    .scaleExtent([scale, 50 * scale])
-		    .on('zoom', handleZoom);
+		    // .translate([width , height])
+		    // .scale(scale)
+		    .scaleExtent([.5, 20])
+		    .on('zoom', function () { return handleZoom(); });
 		    // .translate([100,50]).scale(.5);
 
 		var drag = d3.behavior.drag()
@@ -52,7 +52,7 @@ var Vis = (function () {
 		var gPathPoints = container.append('g').classed('path-points', true);
 		var gDataPoints = container.append('g').classed('data-points', true);
 		var gPowerZones = container.append('g').classed('power-zones', true);
-		var gGenerators = container.append('g').classed('generators', true).attr('id', 'controler');
+		var gGenerators = container.append('g').classed('generators', true);
 
 		var renderOntario = function () {
 			var ontarioGeoJson = _.find(geoJsonFiles, function (f) { return f.index == -1; });
@@ -140,16 +140,10 @@ var Vis = (function () {
 				.call(drag);
 
 		var handleZoom = function () {
-			projection
-			.translate(zoom.translate())
-			.scale(zoom.scale());
-			container.selectAll('path').attr('d', path);
-
-			// container.selectAll('.installed')
-			// 		.attr('transform', 'translate(' + d3.event.translate +
-			// 		 ')scale(' + d3.event.scale + ')');
-
-			// $(container.selectAll('.installed')).show();
+			var transform = { x: d3.event.translate[0], y: d3.event.translate[1], scale: d3.event.scale };
+		
+			gBackground.attr('transform', 'translate(' + transform.x + ',' + transform.y + ') scale(' + transform.scale + ')');
+			gPowerZones.attr('transform', 'translate(' + transform.x + ',' + transform.y + ') scale(' + transform.scale + ')');
 		}
 
 		var cloneGenerator = function (d) {
