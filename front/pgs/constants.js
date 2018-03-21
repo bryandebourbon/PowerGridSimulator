@@ -51,19 +51,19 @@ var generator_configs = [{ index: 0, type: 'Gas', img: iconPrefix + 'Gas.png' },
                         { index: 4, type: 'Wind', img: iconPrefix + 'Wind.png' }];
 
 
-var API_ADDRESS = {
-    getAllChallenges: 'http://127.0.0.1:5000/api/getChallenge/',
-    getSingleChallenge: 'http://127.0.0.1:5000/api/getChallenge/',
-    submitChallenge: 'http://127.0.0.1:5000/api/submit/',
-    getLeaderBoard: 'http://127.0.0.1:5000/api/leaderboard/',
-}
-
 // var API_ADDRESS = {
-//     getAllChallenges: 'http://127.0.0.1:8000/api/getChallenge/',
-//     getSingleChallenge: 'http://127.0.0.1:8000/api/getChallenge/',
-//     submitChallenge: 'http://127.0.0.1:8000/api/submit/',
-//     getLeaderBoard: 'http://127.0.0.1:8000/api/leaderboard/',
+//     getAllChallenges: 'http://127.0.0.1:5000/api/getChallenge/',
+//     getSingleChallenge: 'http://127.0.0.1:5000/api/getChallenge/',
+//     submitChallenge: 'http://127.0.0.1:5000/api/submit/',
+//     getLeaderBoard: 'http://127.0.0.1:5000/api/leaderboard/',
 // }
+
+var API_ADDRESS = {
+    getAllChallenges: 'http://127.0.0.1:8000/api/getChallenge/',
+    getSingleChallenge: 'http://127.0.0.1:8000/api/getChallenge/',
+    submitChallenge: 'http://127.0.0.1:8000/api/submit/',
+    getLeaderBoard: 'http://127.0.0.1:8000/api/leaderboard/',
+}
 
 
 // var API_ADDRESS = {
@@ -72,4 +72,3 @@ var API_ADDRESS = {
 //     submitChallenge: 'http://pgsim.com:8000/api/submit/',
 //     getLeaderBoard: 'http://pgsim.com:8000/api/leaderboard/',
 // }
-
