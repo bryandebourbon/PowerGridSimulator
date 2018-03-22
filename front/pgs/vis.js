@@ -26,6 +26,7 @@ var Vis = (function () {
 				.attr('height', height)
 				.on('click', function (d) { 
 					repaintRegions();
+					repaintTransmissionLines();
 					
 					$scope.handleClick({ type: 'invalid' });
 				 })
@@ -145,9 +146,15 @@ var Vis = (function () {
 					.on('click', function (d) {
 						d3.event.stopImmediatePropagation();
 
+						repaintTransmissionLines();
+						d3.select(this).style('fill', '#737373');
+						
 						$scope.handleClick({ type: 'line', source: d.source.index, target: d.target.index });
 					});
 
+		}
+		var repaintTransmissionLines = function () {
+			gTranmissionLines.selectAll('g path').style('fill', 'white');
 		}
 
 		var renderGenerators = function () {
