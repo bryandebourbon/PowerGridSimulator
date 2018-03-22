@@ -447,8 +447,10 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 				drawLineChart({ type: 'polynomial', unit: 'Dollars (k)', container: '#generator-profile-real-cost', data: [v] });
 			} else if (k == 'per_node_limit') {
 				_valueContainer.text(v);
-			} else {
-				_valueContainer.text(v);
+			} else if (k == 'installation_cost') {
+				_valueContainer.text('$ ' + (v == 0 ? 0 : (v / 1000).toFixed(2)) + ' M');
+			} else if (k == 'unit_CO2') {
+				_valueContainer.text((v / 1000).toFixed(2) + ' T');
 			}
 		})
 	}

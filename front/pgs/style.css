@@ -45,6 +45,9 @@
 	margin-top: 6px;
 	margin-bottom: 6px;
 }
+.pgs-info-span {
+    vertical-align: top;
+}
 
 #generator-info {
 	margin-top: 12px;
