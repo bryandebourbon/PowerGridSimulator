@@ -234,12 +234,6 @@ var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 	$scope.goBack = function () {
 		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'login' }); });
 	}
-
-	var processChallenges = function () {
-		_.forEach($scope.challenges, function (c) { c.saved = c.saved_flag ? 'True' : 'False'; });
-	}
-
-	processChallenges();
 }]
 
 app.directive('challengeDirective', function () {

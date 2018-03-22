@@ -15,7 +15,7 @@
             <tr ng-repeat="challenge in challenges | orderBy : 'id'">
                 <td class="pgs-td">{{challenge.id}}</td>
                 <td class="pgs-td">{{challenge.name}}</td>
-                <td class="pgs-td">{{challenge.saved}}</td>
+                <td class="pgs-td">{{challenge.saved_flag ? 'True' : 'False'}}</td>
                 <td class="pgs-td">
                     <button class="btn btn-default pgs-btn" ng-click="previewChallenge(challenge.id)" data-toggle="modal" data-target="#preview-modal">Preview</button>
                     <button class="btn btn-default pgs-btn" ng-click="simulateChallenge(challenge.id)">Simulate</button>

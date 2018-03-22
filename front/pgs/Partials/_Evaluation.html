@@ -8,10 +8,10 @@
     <div class="pgs-submission-header">Thank you for your submission. Your submission result can be found below:</div>
 
     <div class="pgs-evaluation-summary">
-        <div>Passed: {{evaluation.passed}}</div>
-        <div>Real Cost: {{evaluation.cost}}</div>
-        <div>Installation Cost: {{evaluation.installation_cost}}</div>
-        <div>CO2 Footprint: {{evaluation.CO2}}</div>
+        <div>Passed: {{evaluation.passed ? 'True' : 'False'}}</div>
+        <div>Real Cost: $ {{evaluation.cost == 0 ? 0 : (evaluation.cost / 1000).toFixed(2)}} M</div>
+        <div>Installation Cost: $ {{evaluation.installation_cost == 0 ? 0 : (evaluation.installation_cost / 1000).toFixed(2)}} M</div>
+        <div>CO2 Footprint: {{evaluation.CO2 == 0 ? 0 : (evaluation.CO2).toFixed(2)}} T</div>
 
         <div class="pgs-evaluation-detail">
             <div>Below are the simulation results for nodes and lines.</div>
