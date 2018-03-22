@@ -120,10 +120,17 @@ var drawLineChart = function (args) {
 
     vis.append('text')
         .attr('class', 'x label pgs-axis-label')
-        .attr('text-anchor', 'start')
+        .attr('text-anchor', 'middle')
         .attr('x', .85 * width)
         .attr('y', .85 * height)
-        .text(args.type == 'simulation' ? 'hr' : 'x');
+        .text(args.type == 'simulation' ? 'hr' : 'n');
+
+    vis.append('text')
+        .attr('class', 'y label pgs-axis-label')
+        .attr('text-anchor', 'middle')
+        .attr('x', .2 * width)
+        .attr('y', .1 * height)
+        .text(args.unit);
 }
 
 var showWarning = function (message) {
