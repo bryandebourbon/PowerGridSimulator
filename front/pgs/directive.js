@@ -497,6 +497,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 	$scope.handleClick = function (args) {
 		if (args.type == 'node') {
 			$scope.node = _.find($scope.challenge.nodes, function (n) { return n.index == args.index; });
+			visualizeNodeRealReactivePowerDemands();
 
 			$scope.target = 'node';
 			$timeout(function () { $scope.$apply(); });
