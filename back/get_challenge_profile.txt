@@ -1129,3 +1129,32 @@
 
 
 
+         6407 function calls (6405 primitive calls) in 1.273 seconds
+
+   Ordered by: cumulative time
+   List reduced from 479 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        2    0.000    0.000    1.272    0.636 /usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/firebase_admin/db.py:505(get)
+        2    0.000    0.000    1.272    0.636 /usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/firebase_admin/_http_client.py:92(body)
+        2    0.000    0.000    1.272    0.636 /usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/firebase_admin/db.py:746(request)
+        2    0.000    0.000    1.272    0.636 /usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/firebase_admin/_http_client.py:64(request)
+        2    0.000    0.000    1.272    0.636 /usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/google/auth/transport/requests.py:181(request)
+        2    0.000    0.000    1.272    0.636 /usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/requests/sessions.py:441(request)
+        2    0.000    0.000    1.266    0.633 /usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/requests/sessions.py:589(send)
+        2    0.000    0.000    1.265    0.633 /usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/requests/adapters.py:388(send)
+        2    0.000    0.000    1.264    0.632 /usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/urllib3/connectionpool.py:447(urlopen)
+        2    0.000    0.000    1.263    0.632 /usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/urllib3/connectionpool.py:322(_make_request)
+        2    0.000    0.000    1.263    0.631 /usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/http/client.py:1287(getresponse)
+        2    0.000    0.000    1.263    0.631 /usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/http/client.py:290(begin)
+        2    0.000    0.000    1.261    0.631 /usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/http/client.py:257(_read_status)
+       20    0.000    0.000    1.261    0.063 {method 'readline' of '_io.BufferedReader' objects}
+        2    0.000    0.000    1.261    0.631 /usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/socket.py:572(readinto)
+        2    0.000    0.000    1.261    0.631 /usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/ssl.py:998(recv_into)
+        2    0.000    0.000    1.261    0.631 /usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/ssl.py:863(read)
+        2    0.000    0.000    1.261    0.631 /usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/ssl.py:624(read)
+        2    1.261    0.631    1.261    0.631 {method 'read' of '_ssl._SSLSocket' objects}
+        1    0.000    0.000    1.193    1.193 /Users/hiannie/Desktop/PowerGridSimulator/back/db_utils.py:27(get_team_id)
+
+
+

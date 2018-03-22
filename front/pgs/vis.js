@@ -24,8 +24,9 @@ var Vis = (function () {
 				.attr('class', 'pgs-simulation')
 				.attr('width', width)
 				.attr('height', height)
+				.on('click', function (d) { $scope.handleClick({ type: 'invalid' }); })
 			.append('g')
-				.call(zoom)
+				.call(zoom);
 
 		var projection = d3.geo.mercator();
 		var path = d3.geo.path().projection(projection);
@@ -72,6 +73,8 @@ var Vis = (function () {
 							.style('fill', _.find(regionColors, function (c) { return c.index == index; }) ? _.find(regionColors, function (c) { return c.index == index; }).color : 'black')
 							.style('opacity', .5)
 							.on('click', function (d) {
+								d3.event.stopImmediatePropagation();
+								
 								$scope.handleClick({ type: 'node', index: d.index });
 							})
 				});
@@ -87,12 +90,12 @@ var Vis = (function () {
 			var lngLatToArc = function (d) {
 				var bend = 3;
 
-				var sourceLngLat = d.source;
-				var targetLngLat = d.target;
+				var source = d.source;
+				var target = d.target;
 
-				if (targetLngLat && sourceLngLat) {
-					var sourceXY = projection(sourceLngLat);
-					var targetXY = projection(targetLngLat);
+				if (source && target) {
+					var sourceXY = projection([source.lng, source.lat]);
+					var targetXY = projection([target.lng, target.lat]);
 
 					var sourceX = sourceXY[0];
 					var sourceY = sourceXY[1];
@@ -116,7 +119,8 @@ var Vis = (function () {
 			}
 
 			var powerLines = _.cloneDeep(powerLineConfigs);
-			_.forEach(powerLines, function (l) {
+			_.forEach(powerLines, function (l, i) {
+				l._i = i;
 				l._guid = guid();
 			})
 
@@ -124,10 +128,13 @@ var Vis = (function () {
 				.data(powerLines)
 				.enter()
 				.append('path')
+					.attr('i', function (d) { return d._i; })
 					.attr('d', function (d) { return lngLatToArc(d); })
 					.style('fill', 'white')
 					.on('click', function (d) {
-						$scope.handleClick({ type: 'line', source: 0, target: 1 });
+						d3.event.stopImmediatePropagation();
+
+						$scope.handleClick({ type: 'line', source: d.source.index, target: d.target.index });
 					});
 
 		}

@@ -497,6 +497,15 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		if (args.type == 'node') {
 			$scope.node = _.find($scope.challenge.nodes, function (n) { return n.index == args.index; });
 
+			$scope.target = 'node';
+			$timeout(function () { $scope.$apply(); });
+		} else if (args.type == 'line') {
+			$scope.line = _.find($scope.challenge.lines, function (l) { return l.from == args.source && l.to == args.target; });
+
+			$scope.target = 'line';
+			$timeout(function () { $scope.$apply(); });
+		} else {
+			$scope.target = null;
 			$timeout(function () { $scope.$apply(); });
 		}
 	}
@@ -542,9 +551,6 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 
 	processNodeRealReactiveDemands();
 	visualizeNodeRealReactivePowerDemands();
-
-	$scope.target = 'node';
-	// $scope.target = 'line';
 
 	$timeout(function () { $scope.$apply(); });
 }]
