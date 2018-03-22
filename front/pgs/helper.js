@@ -88,11 +88,20 @@ var drawLineChart = function (args) {
 
     var colors = ['black', 'red'];
 
+    var ymin = _.min(_.map(args.data[0], function (d) { return d.value; })) > 0 ? .8 * _.min(_.map(args.data[0], function (d) { return d.value; })) : 1.15 * _.min(_.map(args.data[0], function (d) { return d.value; }));
+    var ymax = _.max(_.map(args.data[0], function (d) { return d.value; })) > 0 ? 1.15 * _.max(_.map(args.data[0], function (d) { return d.value; })) : .8 * _.max(_.map(args.data[0], function (d) { return d.value; }));
+    var ymean = _.map(args.data[0], function (d) { return d.value; }).reduce(function (a, b) { return a + b; }) / _.size(_.map(args.data[0], function (d) { return d.value; }));
+
+    if (ymin == 0 && ymax == 0) {
+        ymin = -1;
+        ymax = 1;
+    }
+
     var x = d3.scale.linear().range([margin.x, width - margin.x]).domain([0, d3.max(args.data[0], function (d) { return d.key; })]);
-    var y = d3.scale.linear().range([height - margin.y, margin.y]).domain([d3.min(args.data[0], function (d) { return d.value; }) < 0 ? d3.min(args.data[0], function (d) { return d.value; }) : 0, d3.max(args.data[0], function (d) { return d.value; }) > 0 ? d3.max(args.data[0], function (d) { return d.value; }) : 0]);
+    var y = d3.scale.linear().range([height - margin.y, margin.y]).domain([ymin, ymax]);
 
     var xAxis = d3.svg.axis().scale(x).tickValues(args.type == 'simulation' ? [0, 6, 12, 18, 24] : [0, 5, 10]);
-    var yAxis = d3.svg.axis().scale(y).orient('left').tickValues([0, d3.max(args.data[0], function (d) { return d.value; })]);
+    var yAxis = d3.svg.axis().scale(y).orient('left').tickValues([ymin, ymean, ymax]);
 
     vis.append('svg:g')
         .attr('class', 'x pgs-axis')
@@ -159,7 +168,7 @@ var showSpinner = function () {
 }
 var hideSpinner = function () {
     $('#pgs-app').removeClass('pgs-dim');
-    
+
     $('.pgs-spinner').hide();
 }
 
