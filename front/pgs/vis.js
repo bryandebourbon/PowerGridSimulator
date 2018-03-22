@@ -82,6 +82,8 @@ var Vis = (function () {
 								d3.event.stopImmediatePropagation();
 								
 								repaintRegions();
+								repaintTransmissionLines();
+
 								d3.select(this).style('fill', '#737373').style('opacity', 1);
 								
 								$scope.handleClick({ type: 'node', index: d.index });
@@ -146,9 +148,11 @@ var Vis = (function () {
 					.on('click', function (d) {
 						d3.event.stopImmediatePropagation();
 
+						repaintRegions();
 						repaintTransmissionLines();
-						d3.select(this).style('fill', '#737373');
 						
+						d3.select(this).style('fill', '#737373');
+
 						$scope.handleClick({ type: 'line', source: d.source.index, target: d.target.index });
 					});
 
