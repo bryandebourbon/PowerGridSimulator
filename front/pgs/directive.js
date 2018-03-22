@@ -324,33 +324,28 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		})
 	}
 	var populateNodes = function () {
-		// coming back from the evaluation page, no need to re-populate the challenge nodes list
-		if (!$scope.challenge.nodes) {
-			$scope.challenge.nodes = [];
+		$scope.challenge.nodes = [];
 
-			_.forEach($scope.challenge.demands, function (d) {
-				var nodeInfo = _.find(nodeMap, function (n) { return n.index == d.node; });
-				var name;
+		_.forEach($scope.challenge.demands, function (d) {
+			var nodeInfo = _.find(nodeMap, function (n) { return n.index == d.node; });
+			var name;
 
-				if (nodeInfo) {
-					name = nodeInfo.name;
-				}
+			if (nodeInfo) {
+				name = nodeInfo.name;
+			}
 
-				var node = {
-					index: d.node,
-					name: name,
-					demands: {
-						real: d.real,
-						reactive: d.reactive
-					},
-					generators: []
-				}
+			var node = {
+				index: d.node,
+				name: name,
+				demands: {
+					real: d.real,
+					reactive: d.reactive
+				},
+				generators: []
+			}
 
-				$scope.challenge.nodes.push(node);
-			})
-		}
-
-		$scope.node = _.find($scope.challenge.nodes, function (n) { return n.index == 0; });
+			$scope.challenge.nodes.push(node);
+		})
 
 		if (_.size($scope.challenge.saved_challenge) != 0) {
 			_.forEach($scope.challenge.saved_challenge, function (generators, i) {
@@ -367,7 +362,10 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 					if (generator) {
 						generator.count ++;
 					} else {
-						node.generators.push({ type: type, count: 1 });
+						var generatorCopy = _.cloneDeep(_.find($scope.challenge.generators, function(g) { return g.type == type; }));
+						generatorCopy.count = 1;
+
+						node.generators.push(generatorCopy);
 					}
 
 					var inventoryGenerator = _.find($scope.challenge.generators, function (g) { return g.type == type; });
@@ -376,7 +374,9 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 					}
 				})
 			})
-		}		
+		}	
+		
+		$scope.node = _.head($scope.challenge.nodes);
 	}
 	var populateLines = function () {
 		_.forEach($scope.challenge.lines, function (l) {
@@ -389,8 +389,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 			l.name = name;
 		})
 
-		$scope.line = _.find($scope.challenge.lines, function (l) { return l.from == 0 && l.to == 1; });
-		// $scope.line = _.find($scope.challenge.lines, function (l) { return l.from == 1 && l.to == 2; });
+		$scope.line = _.head($scope.challenge.lines);
 	}
 
 	var processNodeRealReactiveDemands = function () {
@@ -413,8 +412,8 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		var realDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.real) ? $scope.node.demands.real : ZERO_VALUE;
 		var reactiveDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.reactive) ? $scope.node.demands.reactive : ZERO_VALUE;
 	
-		drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: realDemandsContainer, series: 1, data: [realDemandsData] });
-		drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: reactiveDemandsContainer, series: 1, data: [reactiveDemandsData] });
+		drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: realDemandsContainer, data: [realDemandsData] });
+		drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: reactiveDemandsContainer, data: [reactiveDemandsData] });
 	}
 
 	$scope.viewGeneratorInfo = function (generator) {
