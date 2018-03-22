@@ -24,7 +24,11 @@ var Vis = (function () {
 				.attr('class', 'pgs-simulation')
 				.attr('width', width)
 				.attr('height', height)
-				.on('click', function (d) { $scope.handleClick({ type: 'invalid' }); })
+				.on('click', function (d) { 
+					repaintRegions();
+					
+					$scope.handleClick({ type: 'invalid' });
+				 })
 			.append('g')
 				.call(zoom);
 
@@ -33,7 +37,7 @@ var Vis = (function () {
 
 		var gMap = svg.append('g').classed('map', true).attr('transform', 'translate(-1128, -387) scale(5.85)');
 		var gBackground = gMap.append('g').classed('background', true);
-		var gPowerZones = gMap.append('g').classed('power-zones', true);
+		var gPowerZones = bb = gMap.append('g').classed('power-zones', true);
 		var gTranmissionLines = gMap.append('g').classed('transmission-lines', true);
 
 		var gGenerators = svg.append('g').classed('generators', true);
@@ -52,6 +56,7 @@ var Vis = (function () {
 						.append('path')
 							.attr('id', function (d) { return d._guid; })
 							.attr('d', path)
+							.style('fill', '#737373')
 				})
 			}
 		}
@@ -70,10 +75,13 @@ var Vis = (function () {
 						.append('path')
 							.attr('id', function (d) { return d._guid; })
 							.attr('d', path)
-							.style('fill', _.find(regionColors, function (c) { return c.index == index; }) ? _.find(regionColors, function (c) { return c.index == index; }).color : 'black')
-							.style('opacity', .5)
+							.style('fill', _.find(regionColors, function (c) { return c.index == index; }).color)
+							.style('opacity', .7)
 							.on('click', function (d) {
 								d3.event.stopImmediatePropagation();
+								
+								repaintRegions();
+								d3.select(this).style('fill', '#737373').style('opacity', 1);
 								
 								$scope.handleClick({ type: 'node', index: d.index });
 							})
@@ -84,6 +92,9 @@ var Vis = (function () {
 			_.forEach(_.range(10), function (i) {
 				renderRegion(i);
 			})
+		}
+		var repaintRegions = function () {
+			gPowerZones.selectAll('g path').style('fill', function (d) { return _.find(regionColors, function (c) { return c.index == d.index; }).color }).style('opacity', .7);
 		}
 
 		var renderTransmissionLines = function () {

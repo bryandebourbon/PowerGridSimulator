@@ -32,16 +32,16 @@ var geoJsonFiles = [{ index: -1, name: geoJsonPrefix + 'Ontario.geo.json' },
                     { index: 8, name: geoJsonPrefix + 'Niagara.geo.topojson' },
                     { index: 9, name: geoJsonPrefix + 'West.geo.topojson' }];
 
-var regionColors = [{ index: 0, color: 'green' },
-                    { index: 1, color: 'yellow' },
-                    { index: 2, color: 'red' },
-                    { index: 3, color: 'cyan' },
-                    { index: 4, color: 'brown' },
-                    { index: 5, color: 'orange' },
-                    { index: 6, color: 'pink' },
-                    { index: 7, color: 'white' },
-                    { index: 8, color: 'purple' },
-                    { index: 9, color: 'blue' }];
+var regionColors = [{ index: 0, color: '#ff6666' },
+                    { index: 1, color: '#33ccff' },
+                    { index: 2, color: '#ff9900' },
+                    { index: 3, color: '#00b300' },
+                    { index: 4, color: '#00b300' },
+                    { index: 5, color: '#99004d' },
+                    { index: 6, color: '#66b3ff' },
+                    { index: 7, color: '#ffff00' },
+                    { index: 8, color: '#660066' },
+                    { index: 9, color: '#6666ff' }];
 
 var iconPrefix = './visuals/icons/';
 var generatorConfigs = [{ index: 0, type: 'Gas', img: iconPrefix + 'Gas.png' },
