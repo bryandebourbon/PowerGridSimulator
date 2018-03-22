@@ -5,9 +5,12 @@ var Vis = (function () {
 		var width = 750;
 		var height = 500 ;
 
+		var _translate = { x: -1413, y: -414 };	// specific values for this SVG size
+		var _scale = 6.96;	// specific values for this SVG size
+
 		var zoom = d3.behavior.zoom()
-		    .translate([-1128 , -387])	// specific values for this SVG size
-		    .scale(5.85)
+			.translate([_translate.x, _translate.y])
+			.scale(_scale)
 		    .scaleExtent([.5, 40])
 		    .on('zoom', function () { return handleZoom(); });
 
@@ -36,12 +39,20 @@ var Vis = (function () {
 		var projection = d3.geo.mercator();
 		var path = d3.geo.path().projection(projection);
 
-		var gMap = svg.append('g').classed('map', true).attr('transform', 'translate(-1128, -387) scale(5.85)');
+		var gMap = svg.append('g').classed('map', true).attr('transform', 'translate(' + _translate.x + ',' + _translate.y + ') scale(' + _scale + ')');
 		var gBackground = gMap.append('g').classed('background', true);
+		var gOntario = gMap.append('g').classed('ontario', true);
 		var gPowerZones = bb = gMap.append('g').classed('power-zones', true);
 		var gTranmissionLines = gMap.append('g').classed('transmission-lines', true);
 
 		var gGenerators = svg.append('g').classed('generators', true);
+
+		var renderBackground = function () {
+			gBackground.append('rect')
+				.attr('width', width)
+				.attr('height', height)
+				.style('fill', '#e6f7ff')
+		}
 
 		var renderOntario = function () {
 			var ontarioGeoJson = _.find(geoJsonFiles, function (f) { return f.index == -1; });
@@ -51,7 +62,7 @@ var Vis = (function () {
 						throw error;
 					}
 
-					gBackground.selectAll('path')
+					gOntario.selectAll('path')
 						.data([_.merge(topojson.feature(ont, ont.objects.boarderlines).features[0], { index: -1, _guid: guid() })])
 						.enter()
 						.append('path')
@@ -70,8 +81,9 @@ var Vis = (function () {
 						throw error;
 					}
 
+					var _guid = guid();
 					gPowerZones.append('g').selectAll('path')
-						.data([_.merge(topojson.feature(reg, reg.objects.boarderlines).features[0], { index: index, _guid: guid() })])
+						.data([_.merge(topojson.feature(reg, reg.objects.boarderlines).features[0], { index: index, _guid: _guid })])
 						.enter()
 						.append('path')
 							.attr('id', function (d) { return d._guid; })
@@ -88,6 +100,19 @@ var Vis = (function () {
 								
 								$scope.handleClick({ type: 'node', index: d.index });
 							})
+
+					var labelConfig = _.find(regionLabelConfigs, function (r) { return r.index == index; });
+					var labelXY = projection([labelConfig.lng, labelConfig.lat]);
+
+					var labelX = labelXY[0];
+					var labelY = labelXY[1];
+
+					d3.select(d3.select('#' + _guid).node().parentNode).append('text')
+						.text(_.find(nodeMap, function (n) { return n.index == index; }) ? _.find(nodeMap, function (n) { return n.index == index; }).name : '')
+						.attr('x', labelX)
+						.attr('y', labelY)
+						.attr('text-anchor', 'middle')
+						.style('font-size', 1.5);
 				});
 			}
 		}
@@ -259,6 +284,8 @@ var Vis = (function () {
 			}
 		}
 
+		renderBackground();
+		
 		renderOntario();
 		renderRegions();
 
