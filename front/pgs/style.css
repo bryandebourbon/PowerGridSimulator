@@ -45,8 +45,13 @@
 	margin-top: 6px;
 	margin-bottom: 6px;
 }
+
 #generator-info {
 	margin-top: 12px;
+}
+
+.pgs-axis-label {
+    font-weight: 400 !IMPORTANT;
 }
 
 .modal-description {

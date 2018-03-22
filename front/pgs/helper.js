@@ -117,6 +117,13 @@ var drawLineChart = function (args) {
             .attr('stroke-width', 2)
             .attr('fill', 'none');
     })
+
+    vis.append('text')
+        .attr('class', 'x label pgs-axis-label')
+        .attr('text-anchor', 'start')
+        .attr('x', .85 * width)
+        .attr('y', .85 * height)
+        .text(args.type == 'simulation' ? 'hr' : 'x');
 }
 
 var showWarning = function (message) {
