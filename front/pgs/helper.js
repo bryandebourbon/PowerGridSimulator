@@ -44,6 +44,11 @@ var multiplexArray = function (data) {
         res.push(info);
     })
 
+    var d24h = _.cloneDeep(_.head(res));
+    d24h.key = 24;
+
+    res.push(d24h);  // f(24h) <-- f(0h)
+
     return res;
 }
 var parsePolynomial = function (args) {
@@ -72,10 +77,6 @@ var parsePolynomial = function (args) {
     return data;
 }
 var drawLineChart = function (args) {
-    // we have the option of drawing a line chart with 1 line or with 2 lines
-    // args.container: container id for the chart svg
-    // args.data: [[data1](, [data2], [data3], ...)]
-
     var _vis = $(args.container);
     _vis.children().remove();
 
@@ -83,24 +84,24 @@ var drawLineChart = function (args) {
 
     var width = vis.attr('width');
     var height = vis.attr('height');
-    var margin = .2 * width;
+    var margin = { x: .2 * width, y: .2 * height };
 
     var colors = ['black', 'red'];
 
-    var x = d3.scale.linear().range([margin, width - margin]).domain([0, d3.max(args.data[0], function (d) { return d.key; })]);
-    var y = d3.scale.linear().range([height - margin, margin]).domain([d3.min(args.data[0], function (d) { return d.value; }) < 0 ? d3.min(args.data[0], function (d) { return d.value; }) : 0, d3.max(args.data[0], function (d) { return d.value; }) > 0 ? d3.max(args.data[0], function (d) { return d.value; }) : 0]);
+    var x = d3.scale.linear().range([margin.x, width - margin.x]).domain([0, d3.max(args.data[0], function (d) { return d.key; })]);
+    var y = d3.scale.linear().range([height - margin.y, margin.y]).domain([d3.min(args.data[0], function (d) { return d.value; }) < 0 ? d3.min(args.data[0], function (d) { return d.value; }) : 0, d3.max(args.data[0], function (d) { return d.value; }) > 0 ? d3.max(args.data[0], function (d) { return d.value; }) : 0]);
 
-    var xAxis = d3.svg.axis().scale(x).ticks(4);
-    var yAxis = d3.svg.axis().scale(y).orient('left').ticks(1);
+    var xAxis = d3.svg.axis().scale(x).tickValues(args.type == 'simulation' ? [0, 6, 12, 18, 24] : [0, 5, 10]);
+    var yAxis = d3.svg.axis().scale(y).orient('left').tickValues([0, d3.max(args.data[0], function (d) { return d.value; })]);
 
     vis.append('svg:g')
         .attr('class', 'x pgs-axis')
-        .attr('transform', 'translate(0,' + (height - margin) + ')')
+        .attr('transform', 'translate(0,' + (height - margin.y) + ')')
         .call(xAxis);
 
     vis.append('svg:g')
         .attr('class', 'y pgs-axis')
-        .attr('transform', 'translate(' + margin + ',0)')
+        .attr('transform', 'translate(' + margin.x + ',0)')
         .call(yAxis);
 
     var line = d3.svg.line()

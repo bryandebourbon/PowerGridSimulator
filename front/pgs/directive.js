@@ -413,8 +413,8 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		var realDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.real) ? $scope.node.demands.real : ZERO_VALUE;
 		var reactiveDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.reactive) ? $scope.node.demands.reactive : ZERO_VALUE;
 	
-		drawLineChart({ container: realDemandsContainer, series: 1, data: [realDemandsData] });
-		drawLineChart({ container: reactiveDemandsContainer, series: 1, data: [reactiveDemandsData] });
+		drawLineChart({ type: 'simulation', container: realDemandsContainer, series: 1, data: [realDemandsData] });
+		drawLineChart({ type: 'simulation', container: reactiveDemandsContainer, series: 1, data: [reactiveDemandsData] });
 	}
 
 	$scope.viewGeneratorInfo = function (generator) {
@@ -432,19 +432,19 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 
 				v = multiplexArray(v);
 
-				drawLineChart({ container: '#generator-profile-real-capacity', data: [v] });
+				drawLineChart({ type: 'simulation', container: '#generator-profile-real-capacity', data: [v] });
 			} else if (k == 'reactive_capacity') {
 				var _svg = _valueContainer.find('svg');
 
 				v = multiplexArray(v);
 
-				drawLineChart({ container: '#generator-profile-reactive-capacity', data: [v] });
+				drawLineChart({ type: 'simulation', container: '#generator-profile-reactive-capacity', data: [v] });
 			} else if (k == 'real_cost') {
 				var _svg = _valueContainer.find('svg');
 
 				v = parsePolynomial(v);
 
-				drawLineChart({ container: '#generator-profile-real-cost', data: [v] });
+				drawLineChart({ type: 'polynomial', container: '#generator-profile-real-cost', data: [v] });
 			} else if (k == 'per_node_limit') {
 				_valueContainer.text(v);
 			} else {
@@ -666,8 +666,8 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 		var suppliedRealPower = multiplexArray(node.supplied.real);
 		var suppliedReactivePower = multiplexArray(node.supplied.reactive);
 
-		drawLineChart({ container: '#node-evaluation-real-power-svg', data: [generatedRealPower, suppliedRealPower] });
-		drawLineChart({ container: '#node-evaluation-reactive-power-svg', data: [generatedReactivePower, suppliedReactivePower] });
+		drawLineChart({ type: 'simulation', container: '#node-evaluation-real-power-svg', data: [generatedRealPower, suppliedRealPower] });
+		drawLineChart({ type: 'simulation', container: '#node-evaluation-reactive-power-svg', data: [generatedReactivePower, suppliedReactivePower] });
 	}
 
 	var processLines = function () {
@@ -680,8 +680,8 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 		var realPowerFlow = multiplexArray(line.real_power);
 		var reactivePowerFlow = multiplexArray(line.reactive_power);
 
-		drawLineChart({ container: '#line-evaluation-real-power-svg', data: [realPowerFlow] });
-		drawLineChart({ container: '#line-evaluation-reactive-power-svg', data: [reactivePowerFlow] });
+		drawLineChart({ type: 'simulation', container: '#line-evaluation-real-power-svg', data: [realPowerFlow] });
+		drawLineChart({ type: 'simulation', container: '#line-evaluation-reactive-power-svg', data: [reactivePowerFlow] });
 	}
 
 	processNodes();
