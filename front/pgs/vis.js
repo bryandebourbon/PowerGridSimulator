@@ -5,7 +5,7 @@ var Vis = (function () {
 		var width = 750;
 		var height = 500 ;
 
-		var _translate = { x: -1413, y: -414 };	// specific values for this SVG size
+		var _translate = { x: -1413, y: -466 };	// specific values for this SVG size
 		var _scale = 6.96;	// specific values for this SVG size
 
 		var zoom = d3.behavior.zoom()
