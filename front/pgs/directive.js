@@ -286,6 +286,19 @@ var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSer
 			})
 	}
 
+	$scope.viewLeaderBoard = function () {
+		showSpinner();
+
+		$DataService.getLeaderBoard({ teamname: $.cookie('teamname'), challengeID: $scope.challenge.id })
+			.then(function (data) {
+				hideSpinner();
+
+				$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'leaderboard', challenge: $scope.challenge, leaderboard: data, teamname: $.cookie('teamname') || '' }); });
+			}).catch(function (error) {
+				console.log(error);
+			})
+	}
+	
 	$scope.goBack = function () {
 		showSpinner();
 
@@ -742,7 +755,7 @@ app.directive('leaderBoardDirective', function () {
 		controller: leaderBoardDirectiveController
 	}
 })
-var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', function ($scope, $rootScope, $timeout) {
+var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataService', function ($scope, $rootScope, $timeout, $DataService) {
 	$scope.tab = 'environmental-footprint';
 
 	$scope.switchTab = function (evt) {
@@ -755,7 +768,19 @@ var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', functi
 	}
 
 	$scope.goBack = function () {
-		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'evaluation', challenge: $scope.challenge, evaluation: $scope.evaluation }); });
+		if ($scope.evaluation) {
+			$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'evaluation', challenge: $scope.challenge, evaluation: $scope.evaluation }); });
+		} else {
+			$DataService.getChallenge({ teamname: $.cookie('teamname'), challengeID: $scope.challenge.id })
+				.then(function (data) {
+					hideSpinner();
+
+					$rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: data });
+				}).catch(function (error) {
+					hideSpinner();
+
+					showWarning(error);
+				})		}
 	}
 	$scope.logOut = function () {
 		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'login' }); });
