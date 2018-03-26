@@ -30,6 +30,7 @@
 	height: 72px;
 }
 .pgs-float-right-btn {
+    margin-right: 12px;
 	float: right;
 }
 .pgs-float-left-btn {

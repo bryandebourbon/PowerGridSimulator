@@ -242,6 +242,9 @@ var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 	$scope.goBack = function () {
 		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'login' }); });
 	}
+	$scope.logOut = function () {
+		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'login' }); });
+	}
 }]
 
 app.directive('challengeDirective', function () {
@@ -294,8 +297,9 @@ var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSer
 			}).catch(function (error) {
 				console.log(error);
 			})
-
-		// $timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: [$scope.challenge] }); });
+	}
+	$scope.logOut = function () {
+		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'login' }); });
 	}
 }]
 
@@ -660,8 +664,9 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 			}).catch(function (error) {
 				console.log(error);
 			})
-
-		// $timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: $scope.challenge }); });
+	}
+	$scope.logOut = function () {
+		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'login' }); });
 	}
 
 	var processNodes = function () {
@@ -751,6 +756,9 @@ var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', functi
 
 	$scope.goBack = function () {
 		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'evaluation', challenge: $scope.challenge, evaluation: $scope.evaluation }); });
+	}
+	$scope.logOut = function () {
+		$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'login' }); });
 	}
 
 	var processLeaders = function () {
