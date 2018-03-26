@@ -56,7 +56,10 @@
 				<div id="distribute-team-secret-code" class="modal-description" hidden>
 					<div>
 						<span>Your team secret code is: </span>
-						<span class="pgs-secret-code"></span>
+						<input id="pgs-secret-code" class="pgs-secret-code"></input>
+						<span>
+							<button class="btn btn-default pgs-copy-btn" ng-click="copySecretCode()">Copy</button>
+						</span>
 					</div>
 					<div class="pgs-notice">Please remember team secret code for we may ask for the code when you log in again.</div>
 				</div>

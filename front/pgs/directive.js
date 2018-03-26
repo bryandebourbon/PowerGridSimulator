@@ -114,7 +114,7 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 
 							_teamnameInput.val('');
 							_secretCodeInput.val('');
-							_secretCode.text(secretCode);
+							_secretCode.val(secretCode);
 
 							_teamManagementModal.on('hide.bs.modal', function (evt) {
 								showSpinner();
@@ -151,7 +151,6 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 				showWarning(error.message);
 			})
 	}
-
 	$scope.login = function () {
 		var user = { email: $scope.email || '', password: $scope.password || '' };
 
@@ -187,6 +186,15 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 
 			return;
 		});
+	}
+
+	$scope.copySecretCode = function () {
+		var _secretCode = $('#pgs-secret-code');
+	
+		_secretCode.select();
+
+		document.execCommand('Copy');
+		document.getSelection().removeAllRanges();
 	}
 
 	var _teamname = $('#team-name').hide();

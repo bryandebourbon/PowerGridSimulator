@@ -94,6 +94,16 @@
 .pgs-secret-code {
     font-style: italic;
     font-weight: bolder;
+    width: 200px;
+    border: none;
+    cursor: text;
+    outline: 0;
+}
+.pgs-copy-btn {
+    height: 24px;
+    padding-top: 0;
+    padding-bottom: 0;
+    font-size: 12px;
 }
 .pgs-notice {
     color: #a94442;
