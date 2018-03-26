@@ -539,8 +539,9 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 	$scope.handleDrag = function (args) {
 		var generator = _.find($scope.challenge.generators, function (g) { return g.type == args.type; });
 
-		if (generator) {
-			generator.count --;
+		if (generator && generator.count > 0) {
+				generator.count--;
+				generator._selected = true;
 		}
 
 		$timeout(function () { $scope.$apply(); });
@@ -548,8 +549,9 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 	$scope.revertDrag = function (args) {
 		var generator = _.find($scope.challenge.generators, function (g) { return g.type == args.type; });
 
-		if (generator) {
+		if (generator && generator._selected) {
 			generator.count ++;
+			delete generator._selected;
 		}
 
 		$timeout(function () { $scope.$apply(); });

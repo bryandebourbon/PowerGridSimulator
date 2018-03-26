@@ -315,10 +315,10 @@ var Vis = (function () {
 
 			var data = target.data();
 
-			if (target.data && typeof target.data == 'function' && target.data().length > 0 && target.data()[0] && target.data()[0].type == 'Feature') {
+			if (target._selected && target.data && typeof target.data == 'function' && target.data().length > 0 && target.data()[0] && target.data()[0].type == 'Feature') {
 				var index = _.head(target.data()).index;
 
-				$scope.handleDrop({ type: d.type, target: index })
+				$scope.handleDrop({ type: d.type, target: index });
 			} else {
 				$scope.revertDrag({ type: d.type });
 			}
