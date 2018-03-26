@@ -794,7 +794,7 @@ var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataS
 
 					var i = 1;
 					_.forEach(b, function (v, k) {
-						var winner = { name: k, score: Math.round(v * 100) / 100 };
+						var winner = { name: k, score: (Math.round(v * 100) / 100).toFixed(2) };
 						$scope.environmentalFootprintBoard.push(winner);
 
 						i ++;
@@ -811,7 +811,7 @@ var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataS
 
 					var i = 1;
 					_.forEach(b, function (v, k) {
-						var winner = { name: k, score: Math.round(v * 100) / 100 };
+						var winner = { name: k, score: (Math.round(v * 100) / 100).toFixed(2) };
 						$scope.realCostBoard.push(winner);
 
 						i++;						
@@ -828,7 +828,7 @@ var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataS
 
 					var i = 1;
 					_.forEach(b, function (v, k) {
-						var winner = { name: k, score: Math.round(v * 100) / 100 };
+						var winner = { name: k, score: (Math.round(v * 100) / 100).toFixed(2) };
 						$scope.installationCostBoard.push(winner);
 					
 						i++;
