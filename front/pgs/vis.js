@@ -1,5 +1,7 @@
 var Vis = (function () {
 	var render  = function ($scope) {
+		var mode = $scope.challenge && $scope.challenge.nodes && $scope.challenge.nodes.length == 2 ? 'SIMPLE' : 'COMPLEX';
+
 		d3.select('#pgs-simulation-svg').remove();
 
 		var width = 750;
@@ -68,7 +70,7 @@ var Vis = (function () {
 						.append('path')
 							.attr('id', function (d) { return d._guid; })
 							.attr('d', path)
-							.style('fill', '#737373')
+							.style('fill', mode == 'SIMPLE' ? '#000000' : '#737373')
 				})
 			}
 		}
@@ -121,42 +123,46 @@ var Vis = (function () {
 				renderRegion(i);
 			})
 		}
+		var renderSelectedRegions = function (nodes) {
+			_.forEach(nodes, function (i) {
+				renderRegion(i);
+			})
+		}
 		var repaintRegions = function () {
 			gPowerZones.selectAll('g path').style('fill', function (d) { return _.find(regionColors, function (c) { return c.index == d.index; }).color }).style('opacity', .7);
 		}
 
-		var renderTransmissionLines = function () {
-			var lngLatToArc = function (d) {
-				var bend = 3;
+		var lngLatToArc = function (d) {
+			var bend = 3;
 
-				var source = d.source;
-				var target = d.target;
+			var source = d.source;
+			var target = d.target;
 
-				if (source && target) {
-					var sourceXY = projection([source.lng, source.lat]);
-					var targetXY = projection([target.lng, target.lat]);
+			if (source && target) {
+				var sourceXY = projection([source.lng, source.lat]);
+				var targetXY = projection([target.lng, target.lat]);
 
-					var sourceX = sourceXY[0];
-					var sourceY = sourceXY[1];
+				var sourceX = sourceXY[0];
+				var sourceY = sourceXY[1];
 
-					var targetX = targetXY[0];
-					var targetY = targetXY[1];
+				var targetX = targetXY[0];
+				var targetY = targetXY[1];
 
-					var dx = targetX - sourceX;
-					var dy = targetY - sourceY;
-					var dr = Math.sqrt(dx * dx + dy * dy) * bend;
+				var dx = targetX - sourceX;
+				var dy = targetY - sourceY;
+				var dr = Math.sqrt(dx * dx + dy * dy) * bend;
 
-					var west_of_source = (targetX - sourceX) < 0;
-					if (west_of_source) {
-						return 'M' + targetX + ',' + targetY + 'A' + dr + ',' + dr + ' 0 0,1 ' + sourceX + ',' + sourceY;
-					}
-
-					return 'M' + sourceX + ',' + sourceY + 'A' + dr + ',' + dr + ' 0 0,1 ' + targetX + ',' + targetY;
+				var west_of_source = (targetX - sourceX) < 0;
+				if (west_of_source) {
+					return 'M' + targetX + ',' + targetY + 'A' + dr + ',' + dr + ' 0 0,1 ' + sourceX + ',' + sourceY;
 				}
 
-				return 'M0,0,l0,0z';
+				return 'M' + sourceX + ',' + sourceY + 'A' + dr + ',' + dr + ' 0 0,1 ' + targetX + ',' + targetY;
 			}
 
+			return 'M0,0,l0,0z';
+		}
+		var renderAllTransmissionLines = function () {
 			var powerLines = _.cloneDeep(powerLineConfigs);
 			_.forEach(powerLines, function (l, i) {
 				l._i = i;
@@ -181,6 +187,40 @@ var Vis = (function () {
 						$scope.handleClick({ type: 'line', source: d.source.index, target: d.target.index });
 					});
 
+		}
+		var renderSelectedTransmissionLines = function (lines) {
+			var powerLines = [];
+
+			_.forEach(_.cloneDeep(powerLineConfigs), function (l) {
+				var line = _.find(lines, function (ln) { return ln.source == l.source.index; ln.target == l.target.index; });
+
+				if (line) {
+					powerLines.push(l);
+				}
+			})
+
+			_.forEach(powerLines, function (l, i) {
+				l._i = i;
+				l._guid = guid();
+			})
+
+			gTranmissionLines.selectAll('path')
+				.data(powerLines)
+				.enter()
+				.append('path')
+				.attr('i', function (d) { return d._i; })
+				.attr('d', function (d) { return lngLatToArc(d); })
+				.style('fill', 'white')
+				.on('click', function (d) {
+					d3.event.stopImmediatePropagation();
+
+					repaintRegions();
+					repaintTransmissionLines();
+
+					d3.select(this).style('fill', '#737373');
+
+					$scope.handleClick({ type: 'line', source: d.source.index, target: d.target.index });
+				});
 		}
 		var repaintTransmissionLines = function () {
 			gTranmissionLines.selectAll('g path').style('fill', 'white');
@@ -284,14 +324,26 @@ var Vis = (function () {
 			}
 		}
 
-		renderBackground();
+		if (mode == 'SIMPLE') {
+			renderBackground();
+
+			renderOntario();
+			renderSelectedRegions(_.map($scope.challenge.nodes, function (n) { return n.index; }));
+
+			renderSelectedTransmissionLines(_.map($scope.challenge.lines, function (l) { return { source: l.from, target: l.to }}));
+
+			renderGenerators();
+		} else {
+			renderBackground();
+
+			renderOntario();
+			renderRegions();
+
+			renderAllTransmissionLines();
+
+			renderGenerators();
+		}
 		
-		renderOntario();
-		renderRegions();
-
-		renderTransmissionLines();
-
-		renderGenerators();
 	}
 		
 	return {
