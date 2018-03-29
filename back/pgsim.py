@@ -212,7 +212,7 @@ def submit():
     if no_gens: 
         return make_response(json.dumps({
             'success': False, 
-            'message': 'Please specify at least one hydro or gas generator for PyPower to process successfully.'}))
+            'message': 'Please make use of at least one dispatchable generator (i.e. hydro or gas generator).'}))
 
     # Evaluate the submitted design.
     status = do_submit_routine(gen_placements, team_id, challenge_id)
