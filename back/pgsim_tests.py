@@ -285,6 +285,7 @@ class PgsimGetChallengeTestCase(unittest.TestCase):
         rv = self.app.get('/api/getChallenge/11',
                         headers={"team_name": 'ourteam'})
         get_challenge = json.loads(rv.data.decode('unicode_escape'))
+        print("getChallenge output:\n{}".format(get_challenge))
         assert len(get_challenge["demands"]) == 2
         assert len(get_challenge["lines"]) == 1
 

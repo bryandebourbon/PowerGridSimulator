@@ -48,10 +48,26 @@ MAX_SUBMISSION_ATTEMPTS = 10
 
 challenges = {
     10 : {"name": "Ontario Power Generation",
-          "description": "Design Ontario's generation system with real-life demand, generation cost, CO2 emission, and more data!",
+          "description": "Design Ontario's generation system to satisfy the power demand of all of " \
+                        "Ontario! You will have maximum freedom with this challenge: you will have ten " \
+                        "electricity zones to work with, ten transmission lines connecting between some " \
+                        "of them for you to use, and many generators for you to play with. The zonal " \
+                        "demand data is taken from IESO's 2017 zonal demand reports; the generation " \
+                        "profiles and transmission line capacities are modelled after Ontario's existing " \
+                        "generation and transmission system. The simulation outputs will contain " \
+                        "information about the generator outputs, the total unit generation cost, the " \
+                        "total generator installation cost, and more!",
           "data_module": ppc_ontario_data},
     11 : {"name": "Northern Ontario Power Generation",
-          "description": "Design a very simple generation system for Northern Ontario, with real-life demand, generation cost, CO2 emission, and more data!",
+          "description": "Design Northern Ontario's generation system to satisfy the power demand of " \
+                        "Northern Ontario! This challenge is a good place to start if you are new: you " \
+                        "will have two electricity zones to work with, a transmission line connecting " \
+                        "between them for you to use, and a limited number of generators for you to play " \
+                        "with. The zonal demand data is taken from IESO's 2017 zonal demand reports; " \
+                        "the generation profiles and transmission line capacities are modelled after " \
+                        "Ontario's existing generation and transmission system. The simulation outputs " \
+                        "will contain information about the generator outputs, the total unit generation " \
+                        "cost, the total generator installation cost, and more!",
           "data_module": ppc_northern_ontario_data},
 }
 
