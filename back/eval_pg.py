@@ -23,12 +23,14 @@ def calc_score(gen_placements, data_module):
     total_CO2 = 0
     overall_pass = True
     overall_trans = {
-            (int(line[0])-1, int(line[1])-1): {"real_power":[], "reactive_power":[]} 
+            (int(line[F_BUS])-1, int(line[T_BUS])-1): {"real_power":[], "reactive_power":[], "capacity": float(line[RATE_A])} 
             for line in data_module.transmission_limits
         }
     overall_nodes = {
             bus_idx: {  "supplied":     {"real":[], "reactive":[]}, 
-                        "generated":    {"real":[], "reactive":[]}
+                        "generated":    {"real":[], "reactive":[]},
+                        "demands":      {"real": data_module.real_demand_profiles[:,bus_idx].tolist(), 
+                                         "reactive": data_module.reactive_demand_profiles[:,bus_idx].tolist()}
                     } for bus_idx in range(data_module.node_count)
         }
     for time in range(data_module.timestep_count):
@@ -124,6 +126,8 @@ def calc_score(gen_placements, data_module):
         installation_cost += data_module.gen_types[gen[1]]["installation_cost"]
     
     return {"cost": total_cost if overall_pass else 0, 
+            "message": "Power flow optimization converged!" if overall_pass else \
+                "Power flow optimization did not converge. The generation, supply, and load power displayed below are the value before divergence and only for your reference.",
             "installation_cost": installation_cost,
             "passed": overall_pass, 
             "CO2": total_CO2 if overall_pass else 0,
