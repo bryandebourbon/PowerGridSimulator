@@ -727,9 +727,10 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 	var renderLine = function (line) {
 		var realPowerFlow = multiplexArray(line.real_power);
 		var reactivePowerFlow = multiplexArray(line.reactive_power);
+		var capacity = multiplexArray([line.capacity]);
 
-		drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: '#line-evaluation-real-power-svg', data: [realPowerFlow] });
-		drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: '#line-evaluation-reactive-power-svg', data: [reactivePowerFlow] });
+		drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: '#line-evaluation-real-power-svg', data: [realPowerFlow, capacity] });
+		drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: '#line-evaluation-reactive-power-svg', data: [reactivePowerFlow, capacity] });
 	}
 
 	processNodes();

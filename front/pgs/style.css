@@ -129,11 +129,11 @@
     font-size: small;
     font-style: italic;
 }
-.black {
-    color: black;
+.pgs-color1 {
+    color: #3498db;
 }
-.red {
-    color: red;
+.pgs-color2 {
+    color: #9b59b6;
 }
 
 .help-tip{

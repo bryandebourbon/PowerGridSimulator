@@ -86,11 +86,32 @@ var drawLineChart = function (args) {
     var height = vis.attr('height');
     var margin = { x: .2 * width, y: .2 * height };
 
-    var colors = ['black', 'red'];
+    var colors = ['#3498db', '#9b49b6', '#e74c3c'];
 
-    var ymin = _.min(_.map(args.data[0], function (d) { return d.value; })) > 0 ? .8 * _.min(_.map(args.data[0], function (d) { return d.value; })) : 1.15 * _.min(_.map(args.data[0], function (d) { return d.value; }));
-    var ymax = _.max(_.map(args.data[0], function (d) { return d.value; })) > 0 ? 1.15 * _.max(_.map(args.data[0], function (d) { return d.value; })) : .8 * _.max(_.map(args.data[0], function (d) { return d.value; }));
-    var ymean = _.map(args.data[0], function (d) { return d.value; }).reduce(function (a, b) { return a + b; }) / _.size(_.map(args.data[0], function (d) { return d.value; }));
+    var absolute_ymin = Infinity;
+    var absolute_ymax = -Infinity;
+    var y_sum = 0;
+
+    _.forEach(args.data, function (g) {
+        _.forEach(g, function (d) {
+            if (d.value > absolute_ymax) {
+                absolute_ymax = d.value;
+            }
+            if (d.value < absolute_ymin) {
+                absolute_ymin = d.value;
+            }
+
+            y_sum = y_sum + d.value;
+        })
+    })
+
+    var ymin = absolute_ymin < 0 ? 1.15 * absolute_ymin : .8 * absolute_ymin;
+    var ymax = absolute_ymax > 0 ? 1.15 * absolute_ymax : .8 * absolute_ymax;
+    var ymean = y_sum / args.data.length * args.data[0].length;
+
+    // var ymin = _.min(_.map(args.data[0], function (d) { return d.value; })) > 0 ? .8 * _.min(_.map(args.data[0], function (d) { return d.value; })) : 1.15 * _.min(_.map(args.data[0], function (d) { return d.value; }));
+    // var ymax = _.max(_.map(args.data[0], function (d) { return d.value; })) > 0 ? 1.15 * _.max(_.map(args.data[0], function (d) { return d.value; })) : .8 * _.max(_.map(args.data[0], function (d) { return d.value; }));
+    // var ymean = _.map(args.data[0], function (d) { return d.value; }).reduce(function (a, b) { return a + b; }) / _.size(_.map(args.data[0], function (d) { return d.value; }));
 
     if (ymin == 0 && ymax == 0) {
         ymin = -1;

@@ -6,17 +6,6 @@
     <button class="btn btn-default pgs-float-right-btn" ng-click="submitChallenge()">Submit</button>
 </div>
 
-<div class="pgs-page col-xs-12">
-<!--     <ul class="nav nav-tabs nav-justified">
-        <li class="nav-link pgs-tab" ng-click="switchTab($event)" data-tab="statement"><a>Challenge Statement</a></li>
-        <li class="nav-link pgs-tab active" ng-click="switchTab($event)" data-tab="simulation"><a>Challenge Simulation</a></li>
-    </ul>
- -->
-<!--     <div class="pgs-tab-content" ng-show="tab=='statement'">
-        {{challenge.description}}
-    </div>
- -->
-    <div class="pgs-tab-content" ng-show="tab=='simulation'">
-        <simulator-directive challenge="challenge"></simulator-directive>
-    </div>
+<div class="pgs-page">
+    <simulator-directive challenge="challenge"></simulator-directive>
 </div>
