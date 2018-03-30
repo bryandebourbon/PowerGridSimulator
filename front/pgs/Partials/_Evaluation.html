@@ -10,9 +10,12 @@
 
     <div class="pgs-evaluation-summary">
         <div>Passed: {{evaluation.passed ? 'True' : 'False'}}</div>
-        <div>Real Cost: $ {{evaluation.cost == 0 ? 0 : (evaluation.cost / 1000).toFixed(2)}} M</div>
-        <div>Installation Cost: $ {{evaluation.installation_cost == 0 ? 0 : (evaluation.installation_cost / 1000).toFixed(2)}} M</div>
-        <div>CO2 Footprint: {{evaluation.CO2 == 0 ? 0 : (evaluation.CO2).toFixed(2)}} T</div>
+        <div>Message: {{evaluation.message}}</div>
+        <div ng-show="evaluation.passed">
+            <div>Real Cost: $ {{evaluation.cost == 0 ? 0 : (evaluation.cost / 1000).toFixed(2)}} M</div>
+            <div>Installation Cost: $ {{evaluation.installation_cost == 0 ? 0 : (evaluation.installation_cost / 1000).toFixed(2)}} M</div>
+            <div>CO2 Footprint: {{evaluation.CO2 == 0 ? 0 : (evaluation.CO2).toFixed(2)}} T</div>
+        </div>
 
         <div class="pgs-evaluation-detail">
             <div>Below are the simulation results for nodes and lines.</div>
