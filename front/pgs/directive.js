@@ -475,8 +475,26 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 				_valueContainer.text('$ ' + (v == 0 ? 0 : (v / 1000).toFixed(2)) + ' M');
 			} else if (k == 'unit_CO2') {
 				_valueContainer.text((v / 1000).toFixed(2) + ' T');
-			}
+			} 
 		})
+
+		var _nonDispatchableInfo = $('.non-dispatchable');
+		var _dispatchableInfo = $('.dispatchable');
+		var _hydroOnlyInfo = $('.hydro-only');
+		
+		if (_.include(['Nuclear', 'Solar', 'Wind'], generator.type)) {
+			_nonDispatchableInfo.show();
+			_dispatchableInfo.hide();
+			_hydroOnlyInfo.hide();
+		} else if (generator.type == 'Gas') {
+			_nonDispatchableInfo.hide();
+			_dispatchableInfo.show();
+			_hydroOnlyInfo.hide();
+		} else if (generator.type == 'Hydro') {
+			_nonDispatchableInfo.hide();
+			_dispatchableInfo.show();
+			_hydroOnlyInfo.show();
+		}
 	}
 	$scope.addGenerator = function (generator) {
 		if (generator.count == 0) {
