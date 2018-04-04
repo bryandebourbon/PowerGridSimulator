@@ -115,7 +115,24 @@ var Vis = (function () {
 						.attr('x', labelX)
 						.attr('y', labelY)
 						.attr('text-anchor', 'middle')
-						.style('font-size', 1.5);
+						.style('font-size', 1.5)
+						.style('cursor', 'default')
+						.on('click', function (d) { 
+							d3.event.stopPropagation();
+
+							repaintRegions();
+							repaintTransmissionLines();
+
+							_.forEach(d3.selectAll('.power-zones g path')[0], function (p) {
+								pe = d3.select(p);
+
+								if (pe.data() && pe.data().length && pe.data()[0] && pe.data()[0].index == index) {
+									pe.style('fill', '#737373').style('opacity', 1);
+								}
+							})
+							
+							$scope.handleClick({ type: 'node', index: index });
+						 })
 				});
 			}
 		}
