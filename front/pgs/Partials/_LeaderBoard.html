@@ -13,10 +13,10 @@
                 <a>Environmental Footprint</a>
             </li>
             <li class="nav-link pgs-tab" ng-click="switchTab($event)" data-tab="real-cost">
-                <a>Real Cost</a>
+                <a>Unit Generation Cost</a>
             </li>
             <li class="nav-link pgs-tab" ng-click="switchTab($event)" data-tab="installation-cost">
-                <a>Installation Cost</a>
+                <a>Total Installation Cost</a>
             </li>
         </ul>
     </div>
@@ -27,7 +27,7 @@
                 <thead>
                     <th>Ranking</th>
                     <th>Team Name</th>
-                    <th>Score</th>
+                    <th>Unit CO2 Emission (T/100MW)</th>
                 </thead>
                 <tbody>
                     <tr ng-repeat="leader in environmentalFootprintBoard | orderBy : 'ranking'">
@@ -43,7 +43,7 @@
                 <thead>
                     <th>Ranking</th>
                     <th>Team Name</th>
-                    <th>Score</th>
+                    <th>Unit Generation Cost ($k/100MW)</th>
                 </thead>
                 <tbody>
                     <tr ng-repeat="leader in realCostBoard | orderBy : 'ranking'">
@@ -59,7 +59,7 @@
                 <thead>
                     <th>Ranking</th>
                     <th>Team Name</th>
-                    <th>Score</th>
+                    <th>Total Installation Cost ($k)</th>
                 </thead>
                 <tbody>
                     <tr  ng-repeat="leader in installationCostBoard | orderBy : 'ranking'">
