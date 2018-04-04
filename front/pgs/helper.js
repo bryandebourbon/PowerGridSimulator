@@ -106,11 +106,9 @@ var drawLineChart = function (args) {
     })
 
     var dy = absolute_ymax - absolute_ymin;
+
     var ymin = absolute_ymin - .15 * dy;
     var ymax = absolute_ymax + .15 * dy;
-
-    // var ymin = absolute_ymin < 0 ? 1.15 * absolute_ymin : .8 * absolute_ymin;
-    // var ymax = absolute_ymax > 0 ? 1.15 * absolute_ymax : .8 * absolute_ymax;
     var ymean = y_sum / args.data.length * args.data[0].length;
 
     if (ymin == 0 && ymax == 0) {
@@ -150,7 +148,7 @@ var drawLineChart = function (args) {
 
     vis.append('text')
         .attr('class', 'x label pgs-axis-label')
-        .attr('text-anchor', 'middle')
+        .attr('text-anchor', args.type == 'simulation' ? 'middle' : 'start')
         .attr('x', .85 * width)
         .attr('y', .85 * height)
         .text(args.type == 'simulation' ? 'hr' : 'Power (100 MW)');
@@ -161,6 +159,11 @@ var drawLineChart = function (args) {
         .attr('x', .2 * width)
         .attr('y', .1 * height)
         .text(args.unit);
+
+    // stretch the chart horizontally when we are displaying power vs. cost, the original chart size is simply too small
+    if (args.type != 'simulation') {
+        vis.attr('width', width * 1.25);
+    }
 }
 
 var showWarning = function (message) {
