@@ -10,10 +10,10 @@
 
     <div class="pgs-evaluation-summary">
         <div>{{evaluation.message}}</div>
-        <div>Installation Cost: $ {{evaluation.installation_cost == 0 ? 0 : (evaluation.installation_cost / 1000).toFixed(2)}} M</div>
+        <div>Total installation cost of generators: $ {{evaluation.installation_cost == 0 ? 0 : (evaluation.installation_cost / 1000).toFixed(2)}} M</div>
         <div ng-show="evaluation.passed">
-            <div>Real Cost: $ {{evaluation.cost == 0 ? 0 : (evaluation.cost / 1000).toFixed(2)}} M</div>
-            <div>CO<sub>2</sub> Footprint: {{evaluation.CO2 == 0 ? 0 : (evaluation.CO2).toFixed(2)}} T</div>
+            <div>Total unit power generation cost (per 100MW): $ {{evaluation.cost == 0 ? 0 : (evaluation.cost / 1000).toFixed(2)}} M</div>
+            <div>Total unit power CO<sub>2</sub> emission (per 100MW): {{evaluation.CO2 == 0 ? 0 : (evaluation.CO2).toFixed(2)}} T</div>
         </div>
 
         <div class="pgs-evaluation-detail">
