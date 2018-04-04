@@ -13,7 +13,7 @@ var Vis = (function () {
 		var zoom = d3.behavior.zoom()
 			.translate([_translate.x, _translate.y])
 			.scale(_scale)
-		    .scaleExtent([.5, 40])
+		    .scaleExtent([1, 40])
 		    .on('zoom', function () { return handleZoom(); });
 
 		var drag = d3.behavior.drag()
@@ -26,7 +26,6 @@ var Vis = (function () {
 		var svg = d3.select('.pgs-simulation')
 			.append('svg')
 				.attr('id', 'pgs-simulation-svg')
-				.attr('class', 'pgs-simulation')
 				.attr('width', width)
 				.attr('height', height)
 				.on('click', function (d) { 
@@ -51,8 +50,10 @@ var Vis = (function () {
 
 		var renderBackground = function () {
 			gBackground.append('rect')
-				.attr('width', width)
-				.attr('height', height)
+				.attr('x', -width)
+				.attr('y', -height)
+				.attr('width', width * 2)
+				.attr('height', height * 2)
 				.style('fill', '#e6f7ff')
 		}
 
