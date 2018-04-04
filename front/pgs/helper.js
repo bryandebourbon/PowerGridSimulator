@@ -153,7 +153,7 @@ var drawLineChart = function (args) {
         .attr('text-anchor', 'middle')
         .attr('x', .85 * width)
         .attr('y', .85 * height)
-        .text(args.type == 'simulation' ? 'hr' : 'n');
+        .text(args.type == 'simulation' ? 'hr' : 'Power (100 MW)');
 
     vis.append('text')
         .attr('class', 'y label pgs-axis-label')

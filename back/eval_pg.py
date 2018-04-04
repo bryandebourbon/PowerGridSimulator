@@ -126,7 +126,7 @@ def calc_score(gen_placements, data_module):
         installation_cost += data_module.gen_types[gen[1]]["installation_cost"]
     
     return {"cost": total_cost if overall_pass else 0, 
-            "message": "Power flow optimization converged!" if overall_pass else \
+            "message": "Power flow optimization converged! You have satisfied all the demands and constraints." if overall_pass else \
                 "Power flow optimization did not converge. The generation, supply, and load power displayed below are the value before divergence and only for your reference.",
             "installation_cost": installation_cost,
             "passed": overall_pass, 
