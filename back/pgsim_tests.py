@@ -116,7 +116,7 @@ class PgsimSubmitTestCase(unittest.TestCase):
         status = json.loads(rv.data.decode('unicode_escape'))
         print(status)
         assert not status["success"], status['message']
-        assert status["message"] == "Please specify at least one hydro or gas generator for PyPower to process successfully."
+        assert status["message"] == "Please make use of at least one dispatchable generator (i.e. hydro or gas generator)."
         
     def test_submit_11_simple(self):
         placements = [{'node': 0, 'generators': {'G':2} }]
@@ -175,7 +175,7 @@ class PgsimSubmitTestCase(unittest.TestCase):
                             headers={"team_name": 'Gteam', "challenge_id": 10})
         status = json.loads(rv.data.decode('unicode_escape'))
         assert not status["success"], status['message']
-        assert status["message"] == "Please specify at least one hydro or gas generator for PyPower to process successfully."
+        assert status["message"] == "Please make use of at least one dispatchable generator (i.e. hydro or gas generator)."
         
     def test_submit(self):
         placements = [ {"node": 0, "generators": {} }, 

@@ -46,6 +46,7 @@ def calc_score(gen_placements, data_module):
         # Fill in the timestep-specific generation capacities.
         cur_gen = copy.deepcopy(gen_caps)
         cur_gen[:, PMAX] = np.array([data_module.gen_types[gen[1]]["real_capacity"][time] for gen in gens])
+        cur_gen[:, PMIN] = 0.3 * cur_gen[:, PMAX]
         cur_gen[:, QMAX] = 0.75 * cur_gen[:, PMAX] # Set reactive gen cap to be 0.75 of the real gen cap.
         cur_gen[:, QMIN] = -0.75 * cur_gen[:, PMAX]
         ppc["gen"] = cur_gen
