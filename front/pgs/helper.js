@@ -86,7 +86,7 @@ var drawLineChart = function (args) {
     var height = vis.attr('height');
     var margin = { x: .2 * width, y: .2 * height };
 
-    var colors = ['#3498db', '#9b49b6', '#e74c3c'];
+    var colors = ['#3498db', '#000000', '#e74c3c'];
 
     var absolute_ymin = Infinity;
     var absolute_ymax = -Infinity;
@@ -143,7 +143,8 @@ var drawLineChart = function (args) {
             .attr('d', line(args.data[i]))
             .attr('stroke', colors[i])
             .attr('stroke-width', 2)
-            .attr('fill', 'none');
+            .attr('fill', 'none')
+            .style('opacity', '.7')
     })
 
     vis.append('text')

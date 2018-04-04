@@ -709,6 +709,10 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 		$timeout(function () { renderNode($scope.node); });
 	}
 	var renderNode = function (node) {
+		if (!node) {
+			return;
+		}
+		
 		var generatedRealPower = multiplexArray(node.generated.real);
 		var generatedReactivePower = multiplexArray(node.generated.reactive);
 		var suppliedRealPower = multiplexArray(node.supplied.real);
@@ -727,6 +731,10 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 		// $timeout(function () { renderLine($scope.line); });
 	}
 	var renderLine = function (line) {
+		if (!line) {
+			return;
+		}
+
 		var realPowerFlow = multiplexArray(line.real_power);
 		var reactivePowerFlow = multiplexArray(line.reactive_power);
 		var capacity = multiplexArray([line.capacity]);
