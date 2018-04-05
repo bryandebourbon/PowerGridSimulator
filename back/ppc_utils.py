@@ -30,6 +30,10 @@ def build_gen_matrices(gen_placements, real_demand_profiles, gen_types):
                 gens = np.vstack((gens, temp))
             elif gen_type in ["N", "S", "W"]: # Simply a negative demand, no need to go through runopf()
                 cur_real_demand_profiles[:, node] -= gen_types[gen_type]["real_capacity"]
+                if gen_type in ["W", "S"]: # Add a random Gaussian noise to wind and solar generation capacity
+                    cur_real_demand_profiles[:, node] += np.random.normal(
+                            scale=0.1*np.amax(gen_types[gen_type]["real_capacity"]),
+                            size=gen_types[gen_type]["real_capacity"].shape)
                 temp = np.array([[node, gen_type],] * count)
                 fixed_gens = np.vstack((fixed_gens, temp))
             else:
