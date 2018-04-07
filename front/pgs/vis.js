@@ -1,7 +1,5 @@
 
 var Vis = (function () {
-
-
 	var render  = function ($scope) {
 		var mode = $scope.challenge && $scope.challenge.nodes && $scope.challenge.nodes.length == 2 ? 'SIMPLE' : 'COMPLEX';
 
@@ -338,6 +336,8 @@ var Vis = (function () {
 
 			if (target.data && typeof target.data == 'function' && !target.data()[0]) {
 				showWarning('Installation unsuccessful, try zooming in or using the side panel to add generator.');
+
+				$scope.revertDrag({ type: d.type });
 				return;
 			}
 
