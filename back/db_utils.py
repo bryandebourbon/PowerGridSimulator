@@ -38,9 +38,10 @@ def insert_submission_entry(gen_placements, team_id, new_sys_info):
       |
       -- challenge_id
             |
-            -- submission_id
+            -- submission_key
                     |
                     -- num_attempt
+                    -- submission_id
                     -- submission_info
                     -- submission_time
                     -- team_id
@@ -99,6 +100,13 @@ def insert_scores_entry(challenge_id, submission_id, team_id, new_scores):
             -- submission_id
                     |
                     -- evals
+                        |
+                        -- CO2 (float)
+                        -- cost (float)
+                        -- installation_cost (float)
+                        -- lines
+                        -- nodes
+                        -- passed (Boolean)
                     -- team_id
     '''
     new_scores_entry = {}
