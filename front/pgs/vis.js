@@ -330,7 +330,7 @@ var Vis = (function () {
 
 		var addGenerators = function (args) {
 			var args = {
-						index:$(".power-zones").find("path");
+						index:$(".power-zones").find("path"),
 						type:"Solar",
 						count:0,
 						regionName:"Northwest"
