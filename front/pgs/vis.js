@@ -3,33 +3,6 @@ var Vis = (function () {
 
 
 	var render  = function ($scope) {
-		var installationOffsets = [{ type: 'Wind', offset: 0 },
-								{ type: 'Solar', offset: 5 },
-								{ type: 'Nuclear', offset: 10 },
-								{ type: 'Hydro', offset: 15 },
-								{ type: 'Gas', offset: 20 }];
-
-
-		var centroids = {"Northwest":{x:235, y:90, scale:1},
-
-						 "Northeast":{x:257, y:105, scale:0.6},
-
-						 "Essa":{x:269.5, y:118, scale:0.23},
-						 "East":{x:274.5, y:120, scale:0.23},
-						 "Southwest":{x:265.5, y:123.3, scale:0.23},
-
-						 "Ottawa":{x:281.1, y:116.6, scale:0.1},
-						 "Toronto":{x:272, y:122.5, scale:0.08},
-						 "Bruce":{x:264.5, y:121, scale:0.1},
-						  "West":{x:263, y:127, scale:0.1},
-
-						 "Niagara":{x:271.6, y:125.5, scale:0.07}
-
-
-
-
-						};
-
 		var mode = $scope.challenge && $scope.challenge.nodes && $scope.challenge.nodes.length == 2 ? 'SIMPLE' : 'COMPLEX';
 
 		d3.select('#pgs-simulation-svg').remove();
@@ -431,12 +404,17 @@ var Vis = (function () {
 				//need MVC integration
 				var imageMount = d.img;
 				var regionName = $(rawEle.parentElement).find('text')[0].innerHTML;
-				var installationScale = centroids[regionName].scale;
+
+				var regionCentroid = _.find(regionCentroids, function (c) { return c.name == regionName; });
+
+				var installationScale = regionCentroid.scale;
 				var installationOffset = _.find(installationOffsets, function (io) { return io.type == d.type; });
-				var installationOffsetX = installationOffset.offset;
+				var installationOffsetX = installationOffset.offset * installationScale;
 				var installationOffsetY = 0;
-				var centroidX = centroids[regionName].x;
-				var centroidY = centroids[regionName].y;
+
+				var centroidX = regionCentroid.x;
+				var centroidY = regionCentroid.y;
+
 				var installationX = centroidX + installationOffsetX;
 				var installationY = centroidY;
 
