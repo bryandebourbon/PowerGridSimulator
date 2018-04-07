@@ -3,16 +3,11 @@ var Vis = (function () {
 
 
 	var render  = function ($scope) {
-
-
-
-
-
-
-		var installationOffset = {"Wind":0, "Solar":5, "Nuclear":10, "Hydro":15, "Gas":20};
-
-
-
+		var installationOffsets = [{ type: 'Wind', offset: 0 },
+								{ type: 'Solar', offset: 5 },
+								{ type: 'Nuclear', offset: 10 },
+								{ type: 'Hydro', offset: 15 },
+								{ type: 'Gas', offset: 20 }];
 
 
 		var centroids = {"Northwest":{x:235, y:90, scale:1},
@@ -437,8 +432,13 @@ var Vis = (function () {
 				var imageMount = d.img;
 				var regionName = $(rawEle.parentElement).find('text')[0].innerHTML;
 				var installationScale = centroids[regionName].scale;
-				var installationX = centroids[regionName].x + installationOffset[d.type]*installationScale;
-				var installationY = centroids[regionName].y;
+				var installationOffset = _.find(installationOffsets, function (io) { return io.type == d.type; });
+				var installationOffsetX = installationOffset.offset;
+				var installationOffsetY = 0;
+				var centroidX = centroids[regionName].x;
+				var centroidY = centroids[regionName].y;
+				var installationX = centroidX + installationOffsetX;
+				var installationY = centroidY;
 
 
 				d3.select(rawEle.parentElement).append('image')
@@ -479,6 +479,8 @@ var Vis = (function () {
 	}
 
 	return {
-		render: function ($scope) { return render($scope); }
+		render: function ($scope) { return render($scope); },
+		addGenerators: function (args) { return addGenerators(args); },
+		removeGenerators: function (args) { return removeGenerators(args); }
 	}
 })();
