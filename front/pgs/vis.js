@@ -265,7 +265,13 @@ var Vis = (function () {
 				g.y = g._y;
 			})
 
-			gGenerators.selectAll('image')
+
+			var gen = gGenerators.selectAll('g')
+				.data(power_generators)
+				.enter()
+				.append('g');
+
+			gen.selectAll('image')
 				.data(power_generators)
 				.enter()
 				.append('image')
@@ -274,7 +280,10 @@ var Vis = (function () {
 				.attr('y', function (d) { return d.y; })
 				.attr('xlink:href', function (d) { return d.img; })
 				.attr('height', '50px')
-				.call(drag);
+				.call(drag)
+				
+
+
 		}
 
 		var handleZoom = function () {
@@ -402,12 +411,15 @@ var Vis = (function () {
 
 	var addGenerators = function (args) {
 		var args = {
-			index: $(".power-zones").find("path"),
+			index: $(".power-zones").find("path")[0],
 			type: "Solar",
 			count: 0,
 			regionName: "Northwest"
 
 		}
+		updateInventories()
+
+
 
 		if (args.count == 0) {
 
@@ -425,7 +437,7 @@ var Vis = (function () {
 			var regionCentroid = _.find(regionCentroids, function (c) { return c.name == regionName; });
 
 			var installationScale = regionCentroid.scale;
-			var installationOffset = _.find(installationOffsets, function (io) { return io.type == d.type; });
+			var installationOffset = _.find(installationOffsets, function (io) { return io.type == args.type; });
 			var installationOffsetX = installationOffset.offset * installationScale;
 			var installationOffsetY = 0;
 
@@ -436,7 +448,7 @@ var Vis = (function () {
 			var installationY = centroidY;
 
 
-			d3.select(args.index).append('image')
+			d3.select(args.index.parentElement).append('image')
 				.attr('id', regionName + '-' + args.type)
 				.attr('x', installationX)
 				.attr('y', installationY)
@@ -451,12 +463,22 @@ var Vis = (function () {
 			count: 0,
 			regionName: "Northwest"
 		}
-
-
+		updateInventories()
 
 		if (args.count == 0) {
 			$("#" + args.regionName + "-" + args.type).remove();
 		}
+
+	}
+
+	var updateInventories = function (args) {
+		var args = {
+			type: "Solar",
+			count: 0,
+		}
+
+		// $scope.challenge.generators <- drawers
+		// $scope.challenge.nodes  <- plot on the map
 
 	}
 
