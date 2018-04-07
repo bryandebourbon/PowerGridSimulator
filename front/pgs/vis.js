@@ -1,7 +1,5 @@
 
 var Vis = (function () {
-
-
 	var render  = function ($scope) {
 		var mode = $scope.challenge && $scope.challenge.nodes && $scope.challenge.nodes.length == 2 ? 'SIMPLE' : 'COMPLEX';
 
@@ -173,8 +171,8 @@ var Vis = (function () {
 				var dy = targetY - sourceY;
 				var dr = Math.sqrt(dx * dx + dy * dy) * bend;
 
-				var west_of_source = (targetX - sourceX) < 0;
-				if (west_of_source) {
+				var westOfSource = (targetX - sourceX) < 0;
+				if (westOfSource) {
 					return 'M' + targetX + ',' + targetY + 'A' + dr + ',' + dr + ' 0 0,1 ' + sourceX + ',' + sourceY;
 				}
 
@@ -342,26 +340,27 @@ var Vis = (function () {
 			var selection = d3.select('#' + d._guid).classed('dragging', false).remove();
 			var coords = { x: d3.event.sourceEvent.x, y: d3.event.sourceEvent.y };
 
-			var rawEle = document.elementFromPoint(coords.x, coords.y)
+			var targetHTML = document.elementFromPoint(coords.x, coords.y);
+			var target = d3.select(targetHTML);
 
-			var target = d3.select(rawEle);
+			if (target.data && typeof target.data == 'function' && !target.data()[0]) {
+				showWarning('Installation unsuccessful, try zooming in or using the side panel to add generator.');
 
-			if (!target.data()[0]){
-				alert("installation unsuccessful, try zooming in or using the side panel");
+				$scope.revertDrag({ type: d.type });
 				return;
 			}
-			if (//target._selected && target.data &&
-				 typeof target.data == 'function' && target.data().length > 0 && //target.data()[0] &&
-				  target.data()[0].type == 'Feature') {
+
+			if (target.data && typeof target.data == 'function' && target.data().length && target.data()[0] && target.data()[0].type == 'Feature') {
 				var index = _.head(target.data()).index;
 
-				//need MVC integration
-				var imageMount = d.img;
-				var regionName = $(rawEle.parentElement).find('text')[0].innerHTML;
+				var regionEntry = _.find(nodeMap, function (n) { return n.index == index; });
+				var regionName = regionEntry.name;
 
 				var regionCentroid = _.find(regionCentroids, function (c) { return c.name == regionName; });
 
 				var installationScale = regionCentroid.scale;
+				var installationHeight = 5 * installationScale;
+
 				var installationOffset = _.find(installationOffsets, function (io) { return io.type == d.type; });
 				var installationOffsetX = installationOffset.offset * installationScale;
 				var installationOffsetY = 0;
@@ -372,16 +371,14 @@ var Vis = (function () {
 				var installationX = centroidX + installationOffsetX;
 				var installationY = centroidY;
 
-				d3.select(rawEle.parentElement).append('image')
+				d3.select(targetHTML.parentElement).append('image')
 					.attr('id', regionName + '-' + d.type)
 					.attr('x', installationX)
-				 	.attr('y', installationY)
-					.attr('xlink:href',  d.img)
-					.attr('height', 5*installationScale +'px')
-					;
+					.attr('y', installationY)
+					.attr('xlink:href', d.img)
+					.attr('height', installationHeight + 'px');
 
 				$scope.handleDrop({ type: d.type, target: index });
-
 			} else {
 				$scope.revertDrag({ type: d.type });
 			}
