@@ -327,62 +327,7 @@ var Vis = (function () {
 					.attr('y', d.y);
 			}
 		}
-
-		var addGenerators = function (args) {
-			var args = {
-						index:$(".power-zones").find("path"),
-						type:"Solar",
-						count:0,
-						regionName:"Northwest"
-
-						}
-
-
-
-
-
-			if (args.count == 0) {
-
-				var i = 0;
-				while (i <  generatorConfigs.length){
-					if (generatorConfigs[i].type == args.type){
-						var imageMount = generatorConfigs[i].img;
-						break;
-					}
-					i++;
-				}
-
-				var regionName = args.regionName;
-				var installationScale = centroids[regionName].scale;
-				var installationX = centroids[regionName].x + installationOffset[args.type]*installationScale;
-				var installationY = centroids[regionName].y;
-
-
-				d3.select(args.index).append('image')
-					.attr('id', regionName + '-' + args.type)
-					.attr('x', installationX)
-					.attr('y', installationY)
-					.attr('xlink:href', imageMount)
-					.attr('height', 5*installationScale +'px')
-					;
-			}
-		}
-		var removeGenerators = function (args) {
-			var args = {
-						type:"Solar",
-						count:0,
-						regionName:"Northwest"
-						}
-
-
-
-			if (args.count == 0) {
-				$("#"+args.regionName+"-"+args.type).remove();
-			}
-
-		}
 		var handleDragEnd = function (d) {
-
 			delete d._dragging;
 
 			var selection = d3.select('#' + d._guid).classed('dragging', false).remove();
@@ -418,7 +363,6 @@ var Vis = (function () {
 				var installationX = centroidX + installationOffsetX;
 				var installationY = centroidY;
 
-
 				d3.select(rawEle.parentElement).append('image')
 					.attr('id', regionName + '-' + d.type)
 					.attr('x', installationX)
@@ -452,6 +396,66 @@ var Vis = (function () {
 			renderAllTransmissionLines();
 
 			renderGenerators();
+		}
+
+	}
+
+	var addGenerators = function (args) {
+		var args = {
+			index: $(".power-zones").find("path"),
+			type: "Solar",
+			count: 0,
+			regionName: "Northwest"
+
+		}
+
+		if (args.count == 0) {
+
+			var i = 0;
+			while (i < generatorConfigs.length) {
+				if (generatorConfigs[i].type == args.type) {
+					var imageMount = generatorConfigs[i].img;
+					break;
+				}
+				i++;
+			}
+
+			var regionName = args.regionName;
+
+			var regionCentroid = _.find(regionCentroids, function (c) { return c.name == regionName; });
+
+			var installationScale = regionCentroid.scale;
+			var installationOffset = _.find(installationOffsets, function (io) { return io.type == d.type; });
+			var installationOffsetX = installationOffset.offset * installationScale;
+			var installationOffsetY = 0;
+
+			var centroidX = regionCentroid.x;
+			var centroidY = regionCentroid.y;
+
+			var installationX = centroidX + installationOffsetX;
+			var installationY = centroidY;
+
+
+			d3.select(args.index).append('image')
+				.attr('id', regionName + '-' + args.type)
+				.attr('x', installationX)
+				.attr('y', installationY)
+				.attr('xlink:href', imageMount)
+				.attr('height', 5 * installationScale + 'px')
+				;
+		}
+	}
+	var removeGenerators = function (args) {
+		var args = {
+			type: "Solar",
+			count: 0,
+			regionName: "Northwest"
+		}
+
+
+
+		if (args.count == 0) {
+			$("#" + args.regionName + "-" + args.type).remove();
 		}
 
 	}
