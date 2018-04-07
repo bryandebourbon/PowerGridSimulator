@@ -517,6 +517,8 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		}
 
 		generator.count--;
+
+		Vis.addGenerators({ index: generator.index, type: 'Solar', count: 1 });
 	}
 	$scope.removeGenerator = function (generator) {
 		var targetBin = _.find($scope.challenge.generators, function (g) { return g.type == generator.type; });
@@ -527,6 +529,8 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		} else {
 			_.remove($scope.node.generators, function (g) { return g.type == generator.type; });
 		}
+
+		Vis.removeGenerators({ index: generator.index, type: 'Solar', count: 1 });
 	}
 
 	$scope.$watch('target', function (newVal, oldVal) {

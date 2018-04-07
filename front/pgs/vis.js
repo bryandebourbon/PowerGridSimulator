@@ -331,8 +331,8 @@ var Vis = (function () {
 		var addGenerators = function (args) {
 			var args = {
 						index:$(".power-zones").find("path");
-						type:"Solar"
-						count:0
+						type:"Solar",
+						count:0,
 						regionName:"Northwest"
 
 						}
@@ -369,8 +369,8 @@ var Vis = (function () {
 		}
 		var removeGenerators = function (args) {
 			var args = {
-						type:"Solar"
-						count:0
+						type:"Solar",
+						count:0,
 						regionName:"Northwest"
 						}
 
