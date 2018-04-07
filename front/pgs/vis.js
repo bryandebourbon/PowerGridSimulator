@@ -1,5 +1,40 @@
+
 var Vis = (function () {
+
+
 	var render  = function ($scope) {
+
+
+
+
+
+
+		var installationOffset = {"Wind":0, "Solar":5, "Nuclear":10, "Hydro":15, "Gas":20};
+
+
+
+
+
+		var centroids = {"Northwest":{x:235, y:90, scale:1},
+
+						 "Northeast":{x:257, y:105, scale:0.6},
+
+						 "Essa":{x:269.5, y:118, scale:0.23},
+						 "East":{x:274.5, y:120, scale:0.23},
+						 "Southwest":{x:265.5, y:123.3, scale:0.23},
+
+						 "Ottawa":{x:281.1, y:116.6, scale:0.1},
+						 "Toronto":{x:272, y:122.5, scale:0.08},
+						 "Bruce":{x:264.5, y:121, scale:0.1},
+						  "West":{x:263, y:127, scale:0.1},
+
+						 "Niagara":{x:271.6, y:125.5, scale:0.07}
+
+
+
+
+						};
+
 		var mode = $scope.challenge && $scope.challenge.nodes && $scope.challenge.nodes.length == 2 ? 'SIMPLE' : 'COMPLEX';
 
 		d3.select('#pgs-simulation-svg').remove();
@@ -28,10 +63,10 @@ var Vis = (function () {
 				.attr('id', 'pgs-simulation-svg')
 				.attr('width', width)
 				.attr('height', height)
-				.on('click', function (d) { 
+				.on('click', function (d) {
 					repaintRegions();
 					repaintTransmissionLines();
-					
+
 					$scope.handleClick({ type: 'invalid' });
 				 })
 			.append('g')
@@ -95,12 +130,12 @@ var Vis = (function () {
 							.style('opacity', .7)
 							.on('click', function (d) {
 								d3.event.stopImmediatePropagation();
-								
+
 								repaintRegions();
 								repaintTransmissionLines();
 
 								d3.select(this).style('fill', '#737373').style('opacity', 1);
-								
+
 								$scope.handleClick({ type: 'node', index: d.index });
 							})
 
@@ -117,7 +152,7 @@ var Vis = (function () {
 						.attr('text-anchor', 'middle')
 						.style('font-size', 1.5)
 						.style('cursor', 'default')
-						.on('click', function (d) { 
+						.on('click', function (d) {
 							d3.event.stopPropagation();
 
 							repaintRegions();
@@ -130,7 +165,7 @@ var Vis = (function () {
 									pe.style('fill', '#737373').style('opacity', 1);
 								}
 							})
-							
+
 							$scope.handleClick({ type: 'node', index: index });
 						 })
 				});
@@ -199,7 +234,7 @@ var Vis = (function () {
 
 						repaintRegions();
 						repaintTransmissionLines();
-						
+
 						d3.select(this).style('fill', '#737373');
 
 						$scope.handleClick({ type: 'line', source: d.source.index, target: d.target.index });
@@ -325,18 +360,42 @@ var Vis = (function () {
 			}
 		}
 		var handleDragEnd = function (d) {
+
 			delete d._dragging;
+
 			var selection = d3.select('#' + d._guid).classed('dragging', false).remove();
-
 			var coords = { x: d3.event.sourceEvent.x, y: d3.event.sourceEvent.y };
-			var target = d3.select(document.elementFromPoint(coords.x, coords.y));
 
-			var data = target.data();
+			var rawEle = document.elementFromPoint(coords.x, coords.y)
 
-			if (target._selected && target.data && typeof target.data == 'function' && target.data().length > 0 && target.data()[0] && target.data()[0].type == 'Feature') {
+			var target = d3.select(rawEle);
+
+			if (!target.data()[0]){
+				alert("installation unsuccessful, try zooming in or using the side panel");
+				return;
+			}
+			if (//target._selected && target.data &&
+				 typeof target.data == 'function' && target.data().length > 0 && //target.data()[0] &&
+				  target.data()[0].type == 'Feature') {
 				var index = _.head(target.data()).index;
 
+				//need MVC integration
+				var imageMount = d.img;
+				var regionName = $(rawEle.parentElement).find('text')[0].innerHTML;
+				var installationScale = centroids[regionName].scale;
+				var installationX = centroids[regionName].x + installationOffset[d.type]*installationScale;
+				var installationY = centroids[regionName].y;
+
+
+				d3.select(rawEle.parentElement).append('image')
+					.attr('x', installationX)
+				 	.attr('y', installationY)
+					.attr('xlink:href',  d.img)
+					.attr('height', 5*installationScale +'px')
+					;
+
 				$scope.handleDrop({ type: d.type, target: index });
+
 			} else {
 				$scope.revertDrag({ type: d.type });
 			}
@@ -361,9 +420,9 @@ var Vis = (function () {
 
 			renderGenerators();
 		}
-		
+
 	}
-		
+
 	return {
 		render: function ($scope) { return render($scope); }
 	}
