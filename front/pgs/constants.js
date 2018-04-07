@@ -74,19 +74,19 @@ var regionLabelConfigs = [{ index: 0, lng: -88.11035156249999, lat: 52.429222277
                             { index: 9, lng: -82.08709716796875, lat: 42.48019996901214 }];
 
 
-// var API_ADDRESS = {
-//     getAllChallenges: 'http://127.0.0.1:5000/api/getChallenge/',
-//     getSingleChallenge: 'http://127.0.0.1:5000/api/getChallenge/',
-//     submitChallenge: 'http://127.0.0.1:5000/api/submit/',
-//     getLeaderBoard: 'http://127.0.0.1:5000/api/leaderboard/',
-// }
-
 var API_ADDRESS = {
-    getAllChallenges: 'http://127.0.0.1:8000/api/getChallenge/',
-    getSingleChallenge: 'http://127.0.0.1:8000/api/getChallenge/',
-    submitChallenge: 'http://127.0.0.1:8000/api/submit/',
-    getLeaderBoard: 'http://127.0.0.1:8000/api/leaderboard/',
+    getAllChallenges: 'http://127.0.0.1:5000/api/getChallenge/',
+    getSingleChallenge: 'http://127.0.0.1:5000/api/getChallenge/',
+    submitChallenge: 'http://127.0.0.1:5000/api/submit/',
+    getLeaderBoard: 'http://127.0.0.1:5000/api/leaderboard/',
 }
+
+// var API_ADDRESS = {
+//     getAllChallenges: 'http://127.0.0.1:8000/api/getChallenge/',
+//     getSingleChallenge: 'http://127.0.0.1:8000/api/getChallenge/',
+//     submitChallenge: 'http://127.0.0.1:8000/api/submit/',
+//     getLeaderBoard: 'http://127.0.0.1:8000/api/leaderboard/',
+// }
 
 
 // var API_ADDRESS = {

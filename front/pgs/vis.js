@@ -424,6 +424,8 @@ var Vis = (function () {
 	}
 
 	return {
-		render: function ($scope) { return render($scope); }
+		render: function ($scope) { return render($scope); },
+		addGenerators: function (args) { return addGenerators(args); },
+		removeGenerators: function (args) { return removeGenerators(args); }
 	}
 })();
