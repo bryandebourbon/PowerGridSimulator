@@ -34,7 +34,7 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 
 				var _collectTeamSecretCode = $('#collect-team-secret-code');
 				var _distributeTeamSecretCode = $('#distribute-team-secret-code');
-				
+
 				var _teamnameInput = $('#team-name-input');
 				var _secretCodeInput = $('#secret-code-input');
 
@@ -70,7 +70,7 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 							_secretCodeInput.val('');
 
 							var secretCode = _.keys(data)[0];
-							
+
 							_submitSecretCode.on('click', function (evt) {
 								var inputCode = _secretCodeInput.val();
 
@@ -190,7 +190,7 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 
 	$scope.copySecretCode = function () {
 		var _secretCode = $('#pgs-secret-code');
-	
+
 		_secretCode.select();
 
 		document.execCommand('Copy');
@@ -298,7 +298,7 @@ var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSer
 				console.log(error);
 			})
 	}
-	
+
 	$scope.goBack = function () {
 		showSpinner();
 
@@ -335,7 +335,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 	var populateGenerators = function () {
 		_.forEach($scope.challenge.generators, function (generator) {
 			var generatorType = _.find(generatorTypeMap, function (gt) { return gt.abbreviation == generator.type || gt.display == generator.type; });
-			
+
 			generator.type = generatorType.display;
 		})
 
@@ -375,7 +375,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		if (_.size($scope.challenge.saved_challenge) != 0) {
 			_.forEach($scope.challenge.saved_challenge, function (generators, i) {
 				var node = _.find($scope.challenge.nodes, function (n) { return n.index == i; });
-				
+
 				_.forEach(generators, function (count, typeAbbriviation) {
 					var generatorType = _.find(generatorTypeMap, function (g) { return g.abbreviation == typeAbbriviation; });
 					if (generatorType) {
@@ -399,8 +399,8 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 					}
 				})
 			})
-		}	
-		
+		}
+
 		$scope.node = _.head($scope.challenge.nodes);
 	}
 	var populateLines = function () {
@@ -436,7 +436,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		var ZERO_VALUE = [0, 0, 0, 0, 0, 0];
 		var realDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.real) ? $scope.node.demands.real : ZERO_VALUE;
 		var reactiveDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.reactive) ? $scope.node.demands.reactive : ZERO_VALUE;
-	
+
 		drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: realDemandsContainer, data: [realDemandsData] });
 		drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: reactiveDemandsContainer, data: [reactiveDemandsData] });
 	}
@@ -475,13 +475,13 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 				_valueContainer.text('$ ' + (v == 0 ? 0 : (v / 1000).toFixed(2)) + ' M');
 			} else if (k == 'unit_CO2') {
 				_valueContainer.text((v / 1000).toFixed(2) + ' T');
-			} 
+			}
 		})
 
 		var _nonDispatchableInfo = $('.non-dispatchable');
 		var _dispatchableInfo = $('.dispatchable');
 		var _hydroOnlyInfo = $('.hydro-only');
-		
+
 		if (_.include(['Nuclear', 'Solar', 'Wind'], generator.type)) {
 			_nonDispatchableInfo.show();
 			_dispatchableInfo.hide();
@@ -518,9 +518,22 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 
 		generator.count--;
 
-		Vis.addGenerators({ index: generator.index, type: 'Solar', count: 1 });
+
+		var genVal = 1;
+		var nodeStats = _.find($scope.challenge.nodes, function (c) { return c.name == $scope.activeRegion; });
+		if (nodeStats){
+			var genStat = _.find(nodeStats.generators, function (c) { return c.type == generator.type; });
+			var genVal = genStat == null ?  1: genStat.count;
+		}
+
+		Vis.addGenerators({ index: $(".power-zones").find("path")[0], type: generator.type,
+			trayCount:  generator.count,
+			nodeCount: count,
+			regionName: $scope.activeRegion
+		});
 	}
 	$scope.removeGenerator = function (generator) {
+
 		var targetBin = _.find($scope.challenge.generators, function (g) { return g.type == generator.type; });
 		targetBin.count++;
 
@@ -530,7 +543,14 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 			_.remove($scope.node.generators, function (g) { return g.type == generator.type; });
 		}
 
-		Vis.removeGenerators({ index: generator.index, type: 'Solar', count: 1 });
+		console.log("____directive remove generator_____");
+		console.log(generator)
+
+		Vis.removeGenerators({ index: $(".power-zones").find("path")[0], type: generator.type,
+			trayCount: targetBin.count,
+			nodeCount: generator.count,
+			regionName: $scope.activeRegion
+		});
 	}
 
 	$scope.$watch('target', function (newVal, oldVal) {
@@ -547,6 +567,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 			visualizeNodeRealReactivePowerDemands();
 
 			$scope.target = 'node';
+			$scope.activeRegion = nodeMap[args.index].name;
 			$timeout(function () { $scope.$apply(); });
 		} else if (args.type == 'line') {
 			$scope.line = _.find($scope.challenge.lines, function (l) { return l.from == args.source && l.to == args.target; });
@@ -716,7 +737,7 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 		if (!node) {
 			return;
 		}
-		
+
 		var generatedRealPower = multiplexArray(node.generated.real);
 		var generatedReactivePower = multiplexArray(node.generated.reactive);
 		var suppliedRealPower = multiplexArray(node.supplied.real);
@@ -849,7 +870,7 @@ var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataS
 						var winner = { name: k, score: (Math.round(v * 100) / 100).toFixed(2) };
 						$scope.realCostBoard.push(winner);
 
-						i++;						
+						i++;
 					})
 
 					$scope.realCostBoard = _.sortBy($scope.realCostBoard, function (w) { return w.score; });
@@ -865,7 +886,7 @@ var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataS
 					_.forEach(b, function (v, k) {
 						var winner = { name: k, score: (Math.round(v * 100) / 100).toFixed(2) };
 						$scope.installationCostBoard.push(winner);
-					
+
 						i++;
 					})
 
@@ -875,7 +896,7 @@ var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataS
 					})
 
 					break;
-					
+
 			}
 		})
 	}

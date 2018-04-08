@@ -102,7 +102,10 @@ var Vis = (function () {
 
 								d3.select(this).style('fill', '#737373').style('opacity', 1);
 
+								updateTrayInventories($scope.challenge.generators,0);
+
 								$scope.handleClick({ type: 'node', index: d.index });
+
 							})
 
 					var labelConfig = _.find(regionLabelConfigs, function (r) { return r.index == index; });
@@ -263,23 +266,31 @@ var Vis = (function () {
 				g.y = g._y;
 			})
 
+			var textOffset = 50;
 
 			var gen = gGenerators.selectAll('g')
 				.data(power_generators)
 				.enter()
 				.append('g');
-
-			gen.selectAll('image')
-				.data(power_generators)
-				.enter()
-				.append('image')
+				gen.append('image')
 				.attr('id', function (d) { return d._guid; })
 				.attr('x', function (d) { return d.x; })
 				.attr('y', function (d) { return d.y; })
 				.attr('xlink:href', function (d) { return d.img; })
 				.attr('height', '50px')
-				.call(drag)
-				
+				.call(drag);
+
+				gen.append('text')
+				.data(power_generators)
+				.text("0")
+				.attr('id',function (d) { return "inventory-" + d.type })
+				.attr('x', function (d) { return d.x + textOffset; })
+				.attr('y', function (d) { return d.y + textOffset; })
+				.attr('text-anchor', 'middle')
+				.style('font-size', 15)
+
+				updateTrayInventories($scope.challenge.generators);
+
 
 
 		}
@@ -363,6 +374,7 @@ var Vis = (function () {
 
 				var installationOffset = _.find(installationOffsets, function (io) { return io.type == d.type; });
 				var installationOffsetX = installationOffset.offset * installationScale;
+				var textOffset = 50 * installationScale;
 				var installationOffsetY = 0;
 
 				var centroidX = regionCentroid.x;
@@ -371,14 +383,46 @@ var Vis = (function () {
 				var installationX = centroidX + installationOffsetX;
 				var installationY = centroidY;
 
-				d3.select(targetHTML.parentElement).append('image')
-					.attr('id', regionName + '-' + d.type)
-					.attr('x', installationX)
-					.attr('y', installationY)
-					.attr('xlink:href', d.img)
-					.attr('height', installationHeight + 'px');
-
 				$scope.handleDrop({ type: d.type, target: index });
+
+
+				var nodeStats = _.find($scope.challenge.nodes, function (c) { return c.name == regionName; });
+				if (nodeStats){
+					var genStat = _.find(nodeStats.generators, function (c) { return c.type == d.type; });
+					genVal = genStat == null ?  1: genStat.count;
+				} else {
+					genVal = 1;
+				}
+
+				console.log($scope.challenge.generators);
+				addGenerators({ index: targetHTML,
+					type: d.type,
+					trayCount: _.find($scope.challenge.generators, function (c) { return c.type == d.type; }).count,
+					nodeCount: genVal,
+					regionName: regionName});
+
+				//
+				// var gen  = d3.select(targetHTML.parentElement).append('g');
+				//
+				// 	gen.append('image')
+				// 	.attr('id', regionName + '-' + d.type)
+				// 	.attr('x', installationX)
+				// 	.attr('y', installationY)
+				// 	.attr('xlink:href', d.img)
+				// 	.attr('height', installationHeight + 'px');
+				//
+				// 	gen.append('text')
+				// 	.text(genVal)
+				// 	.attr('id', 'inv-' + regionName + '-' +  d.type )
+				// 	.attr('x', installationX )
+				// 	.attr('y', installationY)
+				// 	.attr('text-anchor', 'middle')
+				// 	.style('font-size', 15)
+				//
+				//
+				// updateTrayInventories($scope.challenge.generators)
+
+
 			} else {
 				$scope.revertDrag({ type: d.type });
 			}
@@ -407,18 +451,22 @@ var Vis = (function () {
 	}
 
 	var addGenerators = function (args) {
-		var args = {
-			index: $(".power-zones").find("path")[0],
-			type: "Solar",
-			count: 0,
-			regionName: "Northwest"
+		// var args = {
+		// 	index: $(".power-zones").find("path")[0],
+		// 	type: "Solar",
+		// 	trayCount: 10,
+		// 	nodeCount: 2,
+		// 	regionName: "Northwest"
+		//
+		// }
+		// updateTrayInventories()
+		$("#inventory-" + args.type).html(args.trayCount);
 
+
+		if ( $("#inv-"+ args.regionName + "-" + args.type).length != 0 ) {
+			$("#inv-"+ args.regionName + "-" + args.type).html(args.nodeCount)
 		}
-		updateInventories()
-
-
-
-		if (args.count == 0) {
+		else{
 
 			var i = 0;
 			while (i < generatorConfigs.length) {
@@ -444,40 +492,65 @@ var Vis = (function () {
 			var installationX = centroidX + installationOffsetX;
 			var installationY = centroidY;
 
+			var textOffset = 5
 
-			d3.select(args.index.parentElement).append('image')
-				.attr('id', regionName + '-' + args.type)
-				.attr('x', installationX)
-				.attr('y', installationY)
-				.attr('xlink:href', imageMount)
-				.attr('height', 5 * installationScale + 'px')
-				;
+			var gen  = d3.select(args.index.parentElement).append('g');
+
+				gen.append('image')
+					.attr('id', regionName + '-' + args.type)
+					.attr('x', installationX)
+					.attr('y', installationY)
+					.attr('xlink:href', imageMount)
+					.attr('height', 5 * installationScale + 'px')
+					;
+
+				gen.append('text')
+				.text(args.nodeCount)
+				.attr('id', 'inv-' + regionName + '-' +  args.type )
+				.attr('x', installationX + textOffset*installationScale)
+				.attr('y', installationY + textOffset*installationScale)
+				.attr('text-anchor', 'middle')
+				.style('font-size', 2*installationScale);
 		}
 	}
 	var removeGenerators = function (args) {
-		var args = {
-			type: "Solar",
-			count: 0,
-			regionName: "Northwest"
-		}
-		updateInventories()
+		// var args = {
+		// 	type: "Solar",
+		// 	count: 0,
+		// 	trayCount: 10,
+		// 	nodeCount: 2,
+		// 	regionName: "Northwest"
+		//
+		// }
 
-		if (args.count == 0) {
+		$("#inventory-" + args.type).html(args.trayCount);
+
+		if ( $("#inv-"+ args.regionName + "-" + args.type).length != 0 ) {
+			$("#inv-"+ args.regionName + "-" + args.type).html(args.nodeCount)
+
+		}
+		if (args.nodeCount == 0){
 			$("#" + args.regionName + "-" + args.type).remove();
+			$("#inv-"+ args.regionName + "-" + args.type).remove();
 		}
 
 	}
 
-	var updateInventories = function (args) {
-		var args = {
-			type: "Solar",
-			count: 0,
+	var updateTrayInventories = function (args) {
+		var i = 0;
+		while (i < args.length){
+			$("#inventory-" + args[i].type).html(args[i].count)
+			i  = i + 1;
 		}
-
-		// $scope.challenge.generators <- drawers
-		// $scope.challenge.nodes  <- plot on the map
-
 	}
+
+	// var updateNodeInventories = function (args) {
+	// 	var i = 0;
+	// 	while (i < args.length){
+	// 		$("#inv-"+ args[i].+ "-" + args[i].type).html(args[i].count)
+	// 		i  = i + 1;
+	// 	}
+	// }
 
 	return {
 		render: function ($scope) { return render($scope); },
