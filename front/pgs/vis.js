@@ -91,6 +91,8 @@ var Vis = (function () {
 						.enter()
 						.append('path')
 							.attr('id', function (d) { return d._guid; })
+							.attr('class', 'region-path')
+							.attr('region-index', function (d){ return d.index; })
 							.attr('d', path)
 							.style('fill', _.find(regionColors, function (c) { return c.index == index; }).color)
 							.style('opacity', .7)
@@ -380,21 +382,14 @@ var Vis = (function () {
 				var installationX = centroidX + installationOffsetX;
 				var installationY = centroidY;
 
-				$scope.handleDrop({ type: d.type, target: index });
-
-				var nodeStats = _.find($scope.challenge.nodes, function (c) { return c.name == regionName; });
-				if (nodeStats){
-					var generator = _.find(nodeStats.generators, function (c) { return c.type == d.type; });
-					generatorCount = generator ? generator.count : 1;
-				}
 
 				addGenerators({ 
-					index: targetHTML,
+					index: index,
 					type: d.type,
-					trayCount: _.find($scope.challenge.generators, function (c) { return c.type == d.type; }).count,
-					nodeCount: generatorCount,
-					regionName: regionName
+					count: 1
 				});
+				
+				$scope.handleDrop({ type: d.type, target: index });
 			} else {
 				$scope.revertDrag({ type: d.type });
 			}
@@ -423,32 +418,40 @@ var Vis = (function () {
 	}
 
 	var addGenerators = function (args) {
-		// var args = {
-		// 	index: $(".power-zones").find("path")[0],
-		// 	type: "Solar",
-		// 	trayCount: 10,
-		// 	nodeCount: 2,
-		// 	regionName: "Northwest"
-		//
-		// }
-		// updateInventory()
-		$("#inventory-" + args.type + '-count').html(args.trayCount);
+		/*  
+		**	tag: external
+		**	use: add generators from region
+		**	behavior: update generator counts in inventory tray and in regions in vis
+		**	input: args = { index, type, count }
+		**	output: none
+		*/
 
-		if ( $("#inv-"+ args.regionName + "-" + args.type).length != 0 ) {
-			$("#inv-"+ args.regionName + "-" + args.type).html(args.nodeCount)
-		}
-		else{
-			var i = 0;
-			while (i < generatorConfigs.length) {
-				if (generatorConfigs[i].type == args.type) {
-					var imageMount = generatorConfigs[i].img;
-					break;
+		// update count on the tray in inventory
+		var _targetTray = $('#inventory-' + args.type + '-count');
+		var trayCount = parseInt($('#inventory-' + args.type + '-count').html()) - args.count;
+
+		_targetTray.html(trayCount);
+		
+		// update count in target region
+		var _regionInventoryImage = $('#region-' + args.index + '-inventory-' + args.type + '-img');
+		var _regionInventoryCount = $('#region-' + args.index + '-inventory-' + args.type + '-count');
+
+		var regionInventoryEmpty = _regionInventoryImage.length == 0 || _regionInventoryCount.length == 0;
+		if (regionInventoryEmpty) {
+			// add image if region inventory does not exist
+			var _regionContainer;
+			_.forEach(d3.selectAll('.region-path')[0], function (p) {
+				var _regionPath = d3.select(p);
+				
+				var index = _regionPath.data()[0].index;
+				if (index == args.index) {
+					_regionContainer = d3.select(p.parentElement);
 				}
-				i++;
-			}
+			})
 
-			var regionName = args.regionName;
-
+			var img = _.find(generatorConfigs, function (g) { return g.type == args.type; }).img;
+			
+			var regionName = _.find(nodeMap, function (n) { return n.index == args.index; }).name;
 			var regionCentroid = _.find(regionCentroids, function (c) { return c.name == regionName; });
 
 			var installationScale = regionCentroid.scale;
@@ -462,31 +465,49 @@ var Vis = (function () {
 			var installationX = centroidX + installationOffsetX;
 			var installationY = centroidY;
 
-			var textOffset = 5
+			var textOffset = 5;
 
-			var gen  = d3.select(args.index.parentElement).append('g');
+			var gen = _regionContainer.append('g');
 			gen.append('image')
-					.attr('id', 'region-' + 0 + '-inventory-' + args.type + '-img')
-					// .attr('id', 'region-' + args.index + '-inventory-' + args.type + '-img')
+					.attr('id', 'region-' + args.index + '-inventory-' + args.type + '-img')
 					.attr('x', installationX)
 					.attr('y', installationY)
-					.attr('xlink:href', imageMount)
+					.attr('xlink:href', img)
 					.attr('height', 5 * installationScale + 'px');
 
 			gen.append('text')
-				.text(args.nodeCount)
-				.attr('id', 'region-' + 0 + '-inventory-' + args.type + '-count')
-				// .attr('id', 'region-' + args.index + '-inventory-' + args.type + '-count')
+				.text(args.count)
+				.attr('id', 'region-' + args.index + '-inventory-' + args.type + '-count')
 				.attr('x', installationX + textOffset * installationScale)
 				.attr('y', installationY + textOffset *installationScale)
 				.attr('text-anchor', 'middle')
 				.style('font-size', 2 * installationScale);
+		} else {
+			// increase count if region inventory exists
+			var regionInventoryCount = parseInt(_regionInventoryCount.html()) + args.count;
+			_regionInventoryCount.html(regionInventoryCount);
 		}
+
+		return;
+
+		// var i = 0;
+		// while (i < generatorConfigs.length) {
+		// 	if (generatorConfigs[i].type == args.type) {
+		// 		var imageMount = generatorConfigs[i].img;
+		// 		break;
+		// 	}
+		// 	i++;
+		// }
+
+		// var regionName = args.regionName;
 	}
 	var removeGenerators = function (args) {
 		/*  
-		**	remove generators from regions
+		**	tag: external
+		**	use: remove generators from regions
+		**	behavior: update generator counts in inventory tray and in regions in vis
 		**	input: args = { index, type, count }
+		**	output: none
 		*/
 
 		// update count on the tray in inventory
@@ -501,20 +522,31 @@ var Vis = (function () {
 		var regionInventoryCount = parseInt(_regionInventoryCount.html()) - args.count;
 
 		if (regionInventoryCount == 0) {
+			// remove image if region inventory count goes to 0
 			_regionInventoryImage.remove();
 			_regionInventoryCount.remove();
 		} else {
+			// reduce count if region inventory count above 0
 			_regionInventoryCount.html(regionInventoryCount);
 		}
 	}
 
 	var updateInventory = function (inventory) {
+		/*  
+		**	tag: internal
+		**	use: update inventory tray counts in vis
+		**	behavior: update inventory tray counts in vis
+		**	input: inventory = [generator1, generator2, ...]
+		**	output: none
+		*/
+
 		_.forEach(inventory, function (g) {
 			var _trayCount = $("#inventory-" + g.type + '-count');
 			_trayCount.html(g.count);
 		})
 	}
 
+	/* functions exposed from Vis library */
 	return {
 		render: function ($scope) { return render($scope); },
 		addGenerators: function (args) { return addGenerators(args); },
