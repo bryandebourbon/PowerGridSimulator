@@ -553,6 +553,13 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 
 			$scope.target = 'line';
 			$timeout(function () { $scope.$apply(); });
+		} else if (args.type == 'generator') {
+			var generator = _.find($scope.challenge.generators, function (g) { return g.type == args.gType; });
+
+			var _generatorModal = $('#generator-profile-modal');
+			_generatorModal.modal('show');
+			
+			$scope.viewGeneratorInfo(generator);
 		} else {
 			$scope.target = null;
 			$timeout(function () { $scope.$apply(); });

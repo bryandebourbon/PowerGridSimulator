@@ -302,6 +302,16 @@ var Vis = (function () {
 
 		var handleDragStart = function (d) {
 			d3.event.sourceEvent.stopPropagation();
+
+			if (d3.event.sourceEvent.ctrlKey || d3.event.sourceEvent.shiftKey || d3.event.sourceEvent.metaKey) {
+				d3.event.sourceEvent.preventDefault();
+
+				d._clicked = true;
+
+				$scope.handleClick({ type: 'generator', gType: d.type });
+				return;
+			}
+
 			d3.select('#' + d._guid).classed('dragging', true);
 
 			if (!d._dragging) {
@@ -335,6 +345,10 @@ var Vis = (function () {
 			}
 		}
 		var handleDrag = function (d) {
+			if (d._clicked) {
+				return;
+			}
+
 			if (d._dragging) {
 				d.x = d3.event.x;
 				d.y = d3.event.y;
@@ -345,6 +359,12 @@ var Vis = (function () {
 			}
 		}
 		var handleDragEnd = function (d) {
+			if (d._clicked) {
+				delete d._clicked;
+				
+				return;
+			}
+
 			delete d._dragging;
 
 			var selection = d3.select('#' + d._guid).classed('dragging', false).remove();
