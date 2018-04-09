@@ -9,7 +9,9 @@
     <div class="pgs-submission-header">Thank you for your submission. Your submission result can be found below:</div>
 
     <div class="pgs-evaluation-summary">
-        <div>{{evaluation.message}}</div>
+        <div ng-show="evaluation.passed">Power flow optimization <strong style="color:green">converged</strong>! You have satisfied all the demands and constraints.</div>
+        <div ng-show="!evaluation.passed">Power flow optimization <strong style="color:red">did not converge</strong>. The generation, supply, and load power displayed below are the value before divergence
+        and only for your reference.</div>
         <div>Total installation cost of generators: $ {{evaluation.installation_cost == 0 ? 0 : (evaluation.installation_cost / 1000).toFixed(2)}} M</div>
         <div ng-show="evaluation.passed">
             <div>Total unit power generation cost (per 100MW): $ {{evaluation.cost == 0 ? 0 : (evaluation.cost / 1000).toFixed(2)}} M</div>
