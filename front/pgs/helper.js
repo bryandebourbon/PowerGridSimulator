@@ -116,11 +116,18 @@ var drawLineChart = function (args) {
         ymax = 1;
     }
 
+    if (ymin > 0) {
+        ymin = 0;
+    }
+    if (ymax < 0) {
+        ymax = 0;
+    }
+
     var x = d3.scale.linear().range([margin.x, width - margin.x]).domain([0, d3.max(args.data[0], function (d) { return d.key; })]);
     var y = d3.scale.linear().range([height - margin.y, margin.y]).domain([ymin, ymax]);
 
     var xAxis = d3.svg.axis().scale(x).tickValues(args.type == 'simulation' ? [0, 6, 12, 18, 24] : [0, 5, 10]);
-    var yAxis = d3.svg.axis().scale(y).orient('left').tickValues([ymin, ymean, ymax]);
+    var yAxis = d3.svg.axis().scale(y).orient('left').tickValues([ymin, ymean, ymax, 0]);
 
     vis.append('svg:g')
         .attr('class', 'x pgs-axis')
