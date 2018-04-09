@@ -102,7 +102,7 @@ var Vis = (function () {
 
 								d3.select(this).style('fill', '#737373').style('opacity', 1);
 
-								updateTrayInventories($scope.challenge.generators,0);
+								// updateTrayInventories($scope.challenge.generators);
 
 								$scope.handleClick({ type: 'node', index: d.index });
 
@@ -272,7 +272,7 @@ var Vis = (function () {
 				.data(power_generators)
 				.enter()
 				.append('g');
-				gen.append('image')
+			gen.append('image')
 				.attr('id', function (d) { return d._guid; })
 				.attr('x', function (d) { return d.x; })
 				.attr('y', function (d) { return d.y; })
@@ -280,19 +280,16 @@ var Vis = (function () {
 				.attr('height', '50px')
 				.call(drag);
 
-				gen.append('text')
+			gen.append('text')
 				.data(power_generators)
 				.text("0")
-				.attr('id',function (d) { return "inventory-" + d.type })
+				.attr('id',function (d) { return "inventory-" + d.type + '-count' })
 				.attr('x', function (d) { return d.x + textOffset; })
 				.attr('y', function (d) { return d.y + textOffset; })
 				.attr('text-anchor', 'middle')
 				.style('font-size', 15)
 
-				updateTrayInventories($scope.challenge.generators);
-
-
-
+			updateTrayInventories($scope.challenge.generators);
 		}
 
 		var handleZoom = function () {
@@ -385,44 +382,19 @@ var Vis = (function () {
 
 				$scope.handleDrop({ type: d.type, target: index });
 
-
 				var nodeStats = _.find($scope.challenge.nodes, function (c) { return c.name == regionName; });
 				if (nodeStats){
-					var genStat = _.find(nodeStats.generators, function (c) { return c.type == d.type; });
-					genVal = genStat == null ?  1: genStat.count;
-				} else {
-					genVal = 1;
+					var generator = _.find(nodeStats.generators, function (c) { return c.type == d.type; });
+					generatorCount = generator ? generator.count : 1;
 				}
 
-				console.log($scope.challenge.generators);
-				addGenerators({ index: targetHTML,
+				addGenerators({ 
+					index: targetHTML,
 					type: d.type,
 					trayCount: _.find($scope.challenge.generators, function (c) { return c.type == d.type; }).count,
-					nodeCount: genVal,
-					regionName: regionName});
-
-				//
-				// var gen  = d3.select(targetHTML.parentElement).append('g');
-				//
-				// 	gen.append('image')
-				// 	.attr('id', regionName + '-' + d.type)
-				// 	.attr('x', installationX)
-				// 	.attr('y', installationY)
-				// 	.attr('xlink:href', d.img)
-				// 	.attr('height', installationHeight + 'px');
-				//
-				// 	gen.append('text')
-				// 	.text(genVal)
-				// 	.attr('id', 'inv-' + regionName + '-' +  d.type )
-				// 	.attr('x', installationX )
-				// 	.attr('y', installationY)
-				// 	.attr('text-anchor', 'middle')
-				// 	.style('font-size', 15)
-				//
-				//
-				// updateTrayInventories($scope.challenge.generators)
-
-
+					nodeCount: generatorCount,
+					regionName: regionName
+				});
 			} else {
 				$scope.revertDrag({ type: d.type });
 			}
@@ -460,8 +432,7 @@ var Vis = (function () {
 		//
 		// }
 		// updateTrayInventories()
-		$("#inventory-" + args.type).html(args.trayCount);
-
+		$("#inventory-" + args.type + '-count').html(args.trayCount);
 
 		if ( $("#inv-"+ args.regionName + "-" + args.type).length != 0 ) {
 			$("#inv-"+ args.regionName + "-" + args.type).html(args.nodeCount)
@@ -518,39 +489,31 @@ var Vis = (function () {
 		// 	type: "Solar",
 		// 	count: 0,
 		// 	trayCount: 10,
-		// 	nodeCount: 2,
+		// 	index: 2,
 		// 	regionName: "Northwest"
 		//
 		// }
 
-		$("#inventory-" + args.type).html(args.trayCount);
+		var trayCount = $("#inventory-" + args.type + '-count').html();
+		console.log(args, trayCount)
 
 		if ( $("#inv-"+ args.regionName + "-" + args.type).length != 0 ) {
 			$("#inv-"+ args.regionName + "-" + args.type).html(args.nodeCount)
 
 		}
-		if (args.nodeCount == 0){
+		if (args.index == 0){
 			$("#" + args.regionName + "-" + args.type).remove();
 			$("#inv-"+ args.regionName + "-" + args.type).remove();
 		}
 
 	}
 
-	var updateTrayInventories = function (args) {
-		var i = 0;
-		while (i < args.length){
-			$("#inventory-" + args[i].type).html(args[i].count)
-			i  = i + 1;
-		}
+	var updateTrayInventories = function (inventory) {
+		_.forEach(inventory, function (g) {
+			var _trayCount = $("#inventory-" + g.type + '-count');
+			_trayCount.html(g.count);
+		})
 	}
-
-	// var updateNodeInventories = function (args) {
-	// 	var i = 0;
-	// 	while (i < args.length){
-	// 		$("#inv-"+ args[i].+ "-" + args[i].type).html(args[i].count)
-	// 		i  = i + 1;
-	// 	}
-	// }
 
 	return {
 		render: function ($scope) { return render($scope); },

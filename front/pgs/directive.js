@@ -518,22 +518,23 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 
 		generator.count--;
 
-
 		var genVal = 1;
-		var nodeStats = _.find($scope.challenge.nodes, function (c) { return c.name == $scope.activeRegion; });
+		var nodeStats = _.find($scope.challenge.nodes, function (c) { return true; });
+		// var nodeStats = _.find($scope.challenge.nodes, function (c) { return c.name == $scope.activeRegion; });
 		if (nodeStats){
 			var genStat = _.find(nodeStats.generators, function (c) { return c.type == generator.type; });
 			var genVal = genStat == null ?  1: genStat.count;
 		}
 
-		Vis.addGenerators({ index: $(".power-zones").find("path")[0], type: generator.type,
+		Vis.addGenerators({ 
+			index: $(".power-zones").find("path")[0], 
+			type: generator.type,
 			trayCount:  generator.count,
 			nodeCount: count,
-			regionName: $scope.activeRegion
+			regionName: 'Northwest'
 		});
 	}
 	$scope.removeGenerator = function (generator) {
-
 		var targetBin = _.find($scope.challenge.generators, function (g) { return g.type == generator.type; });
 		targetBin.count++;
 
@@ -543,14 +544,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 			_.remove($scope.node.generators, function (g) { return g.type == generator.type; });
 		}
 
-		console.log("____directive remove generator_____");
-		console.log(generator)
-
-		Vis.removeGenerators({ index: $(".power-zones").find("path")[0], type: generator.type,
-			trayCount: targetBin.count,
-			nodeCount: generator.count,
-			regionName: $scope.activeRegion
-		});
+		Vis.removeGenerators({ index: $scope.node.index, type: generator.type, count: 1 });
 	}
 
 	$scope.$watch('target', function (newVal, oldVal) {
@@ -567,7 +561,6 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 			visualizeNodeRealReactivePowerDemands();
 
 			$scope.target = 'node';
-			$scope.activeRegion = nodeMap[args.index].name;
 			$timeout(function () { $scope.$apply(); });
 		} else if (args.type == 'line') {
 			$scope.line = _.find($scope.challenge.lines, function (l) { return l.from == args.source && l.to == args.target; });

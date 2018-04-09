@@ -89,19 +89,19 @@ var regionCentroids = [{ name: 'Northwest', x: 235, y: 90, scale: 1 },
                     { name: 'West', x: 263, y: 127, scale: 0.1 },
                     { name: 'Niagara', x: 271.6, y: 125.5, scale: 0.07 }];
 
-// var API_ADDRESS = {
-//     getAllChallenges: 'http://127.0.0.1:5000/api/getChallenge/',
-//     getSingleChallenge: 'http://127.0.0.1:5000/api/getChallenge/',
-//     submitChallenge: 'http://127.0.0.1:5000/api/submit/',
-//     getLeaderBoard: 'http://127.0.0.1:5000/api/leaderboard/',
-// }
-
 var API_ADDRESS = {
-    getAllChallenges: 'http://127.0.0.1:8000/api/getChallenge/',
-    getSingleChallenge: 'http://127.0.0.1:8000/api/getChallenge/',
-    submitChallenge: 'http://127.0.0.1:8000/api/submit/',
-    getLeaderBoard: 'http://127.0.0.1:8000/api/leaderboard/',
+    getAllChallenges: 'http://127.0.0.1:5000/api/getChallenge/',
+    getSingleChallenge: 'http://127.0.0.1:5000/api/getChallenge/',
+    submitChallenge: 'http://127.0.0.1:5000/api/submit/',
+    getLeaderBoard: 'http://127.0.0.1:5000/api/leaderboard/',
 }
+
+// var API_ADDRESS = {
+//     getAllChallenges: 'http://127.0.0.1:8000/api/getChallenge/',
+//     getSingleChallenge: 'http://127.0.0.1:8000/api/getChallenge/',
+//     submitChallenge: 'http://127.0.0.1:8000/api/submit/',
+//     getLeaderBoard: 'http://127.0.0.1:8000/api/leaderboard/',
+// }
 
 
 // var API_ADDRESS = {
