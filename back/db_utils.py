@@ -187,45 +187,8 @@ def register_routes(current_app):
         leaderboard = get_leaderboard(challenge_id)
         return make_response(json.dumps(leaderboard))
 
-    '''
-    @current_app.route('/add', methods=['POST'])
-    def add_entry():
-        # An example of updating the database.
-        error = None
-        team_name = request.headers["username"]
-        team = TEAMS.order_by_child('team_name').equal_to(team_name).get()
-        if team:
-            error = 'Team name already exists.' # TODO: properly return this??
-        
-        team_id = TEAMS.order_by_child('team_id').limit_to_first(1).get()
-        TEAMS.push().set({
-            'team_id': list(team_id.values())[0] + 1,
-            'team_name': team_name
-        })
-        flash('New entry was successfully posted')
-        return redirect(url_for('show_entries'))
-    '''
     return
 
 
-# if __name__ == "__main__":
-    # init_db_teams()
-    # print(get_team_id("yourteam"))
-    # insert_submission_entry({0: {}, 1: {"H": 1}, 2: {"N": 1},
-    #                         3: {"H": 1, "N": 1, "R": 1}},
-    #                         1, new_sys_info = {
-    #                            'new_sub_datetime': '2018-03-16 18:20:18',
-    #                            'new_num_attempts': 1,
-    #                            'challenge_id': '10'})
-
-    # insert_scores_entry(10, 1, team_id=3,
-    #    new_scores={"cost": 6120.23, 
-    #                 "passed": True, 
-    #                 "CO2": 10000.41, 
-    #                 "installation_cost": 523081,
-    #                 "lines": {0: {'from': 0}},
-    #                 "nodes": {0: {'node':0}}})
-    # print(get_leaderboard('10'))
-    # print(get_saved_challenge('10', '1'))
-    # print(get_saved_challenge('10', '3'))
-    # delete_users()
+if __name__ == "__main__":
+    init_db_teams()
