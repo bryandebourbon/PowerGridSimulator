@@ -114,6 +114,9 @@
 .pgs-submission-header {
     margin-bottom: 12px;
 }
+.pgs-instructions {
+    margin-top: calc(50%);
+}
 .pgs-evaluation-detail {
     margin-top: 12px;
 }
