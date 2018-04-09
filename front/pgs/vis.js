@@ -102,7 +102,7 @@ var Vis = (function () {
 
 								d3.select(this).style('fill', '#737373').style('opacity', 1);
 
-								// updateTrayInventories($scope.challenge.generators);
+								// updateInventory($scope.challenge.generators);
 
 								$scope.handleClick({ type: 'node', index: d.index });
 
@@ -289,7 +289,7 @@ var Vis = (function () {
 				.attr('text-anchor', 'middle')
 				.style('font-size', 15)
 
-			updateTrayInventories($scope.challenge.generators);
+			updateInventory($scope.challenge.generators);
 		}
 
 		var handleZoom = function () {
@@ -431,14 +431,13 @@ var Vis = (function () {
 		// 	regionName: "Northwest"
 		//
 		// }
-		// updateTrayInventories()
+		// updateInventory()
 		$("#inventory-" + args.type + '-count').html(args.trayCount);
 
 		if ( $("#inv-"+ args.regionName + "-" + args.type).length != 0 ) {
 			$("#inv-"+ args.regionName + "-" + args.type).html(args.nodeCount)
 		}
 		else{
-
 			var i = 0;
 			while (i < generatorConfigs.length) {
 				if (generatorConfigs[i].type == args.type) {
@@ -466,49 +465,50 @@ var Vis = (function () {
 			var textOffset = 5
 
 			var gen  = d3.select(args.index.parentElement).append('g');
-
-				gen.append('image')
-					.attr('id', regionName + '-' + args.type)
+			gen.append('image')
+					.attr('id', 'region-' + 0 + '-inventory-' + args.type + '-img')
+					// .attr('id', 'region-' + args.index + '-inventory-' + args.type + '-img')
 					.attr('x', installationX)
 					.attr('y', installationY)
 					.attr('xlink:href', imageMount)
-					.attr('height', 5 * installationScale + 'px')
-					;
+					.attr('height', 5 * installationScale + 'px');
 
-				gen.append('text')
+			gen.append('text')
 				.text(args.nodeCount)
-				.attr('id', 'inv-' + regionName + '-' +  args.type )
-				.attr('x', installationX + textOffset*installationScale)
-				.attr('y', installationY + textOffset*installationScale)
+				.attr('id', 'region-' + 0 + '-inventory-' + args.type + '-count')
+				// .attr('id', 'region-' + args.index + '-inventory-' + args.type + '-count')
+				.attr('x', installationX + textOffset * installationScale)
+				.attr('y', installationY + textOffset *installationScale)
 				.attr('text-anchor', 'middle')
-				.style('font-size', 2*installationScale);
+				.style('font-size', 2 * installationScale);
 		}
 	}
 	var removeGenerators = function (args) {
-		// var args = {
-		// 	type: "Solar",
-		// 	count: 0,
-		// 	trayCount: 10,
-		// 	index: 2,
-		// 	regionName: "Northwest"
-		//
-		// }
+		/*  
+		**	remove generators from regions
+		**	input: args = { index, type, count }
+		*/
 
-		var trayCount = $("#inventory-" + args.type + '-count').html();
-		console.log(args, trayCount)
+		// update count on the tray in inventory
+		var _targetTray = $('#inventory-' + args.type + '-count');
+		var trayCount = parseInt($('#inventory-' + args.type + '-count').html()) + args.count;
 
-		if ( $("#inv-"+ args.regionName + "-" + args.type).length != 0 ) {
-			$("#inv-"+ args.regionName + "-" + args.type).html(args.nodeCount)
+		_targetTray.html(trayCount);
 
+		// update count in target region
+		var _regionInventoryImage = $('#region-' + args.index + '-inventory-' + args.type + '-img');
+		var _regionInventoryCount = $('#region-' + args.index + '-inventory-' + args.type + '-count');
+		var regionInventoryCount = parseInt(_regionInventoryCount.html()) - args.count;
+
+		if (regionInventoryCount == 0) {
+			_regionInventoryImage.remove();
+			_regionInventoryCount.remove();
+		} else {
+			_regionInventoryCount.html(regionInventoryCount);
 		}
-		if (args.index == 0){
-			$("#" + args.regionName + "-" + args.type).remove();
-			$("#inv-"+ args.regionName + "-" + args.type).remove();
-		}
-
 	}
 
-	var updateTrayInventories = function (inventory) {
+	var updateInventory = function (inventory) {
 		_.forEach(inventory, function (g) {
 			var _trayCount = $("#inventory-" + g.type + '-count');
 			_trayCount.html(g.count);

@@ -526,13 +526,13 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 			var genVal = genStat == null ?  1: genStat.count;
 		}
 
-		Vis.addGenerators({ 
-			index: $(".power-zones").find("path")[0], 
-			type: generator.type,
-			trayCount:  generator.count,
-			nodeCount: count,
-			regionName: 'Northwest'
-		});
+		// Vis.addGenerators({ 
+		// 	index: $(".power-zones").find("path")[0], 
+		// 	type: generator.type,
+		// 	trayCount:  generator.count,
+		// 	nodeCount: count,
+		// 	regionName: 'Northwest'
+		// });
 	}
 	$scope.removeGenerator = function (generator) {
 		var targetBin = _.find($scope.challenge.generators, function (g) { return g.type == generator.type; });
