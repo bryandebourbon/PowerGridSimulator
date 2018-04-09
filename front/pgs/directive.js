@@ -518,7 +518,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 
 		generator.count--;
 
-		Vis.addGenerators({ index: $(".power-zones").find("path")[0], type: generator.type, count: 1 });
+		Vis.addGenerators({ index: $scope.node.index, type: generator.type, count: 1 });
 	}
 	$scope.removeGenerator = function (generator) {
 		var targetBin = _.find($scope.challenge.generators, function (g) { return g.type == generator.type; });

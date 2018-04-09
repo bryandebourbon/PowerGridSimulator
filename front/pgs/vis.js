@@ -487,19 +487,6 @@ var Vis = (function () {
 			var regionInventoryCount = parseInt(_regionInventoryCount.html()) + args.count;
 			_regionInventoryCount.html(regionInventoryCount);
 		}
-
-		return;
-
-		// var i = 0;
-		// while (i < generatorConfigs.length) {
-		// 	if (generatorConfigs[i].type == args.type) {
-		// 		var imageMount = generatorConfigs[i].img;
-		// 		break;
-		// 	}
-		// 	i++;
-		// }
-
-		// var regionName = args.regionName;
 	}
 	var removeGenerators = function (args) {
 		/*  
