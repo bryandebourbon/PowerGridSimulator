@@ -1,4 +1,11 @@
 app.service('DataService', function () {
+    /*  
+	**	tag: external [GET]
+	**	use: display all available challenge board
+	**	behavior: retrieve all challenges
+	**	input: args = { teamname }
+	**	output: promise -> challenges = [{ id, name, saved, description }]
+	*/
     var getChallenges = function (args) {
         var headers = { team_name: args.teamname || '' };
 
@@ -9,9 +16,9 @@ app.service('DataService', function () {
                 headers: headers,
                 success: function (data) {
                     if (data) {
-                        var challenge = JSON.parse(data);
+                        var challenges = JSON.parse(data);
 
-                        resolve(challenge);
+                        resolve(challenges);
                     }
                 },
                 error: function (data) {
@@ -20,6 +27,13 @@ app.service('DataService', function () {
             })
         })
     }
+    /*  
+	**	tag: external [GET]
+	**	use: display single challenge
+	**	behavior: retrieve single challenge by challengeID
+	**	input: args = { teamname, challengeID }
+	**	output: promise -> challenge = { id, name, description, demands, lines, generators }
+	*/
     var getChallenge = function (args) {
         var headers = { team_name: args.teamname || '' };
 
@@ -41,6 +55,13 @@ app.service('DataService', function () {
             })
         })
     }
+    /*  
+	**	tag: external [GET]
+	**	use: display leader board
+	**	behavior: retrieve up to top 10 leaders for each category
+	**	input: args = { teamname }
+	**	output: promise -> leaders { category1, category2, category3 }
+	*/
     var getLeaderBoard = function (args) {
         var headers = { teamname: args.teamname || '' };
 
@@ -61,6 +82,13 @@ app.service('DataService', function () {
         })
     }
     
+    /*  
+	**	tag: external [POST]
+	**	use: submit challenge
+	**	behavior: submit challenge and retrieve evaluation result
+	**	input: args = { teamname, challengeID, challenge }
+	**	output: promise -> evaluation = { success, message, evaluation }
+	*/
     var submitChallenge = function (args) {
         return new Promise(function (resolve, reject) {
             var minifiChallenge = function (challenge) {
@@ -105,7 +133,7 @@ app.service('DataService', function () {
         })
     }
 
-
+    /* functions exposed from DataService to the external */
     this.getChallenges = function (args) { return getChallenges(args); }
     this.getChallenge = function (args) { return getChallenge(args); }
     this.getLeaderBoard = function (args) { return getLeaderBoard(args); }
