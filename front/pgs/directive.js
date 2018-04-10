@@ -334,9 +334,9 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 
 	var populateGenerators = function () {
 		_.forEach($scope.challenge.generators, function (generator) {
-			var generatorType = _.find(generatorTypeMap, function (gt) { return gt.abbreviation == generator.type || gt.display == generator.type; });
+			var generatorType = _.find(generatorConfigs, function (gt) { return gt.abbreviation == generator.type || gt.type == generator.type; });
 
-			generator.type = generatorType.display;
+			generator.type = generatorType.type;
 		})
 
 		$timeout(function () {
@@ -352,7 +352,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		$scope.challenge.nodes = [];
 
 		_.forEach($scope.challenge.demands, function (d) {
-			var nodeInfo = _.find(nodeMap, function (n) { return n.index == d.node; });
+			var nodeInfo = _.find(regionConfigs, function (n) { return n.index == d.node; });
 			var name;
 
 			if (nodeInfo) {
@@ -377,9 +377,9 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 				var node = _.find($scope.challenge.nodes, function (n) { return n.index == i; });
 
 				_.forEach(generators, function (count, typeAbbriviation) {
-					var generatorType = _.find(generatorTypeMap, function (g) { return g.abbreviation == typeAbbriviation; });
+					var generatorType = _.find(generatorConfigs, function (g) { return g.abbreviation == typeAbbriviation; });
 					if (generatorType) {
-						var type = generatorType.display;
+						var type = generatorType.type;
 					}
 
 					var generator = _.find(node.generators, function (g) { return g.type == type || ''; });
@@ -405,8 +405,8 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 	}
 	var populateLines = function () {
 		_.forEach($scope.challenge.lines, function (l) {
-			var fromRegion = _.find(nodeMap, function (n) { return n.index == l.from; }) ? _.find(nodeMap, function (n) { return n.index == l.from; }).name : '';
-			var toRegion = _.find(nodeMap, function (n) { return n.index == l.to; }) ? _.find(nodeMap, function (n) { return n.index == l.to; }).name : '';
+			var fromRegion = _.find(regionConfigs, function (n) { return n.index == l.from; }) ? _.find(regionConfigs, function (n) { return n.index == l.from; }).name : '';
+			var toRegion = _.find(regionConfigs, function (n) { return n.index == l.to; }) ? _.find(regionConfigs, function (n) { return n.index == l.to; }).name : '';
 			var name = fromRegion + ' - ' + toRegion;
 
 			l.fromRegion = fromRegion;

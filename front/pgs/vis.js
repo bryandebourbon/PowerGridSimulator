@@ -136,15 +136,15 @@ var Vis = (function () {
 			if (target.data && typeof target.data == 'function' && target.data().length && target.data()[0] && target.data()[0].type == 'Feature') {
 				var index = _.head(target.data()).index;
 
-				var regionEntry = _.find(nodeMap, function (n) { return n.index == index; });
+				var regionEntry = _.find(regionConfigs, function (n) { return n.index == index; });
 				var regionName = regionEntry.name;
 
-				var regionCentroid = _.find(regionCentroids, function (c) { return c.name == regionName; });
+				var regionCentroid = _.find(regionConfigs, function (c) { return c.name == regionName; });
 
 				var installationScale = regionCentroid.scale;
 				var installationHeight = 5 * installationScale;
 
-				var installationOffset = _.find(installationOffsets, function (io) { return io.type == d.type; });
+				var installationOffset = _.find(generatorConfigs, function (io) { return io.type == d.type; });
 				var installationOffsetX = installationOffset.offset * installationScale;
 				var textOffset = 50 * installationScale;
 				var installationOffsetY = 0;
@@ -218,22 +218,20 @@ var Vis = (function () {
 		**	output: none
 		*/
 		var renderOntario = function () {
-			var ontarioGeoJson = _.find(geoJsonFiles, function (f) { return f.index == -1; });
-			if (ontarioGeoJson) {
-				d3.json(ontarioGeoJson.name, function (error, ont) {
-					if (error) {
-						throw error;
-					}
+			var ontarioGeoJson = geoJsonPrefix + 'Ontario.geo.json';
+			d3.json(ontarioGeoJson, function (error, ont) {
+				if (error) {
+					throw error;
+				}
 
-					gOntario.selectAll('path')
-						.data([_.merge(topojson.feature(ont, ont.objects.boarderlines).features[0], { index: -1, _guid: guid() })])
-						.enter()
-						.append('path')
-							.attr('id', function (d) { return d._guid; })
-							.attr('d', path)
-							.style('fill', mode == 'SIMPLE' ? '#000000' : '#737373')
-				})
-			}
+				gOntario.selectAll('path')
+					.data([_.merge(topojson.feature(ont, ont.objects.boarderlines).features[0], { index: -1, _guid: guid() })])
+					.enter()
+					.append('path')
+						.attr('id', function (d) { return d._guid; })
+						.attr('d', path)
+						.style('fill', mode == 'SIMPLE' ? '#000000' : '#737373')
+			})
 		}
 
 		/*  
@@ -244,9 +242,9 @@ var Vis = (function () {
 		**	output: none
 		*/
 		var renderRegion = function (index) {
-			var regionGeoJson = _.find(geoJsonFiles, function (f) { return f.index == index; });
-			if (regionGeoJson) {
-				d3.json(regionGeoJson.name, function (error, reg) {
+			var region = _.find(regionConfigs, function (f) { return f.index == index; });
+			if (region) {
+				d3.json(region.geoJson, function (error, reg) {
 					if (error) {
 						throw error;
 					}
@@ -260,7 +258,7 @@ var Vis = (function () {
 							.attr('class', 'region-path')
 							.attr('region-index', function (d){ return d.index; })
 							.attr('d', path)
-							.style('fill', _.find(regionColors, function (c) { return c.index == index; }).color)
+							.style('fill', _.find(regionConfigs, function (c) { return c.index == index; }).color)
 							.style('opacity', .7)
 							.on('click', function (d) {
 								d3.event.stopImmediatePropagation();
@@ -276,14 +274,14 @@ var Vis = (function () {
 
 							})
 
-					var labelConfig = _.find(regionLabelConfigs, function (r) { return r.index == index; });
+					var labelConfig = _.find(regionConfigs, function (r) { return r.index == index; });
 					var labelXY = projection([labelConfig.lng, labelConfig.lat]);
 
 					var labelX = labelXY[0];
 					var labelY = labelXY[1];
 
 					d3.select(d3.select('#' + _guid).node().parentNode).append('text')
-						.text(_.find(nodeMap, function (n) { return n.index == index; }) ? _.find(nodeMap, function (n) { return n.index == index; }).name : '')
+						.text(_.find(regionConfigs, function (n) { return n.index == index; }) ? _.find(regionConfigs, function (n) { return n.index == index; }).name : '')
 						.attr('x', labelX)
 						.attr('y', labelY)
 						.attr('text-anchor', 'middle')
@@ -340,7 +338,7 @@ var Vis = (function () {
 		**	output: none
 		*/
 		var repaintRegions = function () {
-			gPowerZones.selectAll('g path').style('fill', function (d) { return _.find(regionColors, function (c) { return c.index == d.index; }).color }).style('opacity', .7);
+			gPowerZones.selectAll('g path').style('fill', function (d) { return _.find(regionConfigs, function (c) { return c.index == d.index; }).color }).style('opacity', .7);
 		}
 
 		/*  
@@ -479,12 +477,12 @@ var Vis = (function () {
 			var baseHeight = $(window).height() * 0.75 - radius * 2;
 			var spacing = width / 5;
 
-			var power_generators = _.cloneDeep(generatorConfigs);
-			_.forEach(power_generators, function (g) {
+			var generators = _.cloneDeep(generatorConfigs);
+			_.forEach(generators, function (g, i) {
 				g._guid = guid();
 				g._original = true;
 
-				g._x = width - (g.index + .6) * spacing;
+				g._x = width - (i + .6) * spacing;
 				g._y = baseHeight;
 
 				g.x = g._x;
@@ -494,7 +492,7 @@ var Vis = (function () {
 			var textOffset = 50;
 
 			var gen = gGenerators.selectAll('g')
-				.data(power_generators)
+				.data(generators)
 				.enter()
 				.append('g');
 			gen.append('image')
@@ -506,7 +504,7 @@ var Vis = (function () {
 				.call(drag);
 
 			gen.append('text')
-				.data(power_generators)
+				.data(generators)
 				.text("0")
 				.attr('id',function (d) { return "inventory-" + d.type + '-count' })
 				.attr('x', function (d) { return d.x + textOffset; })
@@ -573,11 +571,11 @@ var Vis = (function () {
 
 			var img = _.find(generatorConfigs, function (g) { return g.type == args.type; }).img;
 			
-			var regionName = _.find(nodeMap, function (n) { return n.index == args.index; }).name;
-			var regionCentroid = _.find(regionCentroids, function (c) { return c.name == regionName; });
+			var regionName = _.find(regionConfigs, function (n) { return n.index == args.index; }).name;
+			var regionCentroid = _.find(regionConfigs, function (c) { return c.name == regionName; });
 
 			var installationScale = regionCentroid.scale;
-			var installationOffset = _.find(installationOffsets, function (io) { return io.type == args.type; });
+			var installationOffset = _.find(generatorConfigs, function (io) { return io.type == args.type; });
 			var installationOffsetX = installationOffset.offset * installationScale;
 			var installationOffsetY = 0;
 

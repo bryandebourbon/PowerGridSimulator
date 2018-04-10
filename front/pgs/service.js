@@ -72,7 +72,7 @@ app.service('DataService', function () {
                     };
 
                     _.forEach(n.generators, function (g) {
-                        var generatorType = _.find(generatorTypeMap, function (gt) { return gt.display == g.type; });
+                        var generatorType = _.find(generatorConfigs, function (gt) { return gt.type == g.type; });
 
                         if (generatorType) {
                             node.generators[generatorType.abbreviation] = g.count;
