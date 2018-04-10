@@ -1,16 +1,38 @@
+/* 
+** external: can be triggered from external sources
+** internal: only accessible from within the library
+*/
 
+/*  
+**	tag: external
+**	use: control of simulation visualization
+**	behavior: render map, add and remove generators from map
+**	input: none
+**	output: { @render, @addGenerators, @removeGenerators }
+*/
 var Vis = (function () {
+	/*  
+	**	tag: external
+	**	use: render map for visualization
+	**	behavior: render map for visualization
+	**	input: $scope from visualization directive, containing regions, lines, and inventory information 
+	**	output: none
+	*/
 	var render  = function ($scope) {
+		/* mode for distinguishing between whole Ontario map and sub-Ontario map, will need to be modified for more complex configurations */
 		var mode = $scope.challenge && $scope.challenge.nodes && $scope.challenge.nodes.length == 2 ? 'SIMPLE' : 'COMPLEX';
 
+		/* clean canvas */
 		d3.select('#pgs-simulation-svg').remove();
 
+		/* svg geometry definitions */
 		var width = 750;
 		var height = 500 ;
 
 		var _translate = { x: -1413, y: -466 };	// specific values for this SVG size
 		var _scale = 6.96;	// specific values for this SVG size
 
+		/* d3 behavior definitions */
 		var zoom = d3.behavior.zoom()
 			.translate([_translate.x, _translate.y])
 			.scale(_scale)
@@ -23,7 +45,130 @@ var Vis = (function () {
 		    .on('drag', function (d) { return handleDrag(d); })
 		    .on('dragend', function (d) { return handleDragEnd(d); });
 
+		/* d3 zoom handler */
+		var handleZoom = function () {
+			var transform = { x: d3.event.translate[0], y: d3.event.translate[1], scale: d3.event.scale };
 
+			gMap.attr('transform', 'translate(' + transform.x + ',' + transform.y + ') scale(' + transform.scale + ')');
+		}
+
+		/* d3 drag handlers */
+		var handleDragStart = function (d) {
+			d3.event.sourceEvent.stopPropagation();
+
+			if (d3.event.sourceEvent.ctrlKey || d3.event.sourceEvent.shiftKey || d3.event.sourceEvent.metaKey) {
+				d3.event.sourceEvent.preventDefault();
+
+				d._clicked = true;
+
+				$scope.handleClick({ type: 'generator', gType: d.type });
+				return;
+			}
+
+			d3.select('#' + d._guid).classed('dragging', true);
+
+			if (!d._dragging) {
+				d.x = d3.event.x ? d3.event.x : d.x;
+				d.y = d3.event.y ? d3.event.y : d.y;
+
+				var dataCopy = _.cloneDeep(d);
+				dataCopy._guid = guid();
+
+				dataCopy.x = d._x;
+				dataCopy.y = d._y;
+
+				dataCopy._original = true;
+
+				if (d._original) {
+					gGenerators.append('image')
+						.datum(dataCopy)
+						.attr('id', function (d) { return d._guid; })
+						.attr('x', function (d) { return d.x; })
+						.attr('y', function (d) { return d.y; })
+						.attr('xlink:href', function (d) { return d.img; })
+						.attr('height', '50px')
+						.call(drag);
+
+					delete d._original;
+				}
+
+				d._dragging = true;
+
+				$scope.handleDrag({ type: d.type })
+			}
+		}
+		var handleDrag = function (d) {
+			if (d._clicked) {
+				return;
+			}
+
+			if (d._dragging) {
+				d.x = d3.event.x;
+				d.y = d3.event.y;
+
+				d3.select('#' + d._guid)
+					.attr('x', d.x)
+					.attr('y', d.y);
+			}
+		}
+		var handleDragEnd = function (d) {
+			if (d._clicked) {
+				delete d._clicked;
+
+				return;
+			}
+
+			delete d._dragging;
+
+			var selection = d3.select('#' + d._guid).classed('dragging', false).remove();
+			var coords = { x: d3.event.sourceEvent.x, y: d3.event.sourceEvent.y };
+
+			var targetHTML = document.elementFromPoint(coords.x, coords.y);
+			var target = d3.select(targetHTML);
+
+			if (target.data && typeof target.data == 'function' && !target.data()[0]) {
+				showWarning('Installation unsuccessful, try zooming in or using the side panel to add generator.');
+
+				$scope.revertDrag({ type: d.type });
+				return;
+			}
+
+			if (target.data && typeof target.data == 'function' && target.data().length && target.data()[0] && target.data()[0].type == 'Feature') {
+				var index = _.head(target.data()).index;
+
+				var regionEntry = _.find(nodeMap, function (n) { return n.index == index; });
+				var regionName = regionEntry.name;
+
+				var regionCentroid = _.find(regionCentroids, function (c) { return c.name == regionName; });
+
+				var installationScale = regionCentroid.scale;
+				var installationHeight = 5 * installationScale;
+
+				var installationOffset = _.find(installationOffsets, function (io) { return io.type == d.type; });
+				var installationOffsetX = installationOffset.offset * installationScale;
+				var textOffset = 50 * installationScale;
+				var installationOffsetY = 0;
+
+				var centroidX = regionCentroid.x;
+				var centroidY = regionCentroid.y;
+
+				var installationX = centroidX + installationOffsetX;
+				var installationY = centroidY;
+
+
+				addGenerators({
+					index: index,
+					type: d.type,
+					count: 1
+				});
+
+				$scope.handleDrop({ type: d.type, target: index });
+			} else {
+				$scope.revertDrag({ type: d.type });
+			}
+		}
+
+		/* d3 container and group definitions */
 		var svg = d3.select('.pgs-simulation')
 			.append('svg')
 				.attr('id', 'pgs-simulation-svg')
@@ -49,6 +194,13 @@ var Vis = (function () {
 
 		var gGenerators = svg.append('g').classed('generators', true);
 
+		/*  
+		**	tag: internal
+		**	use: render background blue ocean
+		**	behavior: render background blue ocean
+		**	input: none
+		**	output: none
+		*/
 		var renderBackground = function () {
 			gBackground.append('rect')
 				.attr('x', -width)
@@ -58,6 +210,13 @@ var Vis = (function () {
 				.style('fill', '#e6f7ff')
 		}
 
+		/*  
+		**	tag: internal
+		**	use: render underlying Ontario region
+		**	behavior: render underlying Ontario region
+		**	input: none
+		**	output: none
+		*/
 		var renderOntario = function () {
 			var ontarioGeoJson = _.find(geoJsonFiles, function (f) { return f.index == -1; });
 			if (ontarioGeoJson) {
@@ -77,6 +236,13 @@ var Vis = (function () {
 			}
 		}
 
+		/*  
+		**	tag: internal
+		**	use: render individual region
+		**	behavior: render individual region
+		**	input: region index
+		**	output: none
+		*/
 		var renderRegion = function (index) {
 			var regionGeoJson = _.find(geoJsonFiles, function (f) { return f.index == index; });
 			if (regionGeoJson) {
@@ -142,20 +308,48 @@ var Vis = (function () {
 				});
 			}
 		}
+		/*  
+		**	tag: internal
+		**	use: render all regions within Ontario
+		**	behavior: render all regions within Ontario
+		**	input: none
+		**	output: none
+		*/
 		var renderRegions = function () {
 			_.forEach(_.range(10), function (i) {
 				renderRegion(i);
 			})
 		}
+		/*  
+		**	tag: internal
+		**	use: render selected regions
+		**	behavior: render selected regions
+		**	input: region indices
+		**	output: none
+		*/
 		var renderSelectedRegions = function (nodes) {
 			_.forEach(nodes, function (i) {
 				renderRegion(i);
 			})
 		}
+		/*  
+		**	tag: internal
+		**	use: unselect color for all regions
+		**	behavior: repaint color for all regions
+		**	input: region index
+		**	output: none
+		*/
 		var repaintRegions = function () {
 			gPowerZones.selectAll('g path').style('fill', function (d) { return _.find(regionColors, function (c) { return c.index == d.index; }).color }).style('opacity', .7);
 		}
 
+		/*  
+		**	tag: internal
+		**	use: convert source and target { lat, lng } to svg path d value
+		**	behavior: convert source and target { lat, lng } to svg path d value
+		**	input: { source { lat, lng }, target { lat, lng }}
+		**	output: none
+		*/
 		var lngLatToArc = function (d) {
 			var bend = 3;
 
@@ -186,6 +380,14 @@ var Vis = (function () {
 
 			return 'M0,0,l0,0z';
 		}
+
+		/*  
+		**	tag: internal
+		**	use: render all transmission lines
+		**	behavior: render all transmission lines
+		**	input: none
+		**	output: none
+		*/
 		var renderAllTransmissionLines = function () {
 			var powerLines = _.cloneDeep(powerLineConfigs);
 			_.forEach(powerLines, function (l, i) {
@@ -212,6 +414,13 @@ var Vis = (function () {
 					});
 
 		}
+		/*  
+		**	tag: internal
+		**	use: unselect selected transmission lines
+		**	behavior: repaint color for selected transmission lines
+		**	input: region index
+		**	output: none
+		*/
 		var renderSelectedTransmissionLines = function (lines) {
 			var powerLines = [];
 
@@ -246,10 +455,24 @@ var Vis = (function () {
 					$scope.handleClick({ type: 'line', source: d.source.index, target: d.target.index });
 				});
 		}
+		/*  
+		**	tag: internal
+		**	use: unselect all transmission lines
+		**	behavior: repaint color for all transmission lines
+		**	input: region index
+		**	output: none
+		*/
 		var repaintTransmissionLines = function () {
 			gTranmissionLines.selectAll('g path').style('fill', 'white');
 		}
 
+		/*  
+		**	tag: internal
+		**	use: render all inventory generators with count
+		**	behavior: render all inventory generators with count
+		**	input: none
+		**	output: none
+		*/
 		var renderGenerators = function () {
 			var radius = 32;
 
@@ -294,127 +517,7 @@ var Vis = (function () {
 			updateInventory($scope.challenge.generators);
 		}
 
-		var handleZoom = function () {
-			var transform = { x: d3.event.translate[0], y: d3.event.translate[1], scale: d3.event.scale };
-
-			gMap.attr('transform', 'translate(' + transform.x + ',' + transform.y + ') scale(' + transform.scale + ')');
-		}
-
-		var handleDragStart = function (d) {
-			d3.event.sourceEvent.stopPropagation();
-
-			if (d3.event.sourceEvent.ctrlKey || d3.event.sourceEvent.shiftKey || d3.event.sourceEvent.metaKey) {
-				d3.event.sourceEvent.preventDefault();
-
-				d._clicked = true;
-
-				$scope.handleClick({ type: 'generator', gType: d.type });
-				return;
-			}
-
-			d3.select('#' + d._guid).classed('dragging', true);
-
-			if (!d._dragging) {
-				d.x = d3.event.x ? d3.event.x : d.x;
-				d.y = d3.event.y ? d3.event.y : d.y;
-
-				var dataCopy = _.cloneDeep(d);
-				dataCopy._guid = guid();
-
-				dataCopy.x = d._x;
-				dataCopy.y = d._y;
-
-				dataCopy._original = true;
-
-				if (d._original) {
-					gGenerators.append('image')
-						.datum(dataCopy)
-						.attr('id', function (d) { return d._guid; })
-						.attr('x', function (d) { return d.x; })
-						.attr('y', function (d) { return d.y; })
-						.attr('xlink:href', function (d) { return d.img; })
-						.attr('height', '50px')
-						.call(drag);
-
-					delete d._original;
-				}
-
-				d._dragging = true;
-
-				$scope.handleDrag({ type: d.type })
-			}
-		}
-		var handleDrag = function (d) {
-			if (d._clicked) {
-				return;
-			}
-
-			if (d._dragging) {
-				d.x = d3.event.x;
-				d.y = d3.event.y;
-
-				d3.select('#' + d._guid)
-					.attr('x', d.x)
-					.attr('y', d.y);
-			}
-		}
-		var handleDragEnd = function (d) {
-			if (d._clicked) {
-				delete d._clicked;
-				
-				return;
-			}
-
-			delete d._dragging;
-
-			var selection = d3.select('#' + d._guid).classed('dragging', false).remove();
-			var coords = { x: d3.event.sourceEvent.x, y: d3.event.sourceEvent.y };
-
-			var targetHTML = document.elementFromPoint(coords.x, coords.y);
-			var target = d3.select(targetHTML);
-
-			if (target.data && typeof target.data == 'function' && !target.data()[0]) {
-				showWarning('Installation unsuccessful, try zooming in or using the side panel to add generator.');
-
-				$scope.revertDrag({ type: d.type });
-				return;
-			}
-
-			if (target.data && typeof target.data == 'function' && target.data().length && target.data()[0] && target.data()[0].type == 'Feature') {
-				var index = _.head(target.data()).index;
-
-				var regionEntry = _.find(nodeMap, function (n) { return n.index == index; });
-				var regionName = regionEntry.name;
-
-				var regionCentroid = _.find(regionCentroids, function (c) { return c.name == regionName; });
-
-				var installationScale = regionCentroid.scale;
-				var installationHeight = 5 * installationScale;
-
-				var installationOffset = _.find(installationOffsets, function (io) { return io.type == d.type; });
-				var installationOffsetX = installationOffset.offset * installationScale;
-				var textOffset = 50 * installationScale;
-				var installationOffsetY = 0;
-
-				var centroidX = regionCentroid.x;
-				var centroidY = regionCentroid.y;
-
-				var installationX = centroidX + installationOffsetX;
-				var installationY = centroidY;
-
-
-				addGenerators({ 
-					index: index,
-					type: d.type,
-					count: 1
-				});
-				
-				$scope.handleDrop({ type: d.type, target: index });
-			} else {
-				$scope.revertDrag({ type: d.type });
-			}
-		}
-
+		/* official map element rendering */
 		if (mode == 'SIMPLE') {
 			renderBackground();
 
@@ -437,15 +540,14 @@ var Vis = (function () {
 
 	}
 
+	/*  
+	**	tag: external
+	**	use: add generators from region
+	**	behavior: update generator counts in inventory tray and in regions in vis
+	**	input: args = { index, type, count }
+	**	output: none
+	*/
 	var addGenerators = function (args) {
-		/*  
-		**	tag: external
-		**	use: add generators from region
-		**	behavior: update generator counts in inventory tray and in regions in vis
-		**	input: args = { index, type, count }
-		**	output: none
-		*/
-
 		// update count on the tray in inventory
 		var _targetTray = $('#inventory-' + args.type + '-count');
 		var trayCount = parseInt($('#inventory-' + args.type + '-count').html()) - args.count;
@@ -508,15 +610,15 @@ var Vis = (function () {
 			_regionInventoryCount.html(regionInventoryCount);
 		}
 	}
-	var removeGenerators = function (args) {
-		/*  
-		**	tag: external
-		**	use: remove generators from regions
-		**	behavior: update generator counts in inventory tray and in regions in vis
-		**	input: args = { index, type, count }
-		**	output: none
-		*/
 
+	/*  
+	**	tag: external
+	**	use: remove generators from regions
+	**	behavior: update generator counts in inventory tray and in regions in vis
+	**	input: args = { index, type, count }
+	**	output: none
+	*/
+	var removeGenerators = function (args) {
 		// update count on the tray in inventory
 		var _targetTray = $('#inventory-' + args.type + '-count');
 		var trayCount = parseInt($('#inventory-' + args.type + '-count').html()) + args.count;
@@ -538,22 +640,21 @@ var Vis = (function () {
 		}
 	}
 
+	/*  
+	**	tag: internal
+	**	use: update inventory tray counts in vis
+	**	behavior: update inventory tray counts in vis
+	**	input: inventory = [generator1, generator2, ...]
+	**	output: none
+	*/
 	var updateInventory = function (inventory) {
-		/*  
-		**	tag: internal
-		**	use: update inventory tray counts in vis
-		**	behavior: update inventory tray counts in vis
-		**	input: inventory = [generator1, generator2, ...]
-		**	output: none
-		*/
-
 		_.forEach(inventory, function (g) {
 			var _trayCount = $("#inventory-" + g.type + '-count');
 			_trayCount.html(g.count);
 		})
 	}
 
-	/* functions exposed from Vis library */
+	/* functions exposed from Vis library to the external */
 	return {
 		render: function ($scope) { return render($scope); },
 		addGenerators: function (args) { return addGenerators(args); },
