@@ -34,7 +34,6 @@ var generatorConfigs = [{ type: 'Gas', abbreviation: 'G', img: iconPrefix + 'Gas
                         { type: 'Wind', abbreviation: 'W', img: iconPrefix + 'Wind.png', offset: 20 }];
 
 
-
 /* backend API entry points  */
 /* local (Annie) */
 var API_ADDRESS = {
