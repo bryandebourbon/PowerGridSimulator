@@ -1,6 +1,8 @@
 # PowerGridSimulator
 
 To run, open two terminals.
+
+
 In terminal 1, type to start front end engine:
 ```
 cd front/pgs/
@@ -14,6 +16,8 @@ flask run
 ```
 
 The website will be live at http://0.0.0.0:8000/!
+
+
 
 ## Set Up Your Own Database
 If you are a competition organizer or teacher for a larger class, and would like to monitor students' submissions, scores and rankings, this section can help you set up your own database on Firebase using your Google account.
