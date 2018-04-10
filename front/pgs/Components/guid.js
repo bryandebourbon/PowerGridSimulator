@@ -9,7 +9,8 @@
 **	behavior: generate guid
 **	input: none
 **	output: { @generate }
-*/var Guid = (function () {
+*/
+var Guid = (function () {
     /*  
 	**	tag: external
 	**	use: generate guid
@@ -27,7 +28,7 @@
         return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
     }
 
-    /* functions exposed from Guid library to the external */
+    /* functions exposed from Guid component to the external */
     return {
         generate: function () { return guid(); }
     }

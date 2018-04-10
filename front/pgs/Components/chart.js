@@ -208,7 +208,7 @@ var Chart = (function () {
         }
     }
 
-   	/* functions exposed from Chart library to the external */
+   	/* functions exposed from Chart component to the external */
     return {
         processData: function (args) { return processData(args); },
         parsePolynomial: function (args) { return parsePolynomial(args); },

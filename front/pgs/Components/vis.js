@@ -652,7 +652,7 @@ var Vis = (function () {
 		})
 	}
 
-	/* functions exposed from Vis library to the external */
+	/* functions exposed from Vis component to the external */
 	return {
 		render: function ($scope) { return render($scope); },
 		addGenerators: function (args) { return addGenerators(args); },

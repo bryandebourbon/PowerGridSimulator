@@ -36,7 +36,7 @@ var Spinner = (function () {
         $('.pgs-spinner').hide();
     }
 
-   	/* functions exposed from Vis library to the external */
+   	/* functions exposed from Spinner component to the external */
     return {
         show: function () { return showSpinner(); },
         hide: function () { return hideSpinner(); }
