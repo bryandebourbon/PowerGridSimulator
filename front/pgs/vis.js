@@ -347,7 +347,7 @@ var Vis = (function () {
 		**	tag: internal
 		**	use: convert source and target { lat, lng } to svg path d value
 		**	behavior: convert source and target { lat, lng } to svg path d value
-		**	input: { source { lat, lng }, target { lat, lng }}
+		**	input: d = { source { lat, lng }, target { lat, lng }}
 		**	output: none
 		*/
 		var lngLatToArc = function (d) {
