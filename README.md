@@ -1,13 +1,18 @@
 # PowerGridSimulator
 
-To run:
+To run, open two terminals.
+In terminal 1, type to start front end engine:
 ```
 cd front/pgs/
 python3 -m http.server 
-cd ../../back/
+```
+In terminal 2, type to start back end engine: 
+```
+cd back/
 export FLASK_APP=pgsim.py
 flask run
 ```
+
 The website will be live at http://0.0.0.0:8000/!
 
 ## Set Up Your Own Database
