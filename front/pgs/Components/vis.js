@@ -65,14 +65,14 @@ var Vis = (function () {
 				return;
 			}
 
-			d3.select('#' + d._guid).classed('dragging', true);
+			d3.select('#guid-' + d._guid).classed('dragging', true);
 
 			if (!d._dragging) {
 				d.x = d3.event.x ? d3.event.x : d.x;
 				d.y = d3.event.y ? d3.event.y : d.y;
 
 				var dataCopy = _.cloneDeep(d);
-				dataCopy._guid = guid();
+				dataCopy._guid = Guid.generate();
 
 				dataCopy.x = d._x;
 				dataCopy.y = d._y;
@@ -82,7 +82,7 @@ var Vis = (function () {
 				if (d._original) {
 					gGenerators.append('image')
 						.datum(dataCopy)
-						.attr('id', function (d) { return d._guid; })
+						.attr('id', function (d) { return 'guid-' + d._guid; })
 						.attr('x', function (d) { return d.x; })
 						.attr('y', function (d) { return d.y; })
 						.attr('xlink:href', function (d) { return d.img; })
@@ -106,7 +106,7 @@ var Vis = (function () {
 				d.x = d3.event.x;
 				d.y = d3.event.y;
 
-				d3.select('#' + d._guid)
+				d3.select('#guid-' + d._guid)
 					.attr('x', d.x)
 					.attr('y', d.y);
 			}
@@ -120,14 +120,14 @@ var Vis = (function () {
 
 			delete d._dragging;
 
-			var selection = d3.select('#' + d._guid).classed('dragging', false).remove();
+			var selection = d3.select('#guid-' + d._guid).classed('dragging', false).remove();
 			var coords = { x: d3.event.sourceEvent.x, y: d3.event.sourceEvent.y };
 
 			var targetHTML = document.elementFromPoint(coords.x, coords.y);
 			var target = d3.select(targetHTML);
 
 			if (target.data && typeof target.data == 'function' && !target.data()[0]) {
-				showWarning('Installation unsuccessful, try zooming in or using the side panel to add generator.');
+				Warning.show('Installation unsuccessful, try zooming in or using the side panel to add generator.');
 
 				$scope.revertDrag({ type: d.type });
 				return;
@@ -225,10 +225,10 @@ var Vis = (function () {
 				}
 
 				gOntario.selectAll('path')
-					.data([_.merge(topojson.feature(ont, ont.objects.boarderlines).features[0], { index: -1, _guid: guid() })])
+					.data([_.merge(topojson.feature(ont, ont.objects.boarderlines).features[0], { index: -1, _guid: Guid.generate() })])
 					.enter()
 					.append('path')
-						.attr('id', function (d) { return d._guid; })
+						.attr('id', function (d) { return 'guid-' + d._guid; })
 						.attr('d', path)
 						.style('fill', mode == 'SIMPLE' ? '#000000' : '#737373')
 			})
@@ -249,12 +249,12 @@ var Vis = (function () {
 						throw error;
 					}
 
-					var _guid = guid();
+					var _guid = Guid.generate();
 					gPowerZones.append('g').selectAll('path')
 						.data([_.merge(topojson.feature(reg, reg.objects.boarderlines).features[0], { index: index, _guid: _guid })])
 						.enter()
 						.append('path')
-							.attr('id', function (d) { return d._guid; })
+							.attr('id', function (d) { return 'guid-' + d._guid; })
 							.attr('class', 'region-path')
 							.attr('region-index', function (d){ return d.index; })
 							.attr('d', path)
@@ -280,7 +280,7 @@ var Vis = (function () {
 					var labelX = labelXY[0];
 					var labelY = labelXY[1];
 
-					d3.select(d3.select('#' + _guid).node().parentNode).append('text')
+					d3.select(d3.select('#guid-' + _guid).node().parentNode).append('text')
 						.text(_.find(regionConfigs, function (n) { return n.index == index; }) ? _.find(regionConfigs, function (n) { return n.index == index; }).name : '')
 						.attr('x', labelX)
 						.attr('y', labelY)
@@ -390,7 +390,7 @@ var Vis = (function () {
 			var powerLines = _.cloneDeep(powerLineConfigs);
 			_.forEach(powerLines, function (l, i) {
 				l._i = i;
-				l._guid = guid();
+				l._guid = Guid.generate();
 			})
 
 			gTranmissionLines.selectAll('path')
@@ -432,7 +432,7 @@ var Vis = (function () {
 
 			_.forEach(powerLines, function (l, i) {
 				l._i = i;
-				l._guid = guid();
+				l._guid = Guid.generate();
 			})
 
 			gTranmissionLines.selectAll('path')
@@ -479,7 +479,7 @@ var Vis = (function () {
 
 			var generators = _.cloneDeep(generatorConfigs);
 			_.forEach(generators, function (g, i) {
-				g._guid = guid();
+				g._guid = Guid.generate();
 				g._original = true;
 
 				g._x = width - (i + .6) * spacing;
@@ -496,7 +496,7 @@ var Vis = (function () {
 				.enter()
 				.append('g');
 			gen.append('image')
-				.attr('id', function (d) { return d._guid; })
+				.attr('id', function (d) { return 'guid-' + d._guid; })
 				.attr('x', function (d) { return d.x; })
 				.attr('y', function (d) { return d.y; })
 				.attr('xlink:href', function (d) { return d.img; })

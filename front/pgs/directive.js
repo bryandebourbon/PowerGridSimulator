@@ -17,12 +17,12 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 		var user = { email: $scope.email || '', password: $scope.password || ''};
 
 		if (!_.isNull(user.email) && user.email.length < 1) {
-			showWarning('Email field cannot be empty.');
+			Warning.show('Email field cannot be empty.');
 
 			return;
 		}
 		if (!_.isNull(user.password) && user.password.length < 5) {
-			showWarning('Password field should be at least 6 characters.');
+			Warning.show('Password field should be at least 6 characters.');
 
 			return;
 		}
@@ -77,7 +77,7 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 								if (inputCode == secretCode) {
 									$('#team-management-modal').modal('hide');
 
-									showSpinner();
+									Spinner.show();
 
 									firebaseUser.updateProfile({
 										displayName: teamname
@@ -85,19 +85,19 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 
 										$DataService.getChallenges({ teamname: teamname })
 											.then(function (data) {
-												hideSpinner();
+												Spinner.hide();
 
 												$.cookie('teamname', teamname);
 												$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
 											}).catch(function (error) {
-												hideSpinner();
+												Spinner.hide();
 
-												showWarning(error);
+												Warning.show(error);
 											})
 									}).catch(function (error) {
-										hideSpinner();
+										Spinner.hide();
 
-										showWarning(error.message);
+										Warning.show(error.message);
 									})
 								}
 							})
@@ -117,7 +117,7 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 							_secretCode.val(secretCode);
 
 							_teamManagementModal.on('hide.bs.modal', function (evt) {
-								showSpinner();
+								Spinner.show();
 
 								teams.orderByChild('team_id').limitToLast(1).once('value', function (teamData) {
 									var teamID = _.head(_.values(teamData.val())).team_id + 1;
@@ -129,38 +129,38 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 
 									$DataService.getChallenges({ teamname: teamname })
 										.then(function (data) {
-											hideSpinner();
+											Spinner.hide();
 
 											$.cookie('teamname', teamname);
 											$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
 										}).catch(function (error) {
-											hideSpinner();
+											Spinner.hide();
 
-											showWarning(error);
+											Warning.show(error);
 										})
 								}).catch(function (error) {
-									hideSpinner();
+									Spinner.hide();
 
-									showWarning(error);
+									Warning.show(error);
 								})
 							})
 						}
 					})
 				})
 			}).catch(function (error) {
-				showWarning(error.message);
+				Warning.show(error.message);
 			})
 	}
 	$scope.login = function () {
 		var user = { email: $scope.email || '', password: $scope.password || '' };
 
 		if (!_.isNull(user.email) && user.email.length < 1) {
-			showWarning('Email field should not be empty.');
+			Warning.show('Email field should not be empty.');
 
 			return;
 		}
 		if (!_.isNull(user.password) && user.password.length < 1) {
-			showWarning('Password field should not be empty.');
+			Warning.show('Password field should not be empty.');
 
 			return;
 		}
@@ -168,21 +168,21 @@ var loginDirectiveController = ['$scope', '$rootScope', 'DataService', function 
 		firebase.auth().signInWithEmailAndPassword(user.email, user.password).then(function (data) {
 			var teamname = data.displayName;
 
-			showSpinner();
+			Spinner.show();
 
 			$DataService.getChallenges({ teamname: data.displayName })
 				.then(function (data) {
-					hideSpinner();
+					Spinner.hide();
 
 					$.cookie('teamname', teamname);
 					$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
 				}).catch(function (error) {
-					hideSpinner();
+					Spinner.hide();
 
-					showWarning(error);
+					Warning.show(error);
 				})
 		}).catch(function (error) {
-			showWarning(error);
+			Warning.show(error);
 
 			return;
 		});
@@ -228,13 +228,13 @@ var challengesDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 		if (challenge) {
 			$DataService.getChallenge({ teamname: $.cookie('teamname'), challengeID: id })
 				.then(function (data) {
-					hideSpinner();
+					Spinner.hide();
 
 					$rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: data });
 				}).catch(function (error) {
-					hideSpinner();
+					Spinner.hide();
 
-					showWarning(error);
+					Warning.show(error);
 				})
 		}
 	}
@@ -270,16 +270,16 @@ var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSer
 	}
 
 	$scope.submitChallenge = function () {
-		showSpinner();
+		Spinner.show();
 
 		$DataService.submitChallenge({ challenge: $scope.challenge, teamname: $.cookie('teamname'), challengeID: 10 })
 			.then(function (data) {
-				hideSpinner();
+				Spinner.hide();
 
 				if (data.success) {
 					$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'evaluation', evaluation: data.eval }); });
 				} else {
-					showWarning(data.message);
+					Warning.show(data.message);
 				}
 			}).catch(function (error) {
 				console.log(error);
@@ -287,11 +287,11 @@ var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSer
 	}
 
 	$scope.viewLeaderBoard = function () {
-		showSpinner();
+		Spinner.show();
 
 		$DataService.getLeaderBoard({ teamname: $.cookie('teamname'), challengeID: $scope.challenge.id })
 			.then(function (data) {
-				hideSpinner();
+				Spinner.hide();
 
 				$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'leaderboard', challenge: $scope.challenge, leaderboard: data, teamname: $.cookie('teamname') || '' }); });
 			}).catch(function (error) {
@@ -300,11 +300,11 @@ var challengeDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSer
 	}
 
 	$scope.goBack = function () {
-		showSpinner();
+		Spinner.show();
 
 		$DataService.getChallenges({ teamname: $.cookie('teamname') })
 			.then(function (data) {
-				hideSpinner();
+				Spinner.hide();
 
 				$rootScope.$broadcast('pgsStateChanged', { state: 'challenges', challenges: data });
 			}).catch(function (error) {
@@ -424,8 +424,8 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 
 			var head = _.head(realDemands);
 			if (typeof head == 'number') {
-				n.demands.real = multiplexArray(realDemands);
-				n.demands.reactive = multiplexArray(reactiveDemands);
+				n.demands.real = Chart.processData(realDemands);
+				n.demands.reactive = Chart.processData(reactiveDemands);
 			}
 		});
 	}
@@ -437,8 +437,8 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		var realDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.real) ? $scope.node.demands.real : ZERO_VALUE;
 		var reactiveDemandsData = ($scope.node && $scope.node.demands && $scope.node.demands.reactive) ? $scope.node.demands.reactive : ZERO_VALUE;
 
-		drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: realDemandsContainer, data: [realDemandsData] });
-		drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: reactiveDemandsContainer, data: [reactiveDemandsData] });
+		Chart.drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: realDemandsContainer, data: [realDemandsData] });
+		Chart.drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: reactiveDemandsContainer, data: [reactiveDemandsData] });
 	}
 
 	$scope.viewGeneratorInfo = function (generator) {
@@ -454,21 +454,21 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 			if (k == 'real_capacity') {
 				var _svg = _valueContainer.find('svg');
 
-				v = multiplexArray(v);
+				v = Chart.processData(v);
 
-				drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: '#generator-profile-real-capacity', data: [v] });
+				Chart.drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: '#generator-profile-real-capacity', data: [v] });
 			} else if (k == 'reactive_capacity') {
 				var _svg = _valueContainer.find('svg');
 
-				v = multiplexArray(v);
+				v = Chart.processData(v);
 
-				drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: '#generator-profile-reactive-capacity', data: [v] });
+				Chart.drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: '#generator-profile-reactive-capacity', data: [v] });
 			} else if (k == 'real_cost') {
 				var _svg = _valueContainer.find('svg');
 
-				v = parsePolynomial(v);
+				v = Chart.parsePolynomial(v);
 
-				drawLineChart({ type: 'polynomial', unit: 'Dollars (k)', container: '#generator-profile-real-cost', data: [v] });
+				Chart.drawLineChart({ type: 'polynomial', unit: 'Dollars (k)', container: '#generator-profile-real-cost', data: [v] });
 			} else if (k == 'per_node_limit') {
 				_valueContainer.text(v);
 			} else if (k == 'installation_cost') {
@@ -498,7 +498,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 	}
 	$scope.addGenerator = function (generator) {
 		if (generator.count == 0) {
-			showWarning('No more generator of type ' + generator.type + ' available');
+			Warning.show('No more generator of type ' + generator.type + ' available');
 			return;
 		}
 
@@ -506,7 +506,7 @@ var simulatorDirectiveController = ['$scope', '$rootScope', '$timeout', function
 		var count = targetBin ? targetBin.count + 1 : 1;
 
 		if (count > generator.per_node_limit[$scope.node.index]) {
-			showWarning('Generator count for ' + $scope.node.name + ' exceeds maximum node capacity');
+			Warning.show('Generator count for ' + $scope.node.name + ' exceeds maximum node capacity');
 			return;
 		}
 
@@ -685,11 +685,11 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 	}
 
 	$scope.viewLeaderBoard = function () {
-		showSpinner();
+		Spinner.show();
 
 		$DataService.getLeaderBoard({ teamname: $.cookie('teamname'), challengeID: $scope.challenge.id })
 			.then(function (data) {
-				hideSpinner();
+				Spinner.hide();
 
 				$timeout(function () { $rootScope.$broadcast('pgsStateChanged', { state: 'leaderboard', challenge: $scope.challenge, evaluation: $scope.evaluation, leaderboard: data, teamname: $.cookie('teamname') || '' }); });
 			}).catch(function (error) {
@@ -698,11 +698,11 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 	}
 
 	$scope.goBack = function () {
-		showSpinner();
+		Spinner.show();
 
 		$DataService.getChallenge({ teamname: $.cookie('teamname'), challengeID: $scope.challenge.id })
 			.then(function (data) {
-				hideSpinner();
+				Spinner.hide();
 
 				$rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: data });
 			}).catch(function (error) {
@@ -724,34 +724,32 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 			return;
 		}
 
-		var generatedRealPower = multiplexArray(node.generated.real);
-		var generatedReactivePower = multiplexArray(node.generated.reactive);
-		var suppliedRealPower = multiplexArray(node.supplied.real);
-		var suppliedReactivePower = multiplexArray(node.supplied.reactive);
-		var demandedRealPower = multiplexArray(node.demands.real);
-		var demandedReactivePower = multiplexArray(node.demands.reactive);
+		var generatedRealPower = Chart.processData(node.generated.real);
+		var generatedReactivePower = Chart.processData(node.generated.reactive);
+		var suppliedRealPower = Chart.processData(node.supplied.real);
+		var suppliedReactivePower = Chart.processData(node.supplied.reactive);
+		var demandedRealPower = Chart.processData(node.demands.real);
+		var demandedReactivePower = Chart.processData(node.demands.reactive);
 
-		drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: '#node-evaluation-real-power-svg', data: [generatedRealPower, suppliedRealPower, demandedRealPower] });
-		drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: '#node-evaluation-reactive-power-svg', data: [generatedReactivePower, suppliedReactivePower, demandedReactivePower] });
+		Chart.drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: '#node-evaluation-real-power-svg', data: [generatedRealPower, suppliedRealPower, demandedRealPower] });
+		Chart.drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: '#node-evaluation-reactive-power-svg', data: [generatedReactivePower, suppliedReactivePower, demandedReactivePower] });
 	}
 
 	var processLines = function () {
 		$scope.lines = $scope.evaluation.lines;
 		$scope.line = _.find($scope.lines, function (l) { return l.from == 0 && l.to == 1; });
-
-		// $timeout(function () { renderLine($scope.line); });
 	}
 	var renderLine = function (line) {
 		if (!line) {
 			return;
 		}
 
-		var realPowerFlow = multiplexArray(line.real_power);
-		var reactivePowerFlow = multiplexArray(line.reactive_power);
-		var capacity = multiplexArray([line.capacity]);
+		var realPowerFlow = Chart.processData(line.real_power);
+		var reactivePowerFlow = Chart.processData(line.reactive_power);
+		var capacity = Chart.processData([line.capacity]);
 
-		drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: '#line-evaluation-real-power-svg', data: [realPowerFlow, capacity] });
-		drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: '#line-evaluation-reactive-power-svg', data: [reactivePowerFlow, capacity] });
+		Chart.drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: '#line-evaluation-real-power-svg', data: [realPowerFlow, capacity] });
+		Chart.drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: '#line-evaluation-reactive-power-svg', data: [reactivePowerFlow, capacity] });
 	}
 
 	processNodes();
@@ -759,13 +757,13 @@ var evaluationDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataSe
 
 	var retrieveLeaderBoard = function () {
 		return new Promise(function (resolve, reject) {
-			showSpinner();
+			Spinner.show();
 
 			$.ajax({
 				url: 'http://127.0.0.1:5000/leaderboard/',
 				type: 'GET',
 				success: function (res) {
-					hideSpinner();
+					Spinner.hide();
 
 					var data = JSON.parse(res);
 
@@ -815,13 +813,13 @@ var leaderBoardDirectiveController = ['$scope', '$rootScope', '$timeout', 'DataS
 		} else {
 			$DataService.getChallenge({ teamname: $.cookie('teamname'), challengeID: $scope.challenge.id })
 				.then(function (data) {
-					hideSpinner();
+					Spinner.hide();
 
 					$rootScope.$broadcast('pgsStateChanged', { state: 'grid', challenge: data });
 				}).catch(function (error) {
-					hideSpinner();
+					Spinner.hide();
 
-					showWarning(error);
+					Warning.show(error);
 				})		}
 	}
 	$scope.logOut = function () {
