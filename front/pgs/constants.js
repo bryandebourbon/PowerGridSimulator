@@ -33,6 +33,15 @@ var generatorConfigs = [{ type: 'Gas', abbreviation: 'G', img: iconPrefix + 'Gas
                         { type: 'Solar', abbreviation: 'S', img: iconPrefix + 'Solar.png', offset: 15 },
                         { type: 'Wind', abbreviation: 'W', img: iconPrefix + 'Wind.png', offset: 20 }];
 
+/* firebase configs */
+var firebaseConfigs = {
+    apiKey: 'AIzaSyBb2wL0Zu7sd5SSFArD_5tYvWiZsT7HFJ4',
+    authDomain: 'power-grid-simulator.firebaseapp.com',
+    databaseURL: 'https://power-grid-simulator.firebaseio.com',
+    projectId: 'power-grid-simulator',
+    storageBucket: 'power-grid-simulator.appspot.com',
+    messagingSenderId: '1052485562020'
+}
 
 /* backend API entry points  */
 /* local (Annie) */

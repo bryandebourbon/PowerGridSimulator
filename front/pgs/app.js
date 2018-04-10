@@ -1,6 +1,8 @@
 var app = angular.module('PowerGridSimulator', []);
 
 app.controller('PowerGridSimulatorController', function ($scope) {
+	firebase.initializeApp(firebaseConfigs);
+
 	/* set initial state to log in */
 	$scope.state = 'login';
 

@@ -1,16 +1,3 @@
-var initFirebase = function () {
-    var config = {
-        apiKey: 'AIzaSyBb2wL0Zu7sd5SSFArD_5tYvWiZsT7HFJ4',
-        authDomain: 'power-grid-simulator.firebaseapp.com',
-        databaseURL: 'https://power-grid-simulator.firebaseio.com',
-        projectId: 'power-grid-simulator',
-        storageBucket: 'power-grid-simulator.appspot.com',
-        messagingSenderId: '1052485562020'
-    }
-
-    firebase.initializeApp(config);
-}
-
 var multiplexArray = function (data) {
     var data24h = data.length != 24 ? [] : data;
 
@@ -214,6 +201,3 @@ var guid = function () {
     return 'g-' + s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
     // return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
-
-
-initFirebase();
