@@ -10,6 +10,13 @@
 **	input: none
 **	output: { @generate }
 */var Guid = (function () {
+    /*  
+	**	tag: external
+	**	use: generate guid
+	**	behavior: generate guid
+	**	input: none
+	**	output: guid
+	*/
     var guid = function () {
         var s4 = function () {
             return Math.floor((1 + Math.random()) * 0x10000)
