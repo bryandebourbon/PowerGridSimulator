@@ -19,7 +19,7 @@ var STRINGS = {
 
 }
 
-var geoJsonPrefix = './visuals/geojson/';
+var geoJsonPrefix = './Visuals/Geojson/';
 var geoJsonFiles = [{ index: -1, name: geoJsonPrefix + 'Ontario.geo.json' },
                     { index: 0, name: geoJsonPrefix + 'Northwest.geo.topojson' },
                     { index: 1, name: geoJsonPrefix + 'Northeast.geo.topojson' },
@@ -43,7 +43,7 @@ var regionColors = [{ index: 0, color: '#ff6666' },
                     { index: 8, color: '#660066' },
                     { index: 9, color: '#6666ff' }];
 
-var iconPrefix = './visuals/icons/';
+var iconPrefix = './Visuals/Icons/';
 var generatorConfigs = [{ index: 0, type: 'Gas', img: iconPrefix + 'Gas.png' },
                         { index: 1, type: 'Hydro', img: iconPrefix + 'Hydro.png' },
                         { index: 2, type: 'Nuclear', img: iconPrefix + 'Nuclear.png' },
