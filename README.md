@@ -1,4 +1,4 @@
-# PowerGridSimulator
+# Running Power Grid Simulator
 
 To run, open two terminals.
 
