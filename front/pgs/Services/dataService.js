@@ -91,6 +91,13 @@ app.service('DataService', function () {
 	*/
     var submitChallenge = function (args) {
         return new Promise(function (resolve, reject) {
+            /*  
+            **  tag: internal
+            **	use: reduce complex challenge to not contain redundant information for challenge submission
+            **	behavior: prune irrelevant entries within challenge object
+            **	input: complex challenge
+            **	output: minified challenge
+            */
             var minifiChallenge = function (challenge) {
                 var mChallenge = [];
                 _.forEach(challenge.nodes, function (n) {

@@ -49,7 +49,7 @@ app.directive('challengesDirective', function () {
 
             /*  
             **	use: hit go back button
-            **	behavior: bring user back to log in page
+            **	behavior: bring user back to log in view
             **	input: none
             **	output: none
             */
@@ -58,7 +58,7 @@ app.directive('challengesDirective', function () {
             }
             /*  
             **	use: hit log out button
-            **	behavior: bring user back to log in page
+            **	behavior: bring user back to log in view
             **	input: none
             **	output: none
             */
