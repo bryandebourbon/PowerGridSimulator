@@ -103,6 +103,9 @@
 .dragging {
     opacity: 0.7;
 }
+.stuck {
+    opacity: 0.7;
+}
 
 
 /* pgs evalation view styling */

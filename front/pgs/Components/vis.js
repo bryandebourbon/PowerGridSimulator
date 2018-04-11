@@ -56,7 +56,7 @@ var Vis = (function () {
 		var handleDragStart = function (d) {
 			d3.event.sourceEvent.stopPropagation();
 
-			if (d3.event.sourceEvent.ctrlKey || d3.event.sourceEvent.shiftKey || d3.event.sourceEvent.metaKey) {
+			if (d3.event.sourceEvent.shiftKey || d3.event.sourceEvent.metaKey) {
 				d3.event.sourceEvent.preventDefault();
 
 				d._clicked = true;
@@ -65,7 +65,22 @@ var Vis = (function () {
 				return;
 			}
 
-			d3.select('#guid-' + d._guid).classed('dragging', true);
+			var generator = _.find($scope.challenge.generators, function (g) { return g.type == d.type; });
+			if (generator.count == 0) {
+				d._stuck = true;
+
+				d3.select('#inventory-' + d.type + '-image').classed('stuck', true);
+				d3.select('#inventory-' + d.type + '-count').classed('stuck', true);
+
+				return;
+			} else {
+				delete d._stuck;
+
+				d3.select('#inventory-' + d.type + '-image').classed('stuck', false);
+				d3.select('#inventory-' + d.type + '-count').classed('stuck', false);
+			}
+
+			d3.select('#inventory-' + d.type + '-image').classed('dragging', true);
 
 			if (!d._dragging) {
 				d.x = d3.event.x ? d3.event.x : d.x;
@@ -82,7 +97,7 @@ var Vis = (function () {
 				if (d._original) {
 					gGenerators.append('image')
 						.datum(dataCopy)
-						.attr('id', function (d) { return 'guid-' + d._guid; })
+						.attr('id', function (d) { return 'inventory-' + d.type + '-image'; })
 						.attr('x', function (d) { return d.x; })
 						.attr('y', function (d) { return d.y; })
 						.attr('xlink:href', function (d) { return d.img; })
@@ -98,7 +113,7 @@ var Vis = (function () {
 			}
 		}
 		var handleDrag = function (d) {
-			if (d._clicked) {
+			if (d._clicked || d._stuck) {
 				return;
 			}
 
@@ -106,21 +121,22 @@ var Vis = (function () {
 				d.x = d3.event.x;
 				d.y = d3.event.y;
 
-				d3.select('#guid-' + d._guid)
+				d3.select('#inventory-' + d.type + '-image')
 					.attr('x', d.x)
 					.attr('y', d.y);
 			}
 		}
 		var handleDragEnd = function (d) {
-			if (d._clicked) {
+			if (d._clicked || d._stuck) {
 				delete d._clicked;
+				delete d._stuck;
 
 				return;
 			}
 
 			delete d._dragging;
 
-			var selection = d3.select('#guid-' + d._guid).classed('dragging', false).remove();
+			var selection = d3.select('#inventory-' + d.type + '-image').classed('dragging', false).remove();
 			var coords = { x: d3.event.sourceEvent.x, y: d3.event.sourceEvent.y };
 
 			var targetHTML = document.elementFromPoint(coords.x, coords.y);
@@ -142,6 +158,9 @@ var Vis = (function () {
 				var regionGeneratorCount = _.find(region.generators, function (g) { return g.type == d.type; }) ? _.find(region.generators, function (g) { return g.type == d.type; }).count : 0;
 
 				if (regionGeneratorCount >= regionPerNodeLimit) {
+					Warning.show('Installation exceeds per node limit, please consider other regions.');
+					
+					$scope.revertDrag({ type: d.type });
 					return;
 				}
 
@@ -272,8 +291,6 @@ var Vis = (function () {
 								repaintTransmissionLines();
 
 								d3.select(this).style('fill', '#737373').style('opacity', 1);
-
-								// updateInventory($scope.challenge.generators);
 
 								$scope.handleClick({ type: 'node', index: d.index });
 
@@ -501,7 +518,7 @@ var Vis = (function () {
 				.enter()
 				.append('g');
 			gen.append('image')
-				.attr('id', function (d) { return 'guid-' + d._guid; })
+				.attr('id', function (d) { return 'inventory-' + d.type + '-image'; })
 				.attr('x', function (d) { return d.x; })
 				.attr('y', function (d) { return d.y; })
 				.attr('xlink:href', function (d) { return d.img; })
@@ -510,8 +527,8 @@ var Vis = (function () {
 
 			gen.append('text')
 				.data(generators)
-				.text("0")
-				.attr('id',function (d) { return "inventory-" + d.type + '-count' })
+				.text('0')
+				.attr('id',function (d) { return 'inventory-' + d.type + '-count' })
 				.attr('x', function (d) { return d.x + textOffset; })
 				.attr('y', function (d) { return d.y + textOffset; })
 				.attr('text-anchor', 'middle')
@@ -540,7 +557,6 @@ var Vis = (function () {
 
 			renderGenerators();
 		}
-
 	}
 
 	/*  
@@ -552,10 +568,16 @@ var Vis = (function () {
 	*/
 	var addGenerators = function (args) {
 		// update count on the tray in inventory
-		var _targetTray = $('#inventory-' + args.type + '-count');
-		var trayCount = parseInt($('#inventory-' + args.type + '-count').html()) - args.count;
+		var _targetTrayImage = $('#inventory-' + args.type + '-image');
+		var _targetTrayCount = $('#inventory-' + args.type + '-count');
+		var trayCount = parseInt(_targetTrayCount.html()) - args.count;
 
-		_targetTray.html(trayCount);
+		_targetTrayCount.html(trayCount);
+
+		if (trayCount == 0) {
+			_targetTrayImage.addClass('stuck');
+			_targetTrayCount.addClass('stuck');
+		}
 		
 		// update count in target region
 		var _regionInventoryImage = $('#region-' + args.index + '-inventory-' + args.type + '-img');
@@ -623,10 +645,15 @@ var Vis = (function () {
 	*/
 	var removeGenerators = function (args) {
 		// update count on the tray in inventory
-		var _targetTray = $('#inventory-' + args.type + '-count');
-		var trayCount = parseInt($('#inventory-' + args.type + '-count').html()) + args.count;
+		var _targetTrayImage = $('#inventory-' + args.type + '-image');
+		var _targetTrayCount = $('#inventory-' + args.type + '-count');
+		var trayCount = parseInt(_targetTrayCount.html()) + args.count;
 
-		_targetTray.html(trayCount);
+		_targetTrayCount.html(trayCount);
+
+		_targetTrayImage.removeClass('stuck');
+		_targetTrayCount.removeClass('stuck');
+
 
 		// update count in target region
 		var _regionInventoryImage = $('#region-' + args.index + '-inventory-' + args.type + '-img');
@@ -652,8 +679,15 @@ var Vis = (function () {
 	*/
 	var updateInventory = function (inventory) {
 		_.forEach(inventory, function (g) {
-			var _trayCount = $("#inventory-" + g.type + '-count');
+			var _trayImage = $('#inventory-' + g.type + '-image');
+			var _trayCount = $('#inventory-' + g.type + '-count');
+
 			_trayCount.html(g.count);
+
+			if (g.count == 0) {
+				_trayImage.addClass('stuck');
+				_trayCount.addClass('stuck');
+			}
 		})
 	}
 
