@@ -94,7 +94,7 @@
 
 
 /* pgs simulation view styling */
-.pgs-simulation {
+#pgs-simulation-svg {
     border-style: solid;
     border-width: 1px;
     border-color: grey;
