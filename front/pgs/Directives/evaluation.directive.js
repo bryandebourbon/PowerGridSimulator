@@ -204,6 +204,7 @@ app.directive('evaluationDirective', function () {
                 Chart.drawLineChart({ type: 'simulation', unit: 'Power (100 MW)', container: '#line-evaluation-reactive-power-svg', data: [reactivePowerFlow, capacity] });
             }
 
+            /* process and render nodes and lines on page landing */
             processNodes();
             processLines();
         }]

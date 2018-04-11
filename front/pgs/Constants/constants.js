@@ -1,5 +1,5 @@
 /* data prefix */
-var geoJsonPrefix = './Visuals/Geojson/';
+var geoJsonPrefix = './Visuals/Geo/';
 var iconPrefix = './Visuals/Icons/';
 
 /* region configs */
