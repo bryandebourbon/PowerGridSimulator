@@ -136,10 +136,16 @@ var Vis = (function () {
 			if (target.data && typeof target.data == 'function' && target.data().length && target.data()[0] && target.data()[0].type == 'Feature') {
 				var index = _.head(target.data()).index;
 
-				var regionEntry = _.find(regionConfigs, function (n) { return n.index == index; });
-				var regionName = regionEntry.name;
+				var inventoryGenerator = _.find($scope.challenge.generators, function (g) { return g.type == d.type; });
+				var regionPerNodeLimit = _.find(inventoryGenerator.per_node_limit, function (v, i) { return i == index; });
+				var region = _.find($scope.challenge.nodes, function (n) { return n.index == index; });
+				var regionGeneratorCount = _.find(region.generators, function (g) { return g.type == d.type; }) ? _.find(region.generators, function (g) { return g.type == d.type; }).count : 0;
 
-				var regionCentroid = _.find(regionConfigs, function (c) { return c.name == regionName; });
+				if (regionGeneratorCount >= regionPerNodeLimit) {
+					return;
+				}
+
+				var regionCentroid = _.find(regionConfigs, function (c) { return c.index == index; });
 
 				var installationScale = regionCentroid.scale;
 				var installationHeight = 5 * installationScale;
@@ -154,7 +160,6 @@ var Vis = (function () {
 
 				var installationX = centroidX + installationOffsetX;
 				var installationY = centroidY;
-
 
 				addGenerators({
 					index: index,
