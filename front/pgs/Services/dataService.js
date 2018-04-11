@@ -1,6 +1,6 @@
 app.service('DataService', function () {
     /*  
-	**	tag: external [GET]
+	**	tag: [GET]
 	**	use: display all available challenge board
 	**	behavior: retrieve all challenges
 	**	input: args = { teamname }
@@ -28,7 +28,7 @@ app.service('DataService', function () {
         })
     }
     /*  
-	**	tag: external [GET]
+	**	tag: [GET]
 	**	use: display single challenge
 	**	behavior: retrieve single challenge by challengeID
 	**	input: args = { teamname, challengeID }
@@ -56,7 +56,7 @@ app.service('DataService', function () {
         })
     }
     /*  
-	**	tag: external [GET]
+	**	tag: [GET]
 	**	use: display leader board
 	**	behavior: retrieve up to top 10 leaders for each category
 	**	input: args = { teamname }
@@ -83,7 +83,7 @@ app.service('DataService', function () {
     }
     
     /*  
-	**	tag: external [POST]
+	**	tag: [POST]
 	**	use: submit challenge
 	**	behavior: submit challenge and retrieve evaluation result
 	**	input: args = { teamname, challengeID, challenge }
