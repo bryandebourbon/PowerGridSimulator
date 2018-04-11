@@ -19,8 +19,8 @@ var Warning = (function () {
 	**	output: none
 	*/
     var showWarning = function (message) {
-        var _alert = $('.pgs-alert');
-        var _alertMessage = _alert.find('.pgs-alert-content');
+        var _alert = $('.pgs-warning');
+        var _alertMessage = _alert.find('.pgs-warning-content');
 
         _alertMessage.text(message);
 
@@ -36,8 +36,8 @@ var Warning = (function () {
 	**	output: none
 	*/
     var hideWarning = function () {
-        var _alert = $('.pgs-alert');
-        var _alertMessage = _alert.find('.pgs-alert-content');
+        var _alert = $('.pgs-warning');
+        var _alertMessage = _alert.find('.pgs-warning-content');
 
         _alertMessage.text();
 
