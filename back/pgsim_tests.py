@@ -1,19 +1,9 @@
-import os
-import pgsim
-import pfresults_utils
-import eval_pg
-import ppc_utils
-import ppc_ontario_data
-import unittest
-import tempfile
-import numpy as np
+import json, unittest, numpy as np
 
 from pypower import case14
 from pypower.api import runpf, runopf
-from math import radians, sin, cos
 
-import json
-
+import pgsim, pfresults_utils, eval_pg, ppc_utils, ppc_ontario_data
 
 class PypowerTestCase(unittest.TestCase):
     def test_runpf_case14(self):

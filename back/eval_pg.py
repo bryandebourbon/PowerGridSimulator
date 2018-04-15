@@ -1,5 +1,4 @@
-"""This module
-
+"""This module evaluates the generation design and returns relevant metrics.
 """
 
 import copy, numpy as np
@@ -15,6 +14,36 @@ from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, \
 import ppc_utils, pfresults_utils, ppc_ontario_data, ppc_northern_ontario_data
 
 def calc_score(gen_placements, data_module):
+    """
+
+    Args:
+        gen_placements (list): A list of dictionaries, each dict representing
+            one bus node. Each dict has the generator types as keys, and the
+            number of such generators installed as values. E.g. {'H': 1, "N": 2}
+            means this node has 1 hydro generator and 2 nuclear generators
+            installed.
+        data_module (module): The data module, i.e. ppc_*_data.
+    Returns:
+        A metrics dictionary with the following entries:
+        - "passed" (boolean): whether the optimization convered or not
+        - "message" (str): additional info
+        - "cost" (float): total generation cost if optimization converged,
+            otherwise 0
+        - "installation_cost" (float): total generator installation cost
+        - "CO2" (float): total CO2 footprint if optimization converged,
+            otherwise 0
+        - "nodes" (dict): dictionary containing info for each node, with entries
+            "node" (node index), "supplied" (a dictionary with "real" and
+            "reactive" as keys, each with a list of values, one for each time-
+            step), "generated" (same format as "supplied"), "demands" (same
+            format as "supplied")
+        - "lines" (dict): dictionary containing info for each transmission line,
+            with entries "from" (from node index), "to" (to node index), "real_
+            power" (a list of real power transmitted on the line, one for each
+            timestep), "reactive_power" (same format), "capacity" (a float
+            representing the constant line capacity)
+    """
+
     gens, fixed_gens, gen_caps, gen_costs, cur_real_demand_profiles = \
         ppc_utils.build_gen_matrices(
             gen_placements, data_module.real_demand_profiles, data_module.gen_types)
@@ -25,7 +54,8 @@ def calc_score(gen_placements, data_module):
     total_CO2 = 0
     overall_pass = True
     overall_trans = {
-            (int(line[F_BUS])-1, int(line[T_BUS])-1): {"real_power":[], "reactive_power":[], "capacity": float(line[RATE_A])}
+            (int(line[F_BUS])-1, int(line[T_BUS])-1):
+            {"real_power":[], "reactive_power":[], "capacity": float(line[RATE_A])}
             for line in data_module.transmission_limits
         }
     overall_nodes = {
@@ -35,6 +65,7 @@ def calc_score(gen_placements, data_module):
                                          "reactive": data_module.reactive_demand_profiles[:,bus_idx].tolist()}
                     } for bus_idx in range(data_module.NODE_COUNT)
         }
+
     for time in range(data_module.TIMESTEP_COUNT):
         # Construct a ppc to be passed into runopf().
         # Fill in the data constant across timesteps.
@@ -47,9 +78,10 @@ def calc_score(gen_placements, data_module):
 
         # Fill in the timestep-specific generation capacities.
         cur_gen = copy.deepcopy(gen_caps)
-        cur_gen[:, PMAX] = np.array([data_module.gen_types[gen[1]]["real_capacity"][time] for gen in gens])
+        cur_gen[:, PMAX] = np.array([data_module.gen_types[gen[1]]\
+                ["real_capacity"][time] for gen in gens])
         cur_gen[:, PMIN] = 0.3 * cur_gen[:, PMAX]
-        cur_gen[:, QMAX] = 0.75 * cur_gen[:, PMAX] # Set reactive gen cap to be 0.75 of the real gen cap.
+        cur_gen[:, QMAX] = 0.75 * cur_gen[:, PMAX] # Set reactive gen cap to be 0.75 of the real gen cap
         cur_gen[:, QMIN] = -0.75 * cur_gen[:, PMAX]
         ppc["gen"] = cur_gen
 
@@ -101,10 +133,6 @@ def calc_score(gen_placements, data_module):
             overall_nodes[node]["generated"]["reactive"][-1] += reactive_cap
 
         print(pf_metrics["passed"])
-        print("Loss calculated so far as follows: {}.".format(total_loss))
-        #print(pf_metrics["transmissions"])
-        #print(pf_metrics["buses"])
-        print(pf_metrics["cost"])
 
     # Flatten the transmission line dictionaries, by pushing "from" and "to" into
     # the dictionaries themseleves.
