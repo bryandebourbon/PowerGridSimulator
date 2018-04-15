@@ -1,7 +1,5 @@
-"""
-This file contains functions that convert the results coming out of runpf() into
-readable/usable metrics.
-The main body of this code (printpf()) was ported from PYPOWER/pypower/printpf.py.
+"""This modules contains helper functions that convert the raw results coming
+out of PyPower's runpf() into usable metrics.
 """
 
 from sys import stdout
@@ -23,11 +21,30 @@ from pypower.isload import isload
 from pypower.run_userfcn import run_userfcn
 from pypower.ppoption import ppoption
 
-from math import radians, cos, sin, pow
+from math import pow
 
 # NOTE: All indices out of this function will be zero-based.
 def convert_to_metrics(baseMVA, bus=None, gen=None, branch=None, f=None, success=None,
             et=None, fd=None, ppopt=None):
+    """Convert the raw results coming out of PyPower's runopf() into usable
+    metrics. Most code of this function was ported from PYPOWER/pypower/
+    printpf.py.
+
+    Args:
+        See original docstring below.
+
+    Returns:
+        A dictionary with the following entries:
+        - "passed" (boolean): whether the optmization converged
+        - "cost" (float): the total generation cost at this timestep
+        - "gen" (np.array): an array of generation values for each generator
+        - "transmissions" (dict): key - (from node, to node); value -
+            {"real_power": value, "reactive_power": value}
+        - "buses" (dict): key - bus index; value - {
+                "supplied":  {"real": value, "reactive": value},
+                "generated": {"real": value, "reactive": value}
+            }
+    """
     """Prints power flow results.
     Prints power flow and optimal power flow results to C{fd} (a file
     descriptor which defaults to C{stdout}), with the details of what
@@ -78,7 +95,6 @@ def convert_to_metrics(baseMVA, bus=None, gen=None, branch=None, f=None, success
             f = results["f"]
         else:
             f = None
-    '''
     else:
         have_results_struct = 0
         if ppopt is None:
@@ -87,10 +103,9 @@ def convert_to_metrics(baseMVA, bus=None, gen=None, branch=None, f=None, success
                 fd = stdout         ## print to stdout by default
         if ppopt['OUT_ALL'] == 0:
             return     ## nothin' to see here, bail out now
-    '''
+
 
     isOPF = f is not None    ## FALSE -> only simple PF data, TRUE -> OPF data
-    pf_metrics["cost"] = f
     pf_metrics["passed"] = results["success"] == 1
 
     ## options
@@ -144,35 +159,25 @@ def convert_to_metrics(baseMVA, bus=None, gen=None, branch=None, f=None, success
         gen[:, r_[QG, QMAX, QMIN]]  = zeros((ng, 3))
         branch[:, r_[BR_R, BR_B]]   = zeros((nl, 2))
 
-    # see how much power is given to each bus, and generated at each bus; 
-    # output: node_count x 4
-    pf_metrics["gen"] = gen[:, PG]
-    pf_metrics["cost"] = 0
-    for gen_idx in range(ng):
-        pf_metrics["cost"] += calculate_real_cost(pf_metrics["gen"][gen_idx], results["gencost"][gen_idx])
 
-    pf_metrics["buses"] = {}
-    for bus_idx in range(nb):
-        mag = bus[bus_idx, VM]
-        angle = radians(bus[bus_idx, VA])
-        pf_metrics["buses"][bus_idx] = {
-                "supplied": {"real": 0, "reactive": 0}, 
+    pf_metrics["gen"] = gen[:, PG]
+    pf_metrics["cost"] = sum([calculate_real_cost(pf_metrics["gen"][gen_idx],
+                results["gencost"][gen_idx]) for gen_idx in range(ng)])
+    pf_metrics["transmissions"] = {
+            (int(branch[i, F_BUS]) - 1, int(branch[i, T_BUS]) - 1):
+            {'real_power':      branch[i, PF],
+             'reactive_power':  branch[i, QF]} for i in range(nl)}
+
+    pf_metrics["buses"] = {bus_idx:{
+                "supplied":  {"real": 0, "reactive": 0},
                 "generated": {"real": 0, "reactive": 0}
-            }
+            } for bus_idx in range(nb)}
     for gen_node in gen:
         bus_idx = int(gen_node[GEN_BUS]) - 1
         pf_metrics["buses"][bus_idx]["generated"]["real"] += gen_node[PG]
         pf_metrics["buses"][bus_idx]["generated"]["reactive"] += gen_node[QG]
         pf_metrics["buses"][bus_idx]["supplied"]["real"] += gen_node[PG]
         pf_metrics["buses"][bus_idx]["supplied"]["reactive"] += gen_node[QG]
-
-    # see how much power is transmitted through each line
-    pf_metrics["transmissions"] = {}
-    for i in range(nl):
-        pf_metrics["transmissions"][(int(branch[i, F_BUS]) - 1, int(branch[i, T_BUS]) - 1)] = \
-                {'real_power':       branch[i, PF],
-                 'reactive_power':   branch[i, QF]}
-
     for line, line_trans in pf_metrics["transmissions"].items():
         from_idx, to_idx = line
         pf_metrics["buses"][from_idx]["supplied"]["real"] -= line_trans["real_power"]
@@ -206,19 +211,26 @@ def convert_to_metrics(baseMVA, bus=None, gen=None, branch=None, f=None, success
                              V[e2i[ branch[:, T_BUS].astype(int) ]])**2 / \
                     (branch[:, BR_R] - 1j * branch[:, BR_X])
 
-    pf_metrics["loss"] = sum(real(loss)) 
+    pf_metrics["loss"] = sum(real(loss))
     return pf_metrics
 
 def calculate_real_cost(gen_output, real_cost):
+    """Calculate the total generation cost for real power.
+
+    Args:
+        gen_output (np.array): an array of generation values for each generator
+        real_cost (np.array): the unit generation cost array as inputted into
+            PyPower's runopf()
+
+    Returns:
+        The total generation cost.
+    """
+
     assert real_cost[0] == 2, "This function only supports polynomial cost functions"
     assert real_cost[1] == 0 and real_cost[2] == 0, "This function only supports 0 startup and shutdown costs"
 
     degree = int(real_cost[3])
     assert len(real_cost) == 4 + degree, "The cost matrices must have exactly the number of polynomial coefficients required"
-    
-    total_cost = 0 
-    for i in range(degree):
-        cur_coeff = real_cost[len(real_cost) - i - 1]
-        total_cost += pow(gen_output, i) * cur_coeff
-    return total_cost
- 
+
+    return sum([pow(gen_output, i) * real_cost[len(real_cost) - i - 1]
+            for i in range(degree)])

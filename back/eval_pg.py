@@ -12,7 +12,7 @@ from pypower.idx_gen import GEN_BUS, PG, QG, QMAX, QMIN, GEN_STATUS, \
 from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, \
     TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST
 
-import ppc_utils, read_pfresults, ppc_ontario_data, ppc_northern_ontario_data
+import ppc_utils, pfresults_utils, ppc_ontario_data, ppc_northern_ontario_data
 
 def calc_score(gen_placements, data_module):
     gens, fixed_gens, gen_caps, gen_costs, cur_real_demand_profiles = \
@@ -60,7 +60,7 @@ def calc_score(gen_placements, data_module):
 
         # Pass the input data into runopf().
         pf_results = runopf(ppc)
-        pf_metrics = read_pfresults.convert_to_metrics(pf_results)
+        pf_metrics = pfresults_utils.convert_to_metrics(pf_results)
 
         # Update the overall metrics with runopf() results.
         overall_pass = overall_pass and pf_metrics["passed"]
@@ -81,7 +81,7 @@ def calc_score(gen_placements, data_module):
             for i, gen in enumerate(gens)])
 
         # Add the cost and CO2 for negative-demand generators.
-        total_cost += sum([read_pfresults.calculate_real_cost(
+        total_cost += sum([pfresults_utils.calculate_real_cost(
             data_module.gen_types[gen[1]]["real_capacity"][time],
             data_module.gen_types[gen[1]]["real_cost"])
             for gen in fixed_gens])

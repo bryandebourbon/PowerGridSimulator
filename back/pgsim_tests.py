@@ -1,6 +1,6 @@
 import os
 import pgsim
-import read_pfresults
+import pfresults_utils
 import eval_pg
 import ppc_utils
 import ppc_ontario_data
@@ -19,10 +19,10 @@ class PypowerTestCase(unittest.TestCase):
     def test_runpf_case14(self):
         ppc = case14.case14()
         pf_results, _ = runpf(ppc)
-        pf_metrics = read_pfresults.convert_to_metrics(pf_results)
+        pf_metrics = pfresults_utils.convert_to_metrics(pf_results)
 
         # Taken from the IEEE 14 case definition; note that there is no expected
-        # value for branch data. 
+        # value for branch data.
         expected_bus_data = np.array([
                 [   1.06      ,    0.        ,  232.39327235,  -16.54930054],
                 [   1.045     ,   -4.98258914,   40.        ,   43.55710013],
@@ -42,14 +42,14 @@ class PypowerTestCase(unittest.TestCase):
         assert pf_metrics["passed"]
         assert len(pf_metrics["buses"]) == 14
         for i, node in pf_metrics["buses"].items():
-            np.testing.assert_almost_equal(node["generated"]["real"], 
+            np.testing.assert_almost_equal(node["generated"]["real"],
                 expected_bus_data[i, 2])
-            np.testing.assert_almost_equal(node["generated"]["reactive"], 
+            np.testing.assert_almost_equal(node["generated"]["reactive"],
                 expected_bus_data[i, 3])
-    
+
     def test_runopf_simple(self):
         ppc = {
-                "version":  '2', 
+                "version":  '2',
                 "baseMVA":  100.0,
                 "bus":      np.array([
                     [1,  3,  10,    0,   0, 0,  1, 0,    0,    0, 1, 1.0, 0.94],
@@ -59,12 +59,12 @@ class PypowerTestCase(unittest.TestCase):
                 "gencost":  np.array([[2, 0, 0, 2, 50, 0]])
             }
         pf_results = runopf(ppc)
-        pf_metrics = read_pfresults.convert_to_metrics(pf_results)
+        pf_metrics = pfresults_utils.convert_to_metrics(pf_results)
         print(pf_metrics)
 
     def test_runopf_simple2(self):
         ppc = {
-                "version":  '2', 
+                "version":  '2',
                 "baseMVA":  100.0,
                 "bus":      np.array([
                     [1,  3,  10,    0,   0, 0,  1, 0,    0,    0, 1, 1.06, 0.94],
@@ -76,7 +76,7 @@ class PypowerTestCase(unittest.TestCase):
                 "gencost":  np.array([[2, 0, 0, 2, 50, 50]])
             }
         pf_results = runopf(ppc)
-        pf_metrics = read_pfresults.convert_to_metrics(pf_results)
+        pf_metrics = pfresults_utils.convert_to_metrics(pf_results)
         print(pf_metrics)
 
 class PgsimutilsTestCase(unittest.TestCase):
@@ -95,8 +95,8 @@ class PgsimutilsTestCase(unittest.TestCase):
         ]
 
     def test_calc_gen_values(self):
-        ppc_utils.build_gen_matrices(self.gen_placements, 
-            ppc_ontario_data.real_demand_profiles, 
+        ppc_utils.build_gen_matrices(self.gen_placements,
+            ppc_ontario_data.real_demand_profiles,
             ppc_ontario_data.gen_types)
 
     def test_calc_score(self):
@@ -117,7 +117,7 @@ class PgsimSubmitTestCase(unittest.TestCase):
         print(status)
         assert not status["success"], status['message']
         assert status["message"] == "Please make use of at least one dispatchable generator (i.e. hydro or gas generator)."
-        
+
     def test_submit_11_simple(self):
         placements = [{'node': 0, 'generators': {'G':2} }]
         rv = self.app.post('/api/submit/', data=json.dumps(placements),
@@ -176,9 +176,9 @@ class PgsimSubmitTestCase(unittest.TestCase):
         status = json.loads(rv.data.decode('unicode_escape'))
         assert not status["success"], status['message']
         assert status["message"] == "Please make use of at least one dispatchable generator (i.e. hydro or gas generator)."
-        
+
     def test_submit(self):
-        placements = [ {"node": 0, "generators": {} }, 
+        placements = [ {"node": 0, "generators": {} },
                     {"node": 1, "generators": {'H': 1}},
                     {"node": 2, "generators": {"N": 1}},
                     {"node": 3, "generators": {"G": 1}},
@@ -197,7 +197,7 @@ class PgsimSubmitTestCase(unittest.TestCase):
         print(rv.data)
 
     def test_submit_ontario(self):
-        placements = [ {"node": 0, "generators": {"H": 1, "S": 2} }, 
+        placements = [ {"node": 0, "generators": {"H": 1, "S": 2} },
                        {"node": 1, "generators": {"H": 1, "W": 1}},
                        {"node": 2, "generators": {"N": 2}},
                        {"node": 3, "generators": {"H": 1, "W": 1}},
@@ -218,7 +218,7 @@ class PgsimSubmitTestCase(unittest.TestCase):
 
     def test_submit_ontario_replace_N_with_G(self):
         # Expect lower cost, but higher pollution
-        placements = [ {"node": 0, "generators": {"H": 1, "S": 2} }, 
+        placements = [ {"node": 0, "generators": {"H": 1, "S": 2} },
                        {"node": 1, "generators": {"H": 1, "W": 1}},
                        {"node": 2, "generators": {"G": 2}},
                        {"node": 3, "generators": {"H": 1, "W": 1}},
@@ -257,19 +257,19 @@ class PgsimGetChallengeTestCase(unittest.TestCase):
         rv = self.app.get('/api/getChallenge/',
                         headers={"team_name": 'imaginaryteam'})
         expected_list = [{'id': 10,
-                          'name': 'Ontario Power Generation', 
+                          'name': 'Ontario Power Generation',
                           'description': "Design Ontario's generation system with real-life demand, generation cost, CO2 emission, and more data!",
-                          'saved_flag': True}, 
-                         {'id': 11, 
+                          'saved_flag': True},
+                         {'id': 11,
                           'name': 'Northern Ontario Power Generation',
-                          'description': 'Design a very simple generation system for Northern Ontario, with real-life demand, generation cost, CO2 emission, and more data!', 
+                          'description': 'Design a very simple generation system for Northern Ontario, with real-life demand, generation cost, CO2 emission, and more data!',
                           'saved_flag': False}]
         assert json.loads(rv.data.decode('unicode_escape')) == expected_list
 
     def test_get_nonexistent_challenge(self):
         rv = self.app.get('/api/getChallenge/9')
         assert rv.data.decode('unicode_escape') == "The requested challenge doesn't exist."
-        
+
     # Note: Firebase is not completely realtime, so the following cases are assuming
     #       two submissions are in the database. I have left two there untouched.
     def test_get_challenge_latest(self):
