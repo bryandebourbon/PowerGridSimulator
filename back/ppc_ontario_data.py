@@ -1,4 +1,7 @@
-import csv, itertools, os, numpy as np
+"""This is the data module for the Ontario challenge.
+"""
+
+import os, numpy as np
 import ppc_utils
 
 TIMESTEP_START = 90
