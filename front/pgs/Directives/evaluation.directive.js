@@ -107,6 +107,145 @@ app.directive('evaluationDirective', function () {
                         console.log(error);
                     })
             }
+            
+            /*  
+            **	use: hit download button
+            **	behavior: download evaluation result as csv
+            **	input: none
+            **	output: none
+            */
+            $scope.download = function () {
+                var rows = [];
+                var csvContent = 'data:text/csv;charset=utf-8,Field / Power (100 MW)';
+                
+                // collected rows
+                if ($scope.tab == 'nodes') {
+                    var name = _.find(regionConfigs, function (r) { return r.index == $scope.node.node; }).name;
+
+                    // header
+                    var headers = [''];
+                    _.forEach(_.range(25), function (i) {
+                        headers.push((i < 10 ? '0' + i : i) + ':00');
+                    })
+
+                    // real and reactive demands
+                    var realDemands = ['Real Demands'];
+                    _.forEach($scope.node.demands.real, function (d, i) {
+                        _.forEach(_.range(4), function (i) {    // pump data array length to 24 for we receive data points every 4 hours. We go from 0h to 24h, 25 display data points in total
+                            realDemands.push(d);
+                        })
+                    })
+                    realDemands.push($scope.node.demands.real[0]);
+
+                    var reactiveDemands = ['Reactive Demands'];
+                    _.forEach($scope.node.demands.reactive, function (d, i) {
+                        _.forEach(_.range(4), function (i) {    // pump data array length to 24 for we receive data points every 4 hours. We go from 0h to 24h, 25 display data points in total
+                            reactiveDemands.push(d);
+                        })
+                    })
+                    reactiveDemands.push($scope.node.demands.reactive[0]);
+
+                    // real and reactive supplied power
+                    var realSupplied = ['Real Supplied'];
+                    _.forEach($scope.node.supplied.real, function (d, i) {
+                        _.forEach(_.range(4), function (i) {    // pump data array length to 24 for we receive data points every 4 hours. We go from 0h to 24h, 25 display data points in total
+                            realSupplied.push(d);
+                        })
+                    })
+                    realSupplied.push($scope.node.supplied.real[0]);
+
+                    var reactiveSupplied = ['Reactive Supplied'];
+                    _.forEach($scope.node.supplied.reactive, function (d, i) {
+                        _.forEach(_.range(4), function (i) {    // pump data array length to 24 for we receive data points every 4 hours. We go from 0h to 24h, 25 display data points in total
+                            reactiveSupplied.push(d);
+                        })
+                    })
+                    reactiveSupplied.push($scope.node.supplied.reactive[0]);
+
+                    // real and reactive generated power
+                    var realGenerated = ['Real Generated'];
+                    _.forEach($scope.node.generated.real, function (d, i) {
+                        _.forEach(_.range(4), function (i) {    // pump data array length to 24 for we receive data points every 4 hours. We go from 0h to 24h, 25 display data points in total
+                            realGenerated.push(d);
+                        })
+                    })
+                    realGenerated.push($scope.node.generated.real[0]);
+
+                    var reactiveGenerated = ['Reactive Generated'];
+                    _.forEach($scope.node.generated.reactive, function (d, i) {
+                        _.forEach(_.range(4), function (i) {    // pump data array length to 24 for we receive data points every 4 hours. We go from 0h to 24h, 25 display data points in total
+                            reactiveGenerated.push(d);
+                        })
+                    })
+                    reactiveGenerated.push($scope.node.generated.reactive[0]);
+                    
+                    // append content to rows
+                    rows.push(headers);
+
+                    rows.push(realDemands);
+                    rows.push(reactiveDemands);
+                    rows.push(realSupplied);
+                    rows.push(reactiveSupplied);
+                    rows.push(realGenerated);
+                    rows.push(reactiveGenerated);
+                } else if ($scope.tab == 'lines') {
+                    var from = $scope.line.from;
+                    var to = $scope.line.to;
+
+                    var source = _.find(regionConfigs, function (r) { return r.index == from; }).name;
+                    var target = _.find(regionConfigs, function (r) { return r.index == to; }).name;
+                    var name = to < from ? target + ' - ' + source : source + ' - ' + target;
+
+                    // header
+                    var headers = [''];
+                    _.forEach(_.range(25), function (i) {
+                        headers.push((i < 10 ? '0' + i : i) + ':00');
+                    })
+                    
+                    // capacity
+                    var capacity = ['Capacity'];
+                    _.forEach(_.range(25), function (i) {
+                        capacity.push('' + $scope.line.capacity);
+                    })
+
+                    // real and reactive power flow
+                    var realPower = ['Real Power'];
+                    _.forEach($scope.line.real_power, function (d) {
+                        _.forEach(_.range(4), function (i) {    // pump data array length to 24 for we receive data points every 4 hours. We go from 0h to 24h, 25 display data points in total
+                            realPower.push(d);
+                        })
+                    })
+                    realPower.push($scope.line.real_power[0]);
+
+                    var reactivePower = ['Real Power'];
+                    _.forEach($scope.line.reactive_power, function (d) {
+                        _.forEach(_.range(4), function (i) {    // pump data array length to 24 for we receive data points every 4 hours. We go from 0h to 24h, 25 display data points in total
+                            reactivePower.push(d);
+                        })
+                    })
+                    reactivePower.push($scope.line.reactive_power[0]);
+
+                    // append content to rows
+                    rows.push(headers);
+
+                    rows.push(capacity);
+                    rows.push(realPower);
+                    rows.push(reactivePower);
+                }
+
+                // convert rows to csv format
+                _.forEach(rows, function (r) {
+                    csvContent = csvContent + r.join(',') + '\r\n';
+                })
+
+                // trigger csv download function
+                var encodedUri = encodeURI(csvContent);
+                
+                var link = document.createElement('a');
+                link.setAttribute('href', encodedUri);
+                link.setAttribute('download', name);
+                link.click();
+            }
 
             /*  
             **	use: hit go back button

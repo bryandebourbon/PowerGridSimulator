@@ -3,6 +3,7 @@
     <div class="navbar-brand nav-link">Submission Results</div>
     <button class="btn btn-default pgs-float-right-btn" ng-click="logOut()">Log Out</button>
     <button class="btn btn-default pgs-float-right-btn" ng-click="viewLeaderBoard()">Leaderboard</button>
+    <button class="btn btn-default pgs-float-right-btn" ng-click="download()" title="Download data corresponding to the current region or tranmission line that you are looking at right now.">Download</button>
 </div>
 
 <div class="pgs-page col-xs-12">
@@ -75,10 +76,8 @@
             <div class="btn-group-vertical col-xs-4">
                 <button type="button" class="btn btn-default active" data-from="0" data-to="1" ng-click="switchLine($event)">Northwest - Northeast</button>
                 <button type="button" class="btn btn-default" data-from="1" data-to="5" ng-click="switchLine($event)">Northeast - Essa</button>
-                <button type="button" class="btn btn-default" data-from="1" data-to="7" ng-click="switchLine($event)">Northeast - Southwest</button>
                 <button type="button" class="btn btn-default" data-from="2" data-to="3" ng-click="switchLine($event)">Ottawa - East</button>
                 <button type="button" class="btn btn-default" data-from="3" data-to="4" ng-click="switchLine($event)">East - Toronto</button>
-                <button type="button" class="btn btn-default" data-from="3" data-to="5" ng-click="switchLine($event)">East - Essa</button>
                 <button type="button" class="btn btn-default" data-from="4" data-to="5" ng-click="switchLine($event)">Toronto - Essa</button>
                 <button type="button" class="btn btn-default" data-from="4" data-to="7" ng-click="switchLine($event)">Toronto - Southwest</button>
                 <button type="button" class="btn btn-default" data-from="5" data-to="7" ng-click="switchLine($event)">Essa - Southwest</button>
