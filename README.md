@@ -19,7 +19,7 @@ The website will be live at http://0.0.0.0:8000/!
 
 
 
-## Set Up Your Own Database
+# Set Up Your Own Database
 If you are a competition organizer or teacher for a larger class, and would like to monitor students' submissions, scores and rankings, this section can help you set up your own database on Firebase using your Google account.
 
 Instructions on how to install the Admin SDK can be found at https://firebase.google.com/docs/admin/setup, the following instructions show how to integrate with this simulator.
@@ -35,3 +35,9 @@ Instructions on how to install the Admin SDK can be found at https://firebase.go
 That's all the set up! Now when users submit their solutions, you can view them in the database in real time!
 
 # Deploying Power Grid Simulator
+1. Find hosting service provider (such as Digital Ocean) or an Internal Server (a computer connected to the internet whose firewall settings and network configurations are appropriate for be accessed by other computers via an IP address)
+2. Install Docker on the operating system of the server
+3. Pull this repository to the root of the server's file system
+4. Change directories into the `/PowerGridSimulator` folder
+5. Copy and paste the contents of the `deployment_config` file into the terminal
+6. go to `PowerGridSimulator/front/pgs/Constants/api.constants.js` and change `127.0.0.1` to the IP Address of the hosting server and `5000` to the port number. 
