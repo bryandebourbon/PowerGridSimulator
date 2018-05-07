@@ -1,4 +1,4 @@
-# Running Power Grid Simulator
+# Running Power Grid Simulator Locally
 
 To run, open two terminals.
 
@@ -33,3 +33,5 @@ Instructions on how to install the Admin SDK can be found at https://firebase.go
 3. Run `python /back/db_utils.py` to run the `init_db_teams` function, which puts the registered teams into the database.
 
 That's all the set up! Now when users submit their solutions, you can view them in the database in real time!
+
+# Deploying Power Grid Simulator
