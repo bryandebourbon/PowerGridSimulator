@@ -35,7 +35,7 @@ Instructions on how to install the Admin SDK can be found at https://firebase.go
 That's all the set up! Now when users submit their solutions, you can view them in the database in real time!
 
 # Deploying Power Grid Simulator
-1. Find hosting service provider (such as Digital Ocean) or an Internal Server (a computer connected to the internet whose firewall settings and network configurations are appropriate for be accessed by other computers via an IP address)
+1. Find a hosting service provider (such as Digital Ocean) or use an Internal Server (a computer connected to the internet with firewall settings and network configurations that are appropriate for being accessed by other computers via an IP address)
 2. Install Docker on the operating system of the server
 3. Pull this repository to the root of the server's file system
 4. Change directories into the `/PowerGridSimulator` folder
