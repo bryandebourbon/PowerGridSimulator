@@ -36,8 +36,9 @@ That's all the set up! Now when users submit their solutions, you can view them 
 
 # Deploying Power Grid Simulator
 1. Find a hosting service provider (such as Digital Ocean) or use an Internal Server (a computer connected to the internet with firewall settings and network configurations that are appropriate for being accessed by other computers via an IP address)
-2. Install Docker on the operating system of the server
-3. Pull this repository to the root of the server's file system
-4. Change directories into the `/PowerGridSimulator` folder
+2. Install Git and Docker on the operating system of the server
+3. Use git to pull this repository to the root of the server's file system
+4. Using terminal,change directories into the `/PowerGridSimulator` folder
 5. Copy and paste the contents of the `deployment_config` file into the terminal
 6. go to `PowerGridSimulator/front/pgs/Constants/api.constants.js` and change `127.0.0.1` to the IP Address of the hosting server and `5000` to the port number. 
+7. The website should now be accessible from any computer using the IP Address and port number that was changed in step 6
